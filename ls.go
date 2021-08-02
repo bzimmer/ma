@@ -1,8 +1,6 @@
 package ma
 
 import (
-	"context"
-
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
 )
@@ -13,11 +11,9 @@ func list(c *cli.Context) error {
 		return err
 	}
 
-	var q func(context.Context, string, smugmug.NodeIterFunc, ...smugmug.APIOption) error
+	q := mg.Node.ChildrenIter
 	if c.IsSet("recurse") {
 		q = mg.Node.Walk
-	} else {
-		q = mg.Node.ChildrenIter
 	}
 
 	nodeIDs := c.Args().Slice()

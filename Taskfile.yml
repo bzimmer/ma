@@ -1,0 +1,33 @@
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: ['.env']
+
+vars:
+  CWD:
+    sh: git rev-parse --show-toplevel
+  DIST:
+    "{{.CWD}}/.dist"
+
+tasks:
+  default:
+    cmds:
+      - task: ma
+
+  ma:
+    desc: Run the cli
+    cmds:
+      - go run cmd/ma/*.go {{.CLI_ARGS}}
+
+  test:
+    desc: Run tests
+    cmds:
+      - mkdir -p {{.DIST}}
+      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
+
+  cover:
+    desc: Visualize test coverage
+    deps: [test]
+    cmds:
+      - go tool cover -html={{.DIST}}/coverage.txt

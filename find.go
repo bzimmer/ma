@@ -38,10 +38,13 @@ func find(c *cli.Context) error {
 
 func CommandFind() *cli.Command {
 	return &cli.Command{
-		Name:    "find",
-		Aliases: []string{"f"},
-		Usage:   "search for album or folders by name",
+		Name:  "find",
+		Usage: "search for albums or folders by name",
 		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "scope",
+				Value: "",
+			},
 			&cli.BoolFlag{
 				Name:    "album",
 				Aliases: []string{"a"},
@@ -50,20 +53,12 @@ func CommandFind() *cli.Command {
 				Name:    "node",
 				Aliases: []string{"n", "f"},
 			},
+			&cli.BoolFlag{
+				Name:    "json",
+				Aliases: []string{"j"},
+			},
 		},
-		Before: func(c *cli.Context) error {
-			node := c.Bool("node")
-			album := c.Bool("album")
-			if !(album || node) {
-				if err := c.Set("node", "true"); err != nil {
-					return err
-				}
-				if err := c.Set("album", "true"); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
+		Before: albumOrNode,
 		Action: find,
 	}
 }

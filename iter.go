@@ -1,16 +1,10 @@
 package ma
 
 import (
-	"encoding/json"
-
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
-
-func encoder(c *cli.Context) *json.Encoder {
-	return json.NewEncoder(c.App.Writer)
-}
 
 func nodeIterFunc(c *cli.Context, op string) smugmug.NodeIterFunc {
 	enc := encoder(c)
@@ -18,20 +12,19 @@ func nodeIterFunc(c *cli.Context, op string) smugmug.NodeIterFunc {
 	album := c.Bool("album")
 	return func(node *smugmug.Node) (bool, error) {
 		msg := map[string]interface{}{
-			"nodeID": node.NodeID,
-			"type":   node.Type,
 			"name":   node.Name,
+			"type":   node.Type,
+			"nodeID": node.NodeID,
 		}
 		info := log.Info().
-			Str("nodeID", node.NodeID).
+			Str("name", node.Name).
 			Str("type", node.Type).
-			Str("name", node.Name)
+			Str("nodeID", node.NodeID)
 
 		if node.Parent != nil {
-			info = info.Str("parentID", node.Parent.NodeID)
 			msg["parentID"] = node.Parent.NodeID
+			info = info.Str("parentID", node.Parent.NodeID)
 		}
-
 		switch node.Type {
 		case "Album":
 			if !album {
@@ -45,15 +38,14 @@ func nodeIterFunc(c *cli.Context, op string) smugmug.NodeIterFunc {
 				return true, nil
 			}
 		}
-
-		if enc != nil {
+		switch c.Bool("json") {
+		case true:
 			if err := enc.Encode(msg); err != nil {
 				return false, err
 			}
+		default:
+			info.Msg(op)
 		}
-
-		info.Msg(op)
-
 		return true, nil
 	}
 }
@@ -67,17 +59,19 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 			"albumKey":   album.AlbumKey,
 			"imageCount": album.ImageCount,
 		}
-		if enc != nil {
+		switch c.Bool("json") {
+		case true:
 			if err := enc.Encode(msg); err != nil {
 				return false, err
 			}
+		default:
+			log.Info().
+				Str("name", album.Name).
+				Str("albumKey", album.AlbumKey).
+				Str("nodeID", album.NodeID).
+				Int("imageCount", album.ImageCount).
+				Msg(op)
 		}
-		log.Info().
-			Str("name", album.Name).
-			Str("albumKey", album.AlbumKey).
-			Str("nodeID", album.NodeID).
-			Int("imageCount", album.ImageCount).
-			Msg(op)
 		return true, nil
 	}
 }

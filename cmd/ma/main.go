@@ -58,7 +58,7 @@ func main() {
 		},
 		Before: func(c *cli.Context) error {
 			level := zerolog.InfoLevel
-			if c.Bool("verbose") {
+			if c.Bool("debug") {
 				level = zerolog.DebugLevel
 			}
 			zerolog.SetGlobalLevel(level)
@@ -72,7 +72,7 @@ func main() {
 				},
 			)
 
-			cfg := metrics.DefaultConfig("mg")
+			cfg := metrics.DefaultConfig("ma")
 			cfg.EnableRuntimeMetrics = false
 			cfg.TimerGranularity = time.Second
 			sink := metrics.NewInmemSink(time.Minute*10, time.Minute*10)
@@ -108,7 +108,11 @@ func main() {
 			return nil
 		},
 		Commands: []*cli.Command{
-			ma.CommandList(), ma.CommandUp(), ma.CommandFind(), ma.CommandUser(),
+			ma.CommandUser(),
+			ma.CommandFind(),
+			ma.CommandList(),
+			ma.CommandUp(),
+			ma.CommandCopy(),
 		},
 	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {

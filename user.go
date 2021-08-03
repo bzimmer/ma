@@ -17,16 +17,35 @@ func user(c *cli.Context) error {
 		return err
 	}
 
-	log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Msg("user")
+	switch c.Bool("json") {
+	case true:
+		enc := encoder(c)
+		msg := map[string]interface{}{
+			"nickname": user.NickName,
+			"uri":      user.URI,
+		}
+		if err := enc.Encode(msg); err != nil {
+			return err
+		}
+	default:
+		log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Msg("user")
+	}
 
 	return nil
 }
 
 func CommandUser() *cli.Command {
 	return &cli.Command{
-		Name:    "user",
-		Aliases: []string{"u", "authuser"},
-		Usage:   "query the authenticated user",
-		Action:  user,
+		Name:   "user",
+		Usage:  "query the authenticated user",
+		Action: user,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:     "json",
+				Aliases:  []string{"j"},
+				Value:    false,
+				Required: false,
+			},
+		},
 	}
 }

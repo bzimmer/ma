@@ -37,7 +37,7 @@ func list(c *cli.Context) error {
 func CommandList() *cli.Command {
 	return &cli.Command{
 		Name:    "ls",
-		Aliases: []string{"l", "list"},
+		Aliases: []string{"list"},
 		Usage:   "list albums and/or folders",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -52,20 +52,14 @@ func CommandList() *cli.Command {
 				Name:    "recurse",
 				Aliases: []string{"R"},
 			},
+			&cli.BoolFlag{
+				Name:     "json",
+				Aliases:  []string{"j"},
+				Value:    false,
+				Required: false,
+			},
 		},
-		Before: func(c *cli.Context) error {
-			node := c.Bool("node")
-			album := c.Bool("album")
-			if !(album || node) {
-				if err := c.Set("node", "true"); err != nil {
-					return err
-				}
-				if err := c.Set("album", "true"); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
+		Before: albumOrNode,
 		Action: list,
 	}
 }

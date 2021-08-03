@@ -56,9 +56,8 @@ func up(c *cli.Context) error {
 
 func CommandUp() *cli.Command {
 	return &cli.Command{
-		Name:    "up",
-		Aliases: []string{"u"},
-		Usage:   "upload images to SmugMug",
+		Name:  "up",
+		Usage: "upload images to SmugMug",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "album",
@@ -68,32 +67,6 @@ func CommandUp() *cli.Command {
 			},
 		},
 		Action: up,
-		After: func(c *cli.Context) error {
-			snk, err := sink(c)
-			if err != nil {
-				return err
-			}
-			data := snk.Data()
-			for i := range data {
-				for key, val := range data[i].Counters {
-					log.Info().
-						Int("count", val.Count).
-						Str("metric", key).
-						Msg("counters")
-				}
-				for key, val := range data[i].Samples {
-					as := val.AggregateSample
-					log.Info().
-						Int("count", val.Count).
-						Str("metric", key).
-						Float64("min", as.Min).
-						Float64("max", as.Max).
-						Float64("mean", as.Mean()).
-						Float64("stddev", as.Stddev()).
-						Msg("samples")
-				}
-			}
-			return nil
-		},
+		After:  stats,
 	}
 }

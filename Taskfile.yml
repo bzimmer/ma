@@ -31,3 +31,9 @@ tasks:
     deps: [test]
     cmds:
       - go tool cover -html={{.DIST}}/coverage.txt
+
+  install:
+    desc: Install the binary
+    deps: [test]
+    cmds:
+      - go build -o {{.GOPATH}}/bin/ma cmd/ma/main.go

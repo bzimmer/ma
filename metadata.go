@@ -10,8 +10,48 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func encoder(c *cli.Context) *json.Encoder {
-	return json.NewEncoder(c.App.Writer)
+type Encoder interface {
+	Encode(msg map[string]interface{}) error
+}
+
+type encoderJSON struct {
+	encoder *json.Encoder
+}
+
+func (e *encoderJSON) Encode(msg map[string]interface{}) error {
+	return e.encoder.Encode(msg)
+}
+
+type encoderLog struct {
+	op string
+}
+
+func (e *encoderLog) Encode(msg map[string]interface{}) error {
+	m := log.Info()
+	for key, val := range msg {
+		switch x := val.(type) {
+		case string:
+			m = m.Str(key, x)
+		case int:
+			m = m.Int(key, x)
+		case []string:
+			m = m.Strs(key, x)
+		case float64:
+			m = m.Float64(key, x)
+		default:
+			log.Warn().Str("key", key).Msg("unhandled")
+			m = m.Interface(key, val)
+		}
+	}
+	m.Msg(e.op)
+	return nil
+}
+
+func encoder(c *cli.Context, op string) Encoder {
+	if c.Bool("json") {
+		return &encoderJSON{encoder: json.NewEncoder(c.App.Writer)}
+	}
+	return &encoderLog{op: op}
 }
 
 func client(c *cli.Context) (*smugmug.Client, error) {

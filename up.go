@@ -1,6 +1,8 @@
 package ma
 
 import (
+	"os"
+
 	"github.com/bzimmer/smugmug"
 	"github.com/bzimmer/smugmug/uploadable/filesystem"
 	"github.com/rs/zerolog/log"
@@ -18,11 +20,11 @@ func up(c *cli.Context) error {
 		return err
 	}
 
-	albumID := c.String("album")
+	albumKey := c.String("album")
 	images := make(map[string]*smugmug.Image)
 
 	log.Info().Msg("querying existing gallery images")
-	if err := mg.Image.ImagesIter(c.Context, albumID, func(img *smugmug.Image) (bool, error) {
+	if err := mg.Image.ImagesIter(c.Context, albumKey, func(img *smugmug.Image) (bool, error) {
 		images[img.FileName] = img
 		return true, nil
 	}); err != nil {
@@ -33,13 +35,20 @@ func up(c *cli.Context) error {
 	u, err := filesystem.NewFsUploadable(
 		filesystem.WithMetrics(metric),
 		filesystem.WithExtensions(".jpg"),
-		filesystem.WithImages(albumID, images),
+		filesystem.WithImages(albumKey, images),
 	)
 	if err != nil {
 		return err
 	}
-	fsys := filesystem.RelativeFS("/")
-	fsup := filesystem.NewFsUploadables(fsys, c.Args().Slice(), u)
+	root, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	fs, err := filesystem.RelativeFS(root)
+	if err != nil {
+		return err
+	}
+	fsup := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
 	uploadc, errc := mg.Upload.Uploads(c.Context, fsup)
 	for {
 		select {

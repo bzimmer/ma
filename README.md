@@ -1,7 +1,6 @@
 # ma (media archiver)
 
-[![License][License-Image]][License-Url]
-[![Build][Build-Status-Image]][Build-Status-Url]
+![build](https://github.com/bzimmer/ma/actions/workflows/build.yaml/badge.svg)
 
 Simple tools for managing media files with [SmugMug](https://smugmug.com/)
 

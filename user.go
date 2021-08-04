@@ -2,7 +2,6 @@ package ma
 
 import (
 	"github.com/bzimmer/smugmug"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -17,21 +16,12 @@ func user(c *cli.Context) error {
 		return err
 	}
 
-	switch c.Bool("json") {
-	case true:
-		enc := encoder(c)
-		msg := map[string]interface{}{
-			"nickname": user.NickName,
-			"uri":      user.URI,
-		}
-		if err := enc.Encode(msg); err != nil {
-			return err
-		}
-	default:
-		log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Msg("user")
+	enc := encoder(c, "user")
+	msg := map[string]interface{}{
+		"nickname": user.NickName,
+		"uri":      user.URI,
 	}
-
-	return nil
+	return enc.Encode(msg)
 }
 
 func CommandUser() *cli.Command {

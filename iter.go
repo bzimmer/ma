@@ -2,76 +2,87 @@ package ma
 
 import (
 	"github.com/bzimmer/smugmug"
-	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
-func nodeIterFunc(c *cli.Context, op string) smugmug.NodeIterFunc {
-	enc := encoder(c)
-	nodeb := c.Bool("node")
-	album := c.Bool("album")
+func imageIterFunc(enc Encoder, albumKey string) smugmug.ImageIterFunc {
+	return func(image *smugmug.Image) (bool, error) {
+		err := enc.Encode(map[string]interface{}{
+			"albumKey": albumKey,
+			"imageKey": image.ImageKey,
+			"imageURI": image.URI,
+			"filename": image.FileName,
+			"type":     "Image",
+			"caption":  image.Caption,
+			"version":  image.Serial,
+			"keywords": image.KeywordArray,
+		})
+		return err == nil, err
+	}
+}
+
+func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
+	enc := encoder(c, op)
+	return func(album *smugmug.Album) (bool, error) {
+		err := enc.Encode(map[string]interface{}{
+			"name":       album.Name,
+			"type":       "Album",
+			"nodeID":     album.NodeID,
+			"albumKey":   album.AlbumKey,
+			"imageCount": album.ImageCount,
+		})
+		return err == nil, err
+	}
+}
+
+func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc {
+	enc := encoder(c, op)
+	nodeq := c.Bool("node")
+	albumq := c.Bool("album")
+	imageq := c.Bool("image")
 	return func(node *smugmug.Node) (bool, error) {
+		var albumKey string
+
 		msg := map[string]interface{}{
 			"name":   node.Name,
 			"type":   node.Type,
 			"nodeID": node.NodeID,
 		}
-		info := log.Info().
-			Str("name", node.Name).
-			Str("type", node.Type).
-			Str("nodeID", node.NodeID)
-
 		if node.Parent != nil {
 			msg["parentID"] = node.Parent.NodeID
-			info = info.Str("parentID", node.Parent.NodeID)
 		}
+
 		switch node.Type {
 		case "Album":
-			if !album {
-				return true, nil
+			if !albumq {
+				return recurse, nil
 			}
 			msg["albumKey"] = node.Album.AlbumKey
 			msg["imageCount"] = node.Album.ImageCount
-			info = info.Str("albumKey", node.Album.AlbumKey).Int("imageCount", node.Album.ImageCount)
+			if imageq {
+				albumKey = node.Album.AlbumKey
+			}
 		case "Folder":
-			if !nodeb {
-				return true, nil
+			if !nodeq {
+				return recurse, nil
 			}
 		}
-		switch c.Bool("json") {
-		case true:
-			if err := enc.Encode(msg); err != nil {
-				return false, err
-			}
-		default:
-			info.Msg(op)
-		}
-		return true, nil
-	}
-}
 
-func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
-	enc := encoder(c)
-	return func(album *smugmug.Album) (bool, error) {
-		msg := map[string]interface{}{
-			"name":       album.Name,
-			"nodeID":     album.NodeID,
-			"albumKey":   album.AlbumKey,
-			"imageCount": album.ImageCount,
+		if err := enc.Encode(msg); err != nil {
+			return false, err
 		}
-		switch c.Bool("json") {
-		case true:
-			if err := enc.Encode(msg); err != nil {
+
+		if albumKey != "" {
+			mg, err := client(c)
+			if err != nil {
 				return false, err
 			}
-		default:
-			log.Info().
-				Str("name", album.Name).
-				Str("albumKey", album.AlbumKey).
-				Str("nodeID", album.NodeID).
-				Int("imageCount", album.ImageCount).
-				Msg(op)
+			f := imageIterFunc(enc, albumKey)
+			if err := mg.Image.ImagesIter(c.Context, albumKey, f); err != nil {
+				return false, err
+			}
 		}
-		return true, nil
+
+		return recurse, nil
 	}
 }

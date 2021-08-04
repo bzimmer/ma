@@ -27,15 +27,15 @@ const (
 	defaultDateFormat = "2006/2006-01/02"
 )
 
-type dateTimeable interface {
+type dateTime interface {
 	dateTime() (time.Time, error)
 }
 
-type dateTimeableXmp struct {
+type dateTimeXmp struct {
 	src string
 }
 
-func (b *dateTimeableXmp) dateTime() (time.Time, error) {
+func (b *dateTimeXmp) dateTime() (time.Time, error) {
 	fp, err := os.Open(b.src)
 	if err != nil {
 		return time.Time{}, nil
@@ -56,26 +56,26 @@ func (b *dateTimeableXmp) dateTime() (time.Time, error) {
 	return x.DateTimeOriginal.Value(), nil
 }
 
-type dateTimeableExif struct {
+type dateTimeExif struct {
 	src   string
 	ext   string
 	entry fs.DirEntry
 }
 
-func (b *dateTimeableExif) bufferSize() (int64, error) {
-	info, err := b.entry.Info()
-	if err != nil {
-		return 0, err
-	}
+func (b *dateTimeExif) bufferSize() (int64, error) {
 	switch b.ext {
 	case ".orf", ".dng", ".nef":
+		info, err := b.entry.Info()
+		if err != nil {
+			return 0, err
+		}
 		return info.Size(), nil
 	default:
 		return defaultBufferSize, nil
 	}
 }
 
-func (b *dateTimeableExif) dateTime() (time.Time, error) {
+func (b *dateTimeExif) dateTime() (time.Time, error) {
 	fp, err := os.Open(b.src)
 	if err != nil {
 		return time.Time{}, err
@@ -102,29 +102,31 @@ func (b *dateTimeableExif) dateTime() (time.Time, error) {
 }
 
 type copier struct {
-	dryrun  bool
-	options copy.Options
-	metric  *metrics.Metrics
+	dryrun     bool
+	dateFormat string
+	options    copy.Options
+	metric     *metrics.Metrics
 }
 
-func (c *copier) dateTimeable(src string, d fs.DirEntry) dateTimeable {
-	if strings.HasPrefix(d.Name(), "._") {
+func (c *copier) dateTime(src string, d fs.DirEntry) dateTime {
+	if strings.HasPrefix(d.Name(), ".") {
 		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", "hidden"}, 1)
 		return nil
 	}
 	ext := strings.ToLower(filepath.Ext(d.Name()))
 	switch ext {
 	case ".jpg", ".raf", ".dng", ".nef", ".jpeg":
-		return &dateTimeableExif{src: src, ext: ext, entry: d}
+		return &dateTimeExif{src: src, ext: ext, entry: d}
 	case ".xmp":
-		return &dateTimeableXmp{src: src}
-	case ".orf":
-		fallthrough
+		return &dateTimeXmp{src: src}
 	case ".mp4", ".mov", ".avi":
 		fallthrough
+	case ".orf":
+		fallthrough
 	default:
+		ext = ext[1:]
 		log.Info().Str("src", src).Str("reason", "unsupported").Str("ext", ext).Msg("skip")
-		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext[1:]}, 1)
+		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
 		return nil
 	}
 }
@@ -140,7 +142,7 @@ func (c *copier) cp(root, dest string) error {
 		}
 		c.metric.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dt := c.dateTimeable(src, d)
+		dt := c.dateTime(src, d)
 		if dt == nil {
 			return nil // not an error but not supported
 		}
@@ -151,7 +153,7 @@ func (c *copier) cp(root, dest string) error {
 			return err
 		}
 
-		dst := filepath.Join(dest, tm.Format(defaultDateFormat), d.Name())
+		dst := filepath.Join(dest, tm.Format(c.dateFormat), d.Name())
 		stat, err := os.Stat(dst)
 		if err != nil {
 			if !errors.Is(err, os.ErrNotExist) {
@@ -186,8 +188,9 @@ func cp(c *cli.Context) error {
 	}
 	n := c.NArg()
 	cpr := &copier{
-		metric: met,
-		dryrun: c.Bool("dryrun"),
+		metric:     met,
+		dateFormat: defaultDateFormat,
+		dryrun:     c.Bool("dryrun"),
 		options: copy.Options{
 			PreserveTimes: true,
 			Skip: func(string) (bool, error) {
@@ -197,8 +200,8 @@ func cp(c *cli.Context) error {
 				return copy.Merge
 			},
 		}}
+	dest := c.Args().Get(n - 1)
 	for i := 0; i < n-1; i++ {
-		dest := c.Args().Get(n - 1)
 		if err := cpr.cp(c.Args().Get(i), dest); err != nil {
 			return err
 		}
@@ -219,7 +222,7 @@ func CommandCopy() *cli.Command {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			if !(c.NArg() >= 2) {
+			if c.NArg() < 2 {
 				return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 			}
 			return nil

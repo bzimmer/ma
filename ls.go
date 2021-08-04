@@ -11,11 +11,6 @@ func list(c *cli.Context) error {
 		return err
 	}
 
-	q := mg.Node.ChildrenIter
-	if c.IsSet("recurse") {
-		q = mg.Node.Walk
-	}
-
 	nodeIDs := c.Args().Slice()
 	if len(nodeIDs) == 0 {
 		user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
@@ -25,9 +20,9 @@ func list(c *cli.Context) error {
 		nodeIDs = []string{user.Node.NodeID}
 	}
 
-	f := nodeIterFunc(c, "ls")
+	f := nodeIterFunc(c, c.Bool("recurse"), "ls")
 	for i := range nodeIDs {
-		if err := q(c.Context, nodeIDs[i], f, smugmug.WithExpansions("Album", "ParentNode")); err != nil {
+		if err := mg.Node.Walk(c.Context, nodeIDs[i], f, smugmug.WithExpansions("Album", "ParentNode")); err != nil {
 			return err
 		}
 	}
@@ -47,6 +42,10 @@ func CommandList() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "node",
 				Aliases: []string{"n", "f"},
+			},
+			&cli.BoolFlag{
+				Name:    "image",
+				Aliases: []string{"i"},
 			},
 			&cli.BoolFlag{
 				Name:    "recurse",

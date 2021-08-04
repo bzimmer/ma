@@ -3,6 +3,7 @@ package ma
 import (
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 func find(c *cli.Context) error {
@@ -20,20 +21,19 @@ func find(c *cli.Context) error {
 		scope = user.URI
 	}
 
+	grp, ctx := errgroup.WithContext(c.Context)
 	options := []smugmug.APIOption{smugmug.WithSearch(scope, c.Args().First())}
 	if c.Bool("node") {
-		options = append(options, smugmug.WithExpansions("ParentNode"))
-		if err := mg.Node.SearchIter(c.Context, nodeIterFunc(c, "find"), options...); err != nil {
-			return err
-		}
+		grp.Go(func() error {
+			return mg.Node.SearchIter(ctx, nodeIterFunc(c, false, "find"), options...)
+		})
 	}
 	if c.Bool("album") {
-		options = append(options, smugmug.WithExpansions("Node"))
-		if err := mg.Album.SearchIter(c.Context, albumIterFunc(c, "find"), options...); err != nil {
-			return err
-		}
+		grp.Go(func() error {
+			return mg.Album.SearchIter(c.Context, albumIterFunc(c, "find"), options...)
+		})
 	}
-	return nil
+	return grp.Wait()
 }
 
 func CommandFind() *cli.Command {

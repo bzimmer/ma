@@ -113,6 +113,7 @@ func main() {
 			ma.CommandList(),
 			ma.CommandUp(),
 			ma.CommandCopy(),
+			ma.CommandExport(),
 		},
 	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {

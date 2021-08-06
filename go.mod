@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/armon/go-metrics v0.3.9
 	github.com/bzimmer/smugmug v0.0.0-20210806143627-08f23ee52312
+	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

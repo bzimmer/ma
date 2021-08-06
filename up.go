@@ -1,11 +1,10 @@
 package ma
 
 import (
-	"os"
-
 	"github.com/bzimmer/smugmug"
 	"github.com/bzimmer/smugmug/uploadable/filesystem"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 )
 
@@ -40,14 +39,8 @@ func up(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	root, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	fs, err := filesystem.RelativeFS(root)
-	if err != nil {
-		return err
-	}
+
+	fs := afero.NewOsFs()
 	fsup := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
 	uploadc, errc := mg.Upload.Uploads(c.Context, fsup)
 	for {

@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/armon/go-metrics v0.3.9
-	github.com/bzimmer/smugmug v0.0.0-20210804013557-0486e0efe4f1
+	github.com/bzimmer/smugmug v0.0.0-20210806015710-bafa90b2247e
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect

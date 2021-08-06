@@ -53,10 +53,6 @@ func CommandFind() *cli.Command {
 				Name:    "node",
 				Aliases: []string{"n", "f"},
 			},
-			&cli.BoolFlag{
-				Name:    "json",
-				Aliases: []string{"j"},
-			},
 		},
 		Before: albumOrNode,
 		Action: find,

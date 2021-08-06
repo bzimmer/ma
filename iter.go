@@ -5,9 +5,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func imageIterFunc(enc Encoder, albumKey string) smugmug.ImageIterFunc {
+func imageIterFunc(enc Encoder, albumKey string, op string) smugmug.ImageIterFunc {
 	return func(image *smugmug.Image) (bool, error) {
-		err := enc.Encode(map[string]interface{}{
+		err := enc.Encode(op, map[string]interface{}{
 			"albumKey": albumKey,
 			"imageKey": image.ImageKey,
 			"imageURI": image.URI,
@@ -22,9 +22,12 @@ func imageIterFunc(enc Encoder, albumKey string) smugmug.ImageIterFunc {
 }
 
 func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
-	enc := encoder(c, op)
 	return func(album *smugmug.Album) (bool, error) {
-		err := enc.Encode(map[string]interface{}{
+		enc, err := encoder(c)
+		if err != nil {
+			return false, err
+		}
+		err = enc.Encode(op, map[string]interface{}{
 			"name":       album.Name,
 			"type":       "Album",
 			"nodeID":     album.NodeID,
@@ -36,12 +39,16 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 }
 
 func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc {
-	enc := encoder(c, op)
 	nodeq := c.Bool("node")
 	albumq := c.Bool("album")
 	imageq := c.Bool("image")
 	return func(node *smugmug.Node) (bool, error) {
 		var albumKey string
+
+		enc, err := encoder(c)
+		if err != nil {
+			return false, err
+		}
 
 		msg := map[string]interface{}{
 			"name":   node.Name,
@@ -68,7 +75,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			}
 		}
 
-		if err := enc.Encode(msg); err != nil {
+		if err := enc.Encode(op, msg); err != nil {
 			return false, err
 		}
 
@@ -77,7 +84,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			if err != nil {
 				return false, err
 			}
-			f := imageIterFunc(enc, albumKey)
+			f := imageIterFunc(enc, albumKey, op)
 			if err := mg.Image.ImagesIter(c.Context, albumKey, f); err != nil {
 				return false, err
 			}

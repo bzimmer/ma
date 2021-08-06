@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"time"
 
@@ -42,6 +43,12 @@ func main() {
 				Required: true,
 				Usage:    "smugmug token secret",
 				EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
+			},
+			&cli.BoolFlag{
+				Name:     "json",
+				Aliases:  []string{"j"},
+				Value:    false,
+				Required: false,
 			},
 			&cli.BoolFlag{
 				Name:     "debug",
@@ -99,10 +106,19 @@ func main() {
 				return err
 			}
 
+			var enc ma.Encoder
+			switch {
+			case c.Bool("json"):
+				enc = &ma.EncoderJSON{Encoder: json.NewEncoder(c.App.Writer)}
+			default:
+				enc = &ma.EncoderLog{}
+			}
+
 			c.App.Metadata = map[string]interface{}{
 				"client":  client,
 				"metrics": metric,
 				"sink":    sink,
+				"encoder": enc,
 			}
 
 			return nil

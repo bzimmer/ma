@@ -3,6 +3,7 @@ package ma
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
@@ -11,24 +12,26 @@ import (
 )
 
 type Encoder interface {
-	Encode(msg map[string]interface{}) error
+	Encode(op string, msg interface{}) error
 }
 
-type encoderJSON struct {
-	encoder *json.Encoder
+type EncoderJSON struct {
+	Encoder *json.Encoder
 }
 
-func (e *encoderJSON) Encode(msg map[string]interface{}) error {
-	return e.encoder.Encode(msg)
+func (e *EncoderJSON) Encode(op string, msg interface{}) error {
+	return e.Encoder.Encode(msg)
 }
 
-type encoderLog struct {
-	op string
-}
+type EncoderLog struct{}
 
-func (e *encoderLog) Encode(msg map[string]interface{}) error {
+func (e *EncoderLog) Encode(op string, msg interface{}) error {
+	g, ok := msg.(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("expected map[string]interface{}, found %z", msg)
+	}
 	m := log.Info()
-	for key, val := range msg {
+	for key, val := range g {
 		switch x := val.(type) {
 		case string:
 			m = m.Str(key, x)
@@ -43,15 +46,21 @@ func (e *encoderLog) Encode(msg map[string]interface{}) error {
 			m = m.Interface(key, val)
 		}
 	}
-	m.Msg(e.op)
+	m.Msg(op)
 	return nil
 }
 
-func encoder(c *cli.Context, op string) Encoder {
-	if c.Bool("json") {
-		return &encoderJSON{encoder: json.NewEncoder(c.App.Writer)}
+func encoder(c *cli.Context) (Encoder, error) {
+	t, ok := c.App.Metadata["encoder"]
+	if !ok {
+		return nil, errors.New("missing encoder")
 	}
-	return &encoderLog{op: op}
+	switch x := t.(type) {
+	case Encoder:
+		return x, nil
+	default:
+		return nil, errors.New("missing encoder")
+	}
 }
 
 func client(c *cli.Context) (*smugmug.Client, error) {

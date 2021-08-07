@@ -51,12 +51,6 @@ func CommandList() *cli.Command {
 				Name:    "recurse",
 				Aliases: []string{"R"},
 			},
-			&cli.BoolFlag{
-				Name:     "json",
-				Aliases:  []string{"j"},
-				Value:    false,
-				Required: false,
-			},
 		},
 		Before: albumOrNode,
 		Action: list,

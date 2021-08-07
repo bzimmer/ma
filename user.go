@@ -16,12 +16,14 @@ func user(c *cli.Context) error {
 		return err
 	}
 
-	enc := encoder(c, "user")
-	msg := map[string]interface{}{
+	enc, err := encoder(c)
+	if err != nil {
+		return err
+	}
+	return enc.Encode("user", map[string]interface{}{
 		"nickname": user.NickName,
 		"uri":      user.URI,
-	}
-	return enc.Encode(msg)
+	})
 }
 
 func CommandUser() *cli.Command {
@@ -29,13 +31,5 @@ func CommandUser() *cli.Command {
 		Name:   "user",
 		Usage:  "query the authenticated user",
 		Action: user,
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:     "json",
-				Aliases:  []string{"j"},
-				Value:    false,
-				Required: false,
-			},
-		},
 	}
 }

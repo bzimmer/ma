@@ -20,9 +20,10 @@ func list(c *cli.Context) error {
 		nodeIDs = []string{user.Node.NodeID}
 	}
 
+	depth := c.Int("depth")
 	f := nodeIterFunc(c, c.Bool("recurse"), "ls")
 	for i := range nodeIDs {
-		if err := mg.Node.Walk(c.Context, nodeIDs[i], f, smugmug.WithExpansions("Album", "ParentNode")); err != nil {
+		if err := mg.Node.WalkN(c.Context, nodeIDs[i], f, depth, smugmug.WithExpansions("Album", "ParentNode")); err != nil {
 			return err
 		}
 	}
@@ -50,6 +51,10 @@ func CommandList() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "recurse",
 				Aliases: []string{"R"},
+			},
+			&cli.IntFlag{
+				Name:  "depth",
+				Value: -1,
 			},
 		},
 		Before: albumOrNode,

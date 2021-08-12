@@ -2,6 +2,7 @@ package ma
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -16,11 +17,10 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 	xmpexif "trimmer.io/go-xmp/models/exif"
 	"trimmer.io/go-xmp/xmp"
 )
-
-// @todo(bzimmer) add support for orf, videos
 
 const (
 	defaultBufferSize = 1024 * 1024
@@ -101,11 +101,14 @@ func (b *dateTimeExif) dateTime() (time.Time, error) {
 	return tm, err
 }
 
+type copyFunc func(src, dest string) error
+
 type copier struct {
-	dryrun     bool
-	dateFormat string
-	options    copy.Options
-	metric     *metrics.Metrics
+	dryrun      bool
+	dateFormat  string
+	concurrency int
+	copyFunc    copyFunc
+	metric      *metrics.Metrics
 }
 
 func (c *copier) dateTime(src string, d fs.DirEntry) dateTime {
@@ -119,20 +122,43 @@ func (c *copier) dateTime(src string, d fs.DirEntry) dateTime {
 		return &dateTimeExif{src: src, ext: ext, entry: d}
 	case ".xmp":
 		return &dateTimeXmp{src: src}
+	case "":
+		ext = ".<none>"
 	case ".mp4", ".mov", ".avi":
-		fallthrough
+		// @todo(movies)
 	case ".orf":
-		fallthrough
+		// @todo(orf)
 	default:
-		ext = ext[1:]
-		log.Info().Str("src", src).Str("reason", "unsupported").Str("ext", ext).Msg("skip")
-		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
-		return nil
 	}
+	ext = ext[1:]
+	log.Info().Str("src", src).Str("reason", "unsupported").Str("ext", ext).Msg("skip")
+	c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
+	return nil
 }
 
-func (c *copier) cp(root, dest string) error {
-	return filepath.WalkDir(root, func(src string, d fs.DirEntry, err error) error {
+type req struct {
+	src string
+	dst string
+}
+
+func (c *copier) copy(q req) error {
+	log.Info().Str("src", q.src).Str("dst", q.dst).Msg("cp")
+	if c.dryrun {
+		c.metric.IncrCounter([]string{"cp", "dryrun"}, 1)
+		return nil
+	}
+	err := c.copyFunc(q.src, q.dst)
+	switch {
+	case err == nil:
+		c.metric.IncrCounter([]string{"cp", "success"}, 1)
+	default:
+		c.metric.IncrCounter([]string{"cp", "failed"}, 1)
+	}
+	return err
+}
+
+func (c *copier) walker(ctx context.Context, q chan<- req, dest string) fs.WalkDirFunc {
+	return func(src string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -166,19 +192,35 @@ func (c *copier) cp(root, dest string) error {
 			return nil
 		}
 
-		log.Info().Str("src", src).Str("dst", dst).Msg("cp")
-		if c.dryrun {
-			c.metric.IncrCounter([]string{"cp", "dryrun"}, 1)
-			return nil
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case q <- req{src: src, dst: dst}:
+			c.metric.IncrCounter([]string{"cp", "attempt"}, 1)
 		}
-		c.metric.IncrCounter([]string{"cp", "attempt"}, 1)
-		if err := copy.Copy(src, dst, c.options); err != nil {
-			c.metric.IncrCounter([]string{"cp", "failed"}, 1)
-			return err
-		}
-		c.metric.IncrCounter([]string{"cp", "success"}, 1)
 		return nil
+	}
+}
+
+func (c *copier) cp(ctx context.Context, root, dest string) error {
+	q := make(chan req)
+	grp, ctx := errgroup.WithContext(ctx)
+	grp.Go(func() error {
+		defer close(q)
+		return filepath.WalkDir(root, c.walker(ctx, q, dest))
 	})
+	log.Info().Str("root", root).Int("concurrency", c.concurrency).Msg("cp")
+	for i := 0; i < c.concurrency; i++ {
+		grp.Go(func() error {
+			for x := range q {
+				if err := c.copy(x); err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	return grp.Wait()
 }
 
 func cp(c *cli.Context) error {
@@ -187,22 +229,28 @@ func cp(c *cli.Context) error {
 		return err
 	}
 	n := c.NArg()
+
+	opts := copy.Options{
+		PreserveTimes: true,
+		Skip: func(string) (bool, error) {
+			return false, nil // Don't skip
+		},
+		OnDirExists: func(src, dest string) copy.DirExistsAction {
+			return copy.Merge
+		},
+	}
 	cpr := &copier{
-		metric:     met,
-		dateFormat: defaultDateFormat,
-		dryrun:     c.Bool("dryrun"),
-		options: copy.Options{
-			PreserveTimes: true,
-			Skip: func(string) (bool, error) {
-				return false, nil // Don't skip
-			},
-			OnDirExists: func(src, dest string) copy.DirExistsAction {
-				return copy.Merge
-			},
-		}}
+		metric: met,
+		copyFunc: func(src, dst string) error {
+			return copy.Copy(src, dst, opts)
+		},
+		dateFormat:  defaultDateFormat,
+		dryrun:      c.Bool("dryrun"),
+		concurrency: c.Int("concurrency"),
+	}
 	dest := c.Args().Get(n - 1)
 	for i := 0; i < n-1; i++ {
-		if err := cpr.cp(c.Args().Get(i), dest); err != nil {
+		if err := cpr.cp(c.Context, c.Args().Get(i), dest); err != nil {
 			return err
 		}
 	}
@@ -219,6 +267,11 @@ func CommandCopy() *cli.Command {
 				Aliases:  []string{"n"},
 				Value:    false,
 				Required: false,
+			},
+			&cli.IntFlag{
+				Name:  "concurrency",
+				Usage: "the number of concurrent downloads",
+				Value: 2,
 			},
 		},
 		Before: func(c *cli.Context) error {

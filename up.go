@@ -64,7 +64,6 @@ func CommandUp() *cli.Command {
 			&cli.StringFlag{
 				Name:     "album",
 				Aliases:  []string{"a"},
-				Value:    "",
 				Required: true,
 			},
 		},

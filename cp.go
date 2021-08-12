@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/rs/zerolog/log"
 	"github.com/rwcarlsen/goexif/exif"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 	xmpexif "trimmer.io/go-xmp/models/exif"
@@ -32,11 +32,12 @@ type dateTime interface {
 }
 
 type dateTimeXmp struct {
+	fs  afero.Fs
 	src string
 }
 
 func (b *dateTimeXmp) dateTime() (time.Time, error) {
-	fp, err := os.Open(b.src)
+	fp, err := b.fs.Open(b.src)
 	if err != nil {
 		return time.Time{}, nil
 	}
@@ -57,26 +58,23 @@ func (b *dateTimeXmp) dateTime() (time.Time, error) {
 }
 
 type dateTimeExif struct {
-	src   string
-	ext   string
-	entry fs.DirEntry
+	fs   afero.Fs
+	src  string
+	ext  string
+	info fs.FileInfo
 }
 
 func (b *dateTimeExif) bufferSize() (int64, error) {
 	switch b.ext {
 	case ".orf", ".dng", ".nef":
-		info, err := b.entry.Info()
-		if err != nil {
-			return 0, err
-		}
-		return info.Size(), nil
+		return b.info.Size(), nil
 	default:
 		return defaultBufferSize, nil
 	}
 }
 
 func (b *dateTimeExif) dateTime() (time.Time, error) {
-	fp, err := os.Open(b.src)
+	fp, err := b.fs.Open(b.src)
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -101,27 +99,33 @@ func (b *dateTimeExif) dateTime() (time.Time, error) {
 	return tm, err
 }
 
+type req struct {
+	src string
+	dst string
+}
+
 type copyFunc func(src, dest string) error
 
 type copier struct {
-	dryrun      bool
-	dateFormat  string
-	concurrency int
-	copyFunc    copyFunc
-	metric      *metrics.Metrics
+	fs         afero.Fs
+	dryrun     bool
+	dateFormat string
+	concurrent int
+	copyFunc   copyFunc
+	metric     *metrics.Metrics
 }
 
-func (c *copier) dateTime(src string, d fs.DirEntry) dateTime {
-	if strings.HasPrefix(d.Name(), ".") {
+func (c *copier) dateTime(src string, info fs.FileInfo) dateTime {
+	if strings.HasPrefix(info.Name(), ".") {
 		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", "hidden"}, 1)
 		return nil
 	}
-	ext := strings.ToLower(filepath.Ext(d.Name()))
+	ext := strings.ToLower(filepath.Ext(info.Name()))
 	switch ext {
 	case ".jpg", ".raf", ".dng", ".nef", ".jpeg":
-		return &dateTimeExif{src: src, ext: ext, entry: d}
+		return &dateTimeExif{fs: c.fs, src: src, ext: ext, info: info}
 	case ".xmp":
-		return &dateTimeXmp{src: src}
+		return &dateTimeXmp{fs: c.fs, src: src}
 	case "":
 		ext = ".<none>"
 	case ".mp4", ".mov", ".avi":
@@ -136,39 +140,32 @@ func (c *copier) dateTime(src string, d fs.DirEntry) dateTime {
 	return nil
 }
 
-type req struct {
-	src string
-	dst string
-}
-
 func (c *copier) copy(q req) error {
 	log.Info().Str("src", q.src).Str("dst", q.dst).Msg("cp")
 	if c.dryrun {
 		c.metric.IncrCounter([]string{"cp", "dryrun"}, 1)
 		return nil
 	}
-	err := c.copyFunc(q.src, q.dst)
-	switch {
-	case err == nil:
-		c.metric.IncrCounter([]string{"cp", "success"}, 1)
-	default:
+	if err := c.copyFunc(q.src, q.dst); err != nil {
 		c.metric.IncrCounter([]string{"cp", "failed"}, 1)
+		return err
 	}
-	return err
+	c.metric.IncrCounter([]string{"cp", "success"}, 1)
+	return nil
 }
 
-func (c *copier) walker(ctx context.Context, q chan<- req, dest string) fs.WalkDirFunc {
-	return func(src string, d fs.DirEntry, err error) error {
+func (c *copier) walker(ctx context.Context, q chan<- req, dest string) filepath.WalkFunc {
+	return func(src string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() {
+		if info.IsDir() {
 			c.metric.IncrCounter([]string{"cp", "visited", "directories"}, 1)
 			return nil
 		}
 		c.metric.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dt := c.dateTime(src, d)
+		dt := c.dateTime(src, info)
 		if dt == nil {
 			return nil // not an error but not supported
 		}
@@ -179,10 +176,10 @@ func (c *copier) walker(ctx context.Context, q chan<- req, dest string) fs.WalkD
 			return err
 		}
 
-		dst := filepath.Join(dest, tm.Format(c.dateFormat), d.Name())
-		stat, err := os.Stat(dst)
+		dst := filepath.Join(dest, tm.Format(c.dateFormat), info.Name())
+		stat, err := c.fs.Stat(dst)
 		if err != nil {
-			if !errors.Is(err, os.ErrNotExist) {
+			if !errors.Is(err, afero.ErrFileNotFound) {
 				return err
 			}
 		}
@@ -207,10 +204,10 @@ func (c *copier) cp(ctx context.Context, root, dest string) error {
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(q)
-		return filepath.WalkDir(root, c.walker(ctx, q, dest))
+		return afero.Walk(c.fs, root, c.walker(ctx, q, dest))
 	})
-	log.Info().Str("root", root).Int("concurrency", c.concurrency).Msg("cp")
-	for i := 0; i < c.concurrency; i++ {
+	log.Info().Str("root", root).Int("concurrent", c.concurrent).Msg("cp")
+	for i := 0; i < c.concurrent; i++ {
 		grp.Go(func() error {
 			for x := range q {
 				if err := c.copy(x); err != nil {
@@ -228,9 +225,8 @@ func cp(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	n := c.NArg()
-
 	opts := copy.Options{
+		Sync:          true,
 		PreserveTimes: true,
 		Skip: func(string) (bool, error) {
 			return false, nil // Don't skip
@@ -240,14 +236,16 @@ func cp(c *cli.Context) error {
 		},
 	}
 	cpr := &copier{
+		fs:     afero.NewOsFs(),
 		metric: met,
 		copyFunc: func(src, dst string) error {
 			return copy.Copy(src, dst, opts)
 		},
-		dateFormat:  defaultDateFormat,
-		dryrun:      c.Bool("dryrun"),
-		concurrency: c.Int("concurrency"),
+		dateFormat: c.String("format"),
+		dryrun:     c.Bool("dryrun"),
+		concurrent: c.Int("concurrent"),
 	}
+	n := c.NArg()
 	dest := c.Args().Get(n - 1)
 	for i := 0; i < n-1; i++ {
 		if err := cpr.cp(c.Context, c.Args().Get(i), dest); err != nil {
@@ -268,10 +266,16 @@ func CommandCopy() *cli.Command {
 				Value:    false,
 				Required: false,
 			},
+			&cli.StringFlag{
+				Name:     "format",
+				Value:    defaultDateFormat,
+				Required: false,
+			},
 			&cli.IntFlag{
-				Name:  "concurrency",
-				Usage: "the number of concurrent downloads",
-				Value: 2,
+				Name:    "concurrent",
+				Aliases: []string{"c"},
+				Usage:   "the number of concurrent copies",
+				Value:   2,
 			},
 		},
 		Before: func(c *cli.Context) error {

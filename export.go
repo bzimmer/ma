@@ -14,8 +14,8 @@ import (
 )
 
 type exporter struct {
-	mg          *smugmug.Client
-	concurrency int
+	mg         *smugmug.Client
+	concurrent int
 }
 
 func (x *exporter) parents(ctx context.Context, nodeID string) (string, error) {
@@ -56,7 +56,7 @@ func (x *exporter) request(ctx context.Context, image *smugmug.Image, destinatio
 
 func (x *exporter) download(ctx context.Context, reqs []*grab.Request) error {
 	client := grab.NewClient()
-	for res := range client.DoBatch(x.concurrency, reqs...) {
+	for res := range client.DoBatch(x.concurrent, reqs...) {
 		err := res.Err()
 		if err == nil {
 			log.Info().Str("uri", res.Request.Label).Str("filename", res.Filename).Msg("downloaded")
@@ -137,7 +137,7 @@ func export(c *cli.Context) error {
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
 
-	x := &exporter{mg: mg, concurrency: c.Int("concurrency")}
+	x := &exporter{mg: mg, concurrent: c.Int("concurrent")}
 	f := x.export(ctx, c.Args().Get(1))
 	return mg.Node.Walk(ctx, c.Args().Get(0), func(node *smugmug.Node) (bool, error) {
 		if node.Type == "Album" {
@@ -158,7 +158,7 @@ func CommandExport() *cli.Command {
 				Value: "Original",
 			},
 			&cli.IntFlag{
-				Name:  "concurrency",
+				Name:  "concurrent",
 				Usage: "the number of concurrent downloads",
 				Value: 2,
 			},

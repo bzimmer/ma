@@ -42,8 +42,7 @@ func CommandFind() *cli.Command {
 		Usage: "search for albums or folders by name",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "scope",
-				Value: "",
+				Name: "scope",
 			},
 			&cli.BoolFlag{
 				Name:    "album",

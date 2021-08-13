@@ -241,8 +241,8 @@ func cp(c *cli.Context) error {
 		copyFunc: func(src, dst string) error {
 			return copy.Copy(src, dst, opts)
 		},
-		dateFormat: c.String("format"),
 		dryrun:     c.Bool("dryrun"),
+		dateFormat: c.String("format"),
 		concurrent: c.Int("concurrent"),
 	}
 	n := c.NArg()

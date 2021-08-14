@@ -82,7 +82,7 @@ func main() {
 			cfg := metrics.DefaultConfig("ma")
 			cfg.EnableRuntimeMetrics = false
 			cfg.TimerGranularity = time.Second
-			sink := metrics.NewInmemSink(time.Minute*10, time.Minute*10)
+			sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
 			metric, err := metrics.New(cfg, sink)
 			if err != nil {
 				return err

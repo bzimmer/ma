@@ -22,7 +22,7 @@ func new(c *cli.Context) error {
 		}
 	}
 
-	handle := &smugmug.Handle{
+	nodelet := &smugmug.Nodelet{
 		Name:    name,
 		Type:    strings.Title(c.Command.Name),
 		URLName: url,
@@ -33,7 +33,7 @@ func new(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	node, err := mg.Node.Create(c.Context, c.String("parent"), handle)
+	node, err := mg.Node.Create(c.Context, c.String("parent"), nodelet)
 	if err != nil {
 		return err
 	}

@@ -127,6 +127,7 @@ func main() {
 			ma.CommandUser(),
 			ma.CommandFind(),
 			ma.CommandList(),
+			ma.CommandNew(),
 			ma.CommandUp(),
 			ma.CommandCopy(),
 			ma.CommandExport(),

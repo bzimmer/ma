@@ -22,19 +22,33 @@ func imageIterFunc(enc Encoder, albumKey string, op string) smugmug.ImageIterFun
 }
 
 func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
+	imageq := c.Bool("image")
 	return func(album *smugmug.Album) (bool, error) {
 		enc, err := encoder(c)
 		if err != nil {
 			return false, err
 		}
-		err = enc.Encode(op, map[string]interface{}{
+		if err := enc.Encode(op, map[string]interface{}{
 			"name":       album.Name,
 			"type":       "Album",
 			"nodeID":     album.NodeID,
 			"albumKey":   album.AlbumKey,
 			"imageCount": album.ImageCount,
-		})
-		return err == nil, err
+		}); err != nil {
+			return false, err
+		}
+		if imageq {
+			mg, err := client(c)
+			if err != nil {
+				return false, err
+			}
+			f := imageIterFunc(enc, album.AlbumKey, op)
+			if err := mg.Image.ImagesIter(c.Context, album.AlbumKey, f); err != nil {
+				return false, err
+			}
+		}
+
+		return true, nil
 	}
 }
 

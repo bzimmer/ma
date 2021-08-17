@@ -5,12 +5,29 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func list(c *cli.Context) error {
+func album(c *cli.Context) error {
 	mg, err := client(c)
 	if err != nil {
 		return err
 	}
+	f := albumIterFunc(c, "ls")
+	for _, id := range c.Args().Slice() {
+		album, err := mg.Album.Album(c.Context, id)
+		if err != nil {
+			return err
+		}
+		if _, err := f(album); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
+func node(c *cli.Context) error {
+	mg, err := client(c)
+	if err != nil {
+		return err
+	}
 	nodeIDs := c.Args().Slice()
 	if len(nodeIDs) == 0 {
 		user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
@@ -19,7 +36,6 @@ func list(c *cli.Context) error {
 		}
 		nodeIDs = []string{user.Node.NodeID}
 	}
-
 	depth := c.Int("depth")
 	f := nodeIterFunc(c, c.Bool("recurse"), "ls")
 	for i := range nodeIDs {
@@ -34,30 +50,47 @@ func CommandList() *cli.Command {
 	return &cli.Command{
 		Name:    "ls",
 		Aliases: []string{"list"},
-		Usage:   "list albums and/or folders",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "album",
-				Aliases: []string{"a"},
+		Usage:   "list albums and/or nodes",
+		Subcommands: []*cli.Command{
+			{
+				Name:      "album",
+				ArgsUsage: "<album key>[, <album key>, ...]",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "image",
+						Aliases: []string{"i"},
+					},
+				},
+				Action: album,
 			},
-			&cli.BoolFlag{
-				Name:    "node",
-				Aliases: []string{"n", "f"},
-			},
-			&cli.BoolFlag{
-				Name:    "image",
-				Aliases: []string{"i"},
-			},
-			&cli.BoolFlag{
-				Name:    "recurse",
-				Aliases: []string{"R"},
-			},
-			&cli.IntFlag{
-				Name:  "depth",
-				Value: -1,
+			{
+				Name:      "node",
+				ArgsUsage: "<node id>[, <node id>, ...]",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "album",
+						Aliases: []string{"a"},
+					},
+					&cli.BoolFlag{
+						Name:    "node",
+						Aliases: []string{"n", "f"},
+					},
+					&cli.BoolFlag{
+						Name:    "image",
+						Aliases: []string{"i"},
+					},
+					&cli.BoolFlag{
+						Name:    "recurse",
+						Aliases: []string{"R"},
+					},
+					&cli.IntFlag{
+						Name:  "depth",
+						Value: -1,
+					},
+				},
+				Before: albumOrNode,
+				Action: node,
 			},
 		},
-		Before: albumOrNode,
-		Action: list,
 	}
 }

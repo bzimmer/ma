@@ -17,6 +17,8 @@ github.com/bzimmer/smugmug v0.0.0-20210814181320-076dc86d52cb h1:NWpicO8gS8jWVNK
 github.com/bzimmer/smugmug v0.0.0-20210814181320-076dc86d52cb/go.mod h1:Gn0quP5pdiMsz3X3GGMnDxBNlsNlVaHn/FmI/X7mzRQ=
 github.com/bzimmer/smugmug v0.0.0-20210814191701-5fb58b9750e1 h1:Nbf54i1abZ3e/FRTdUqvAMii/eTCi4h3w4KC3at19lc=
 github.com/bzimmer/smugmug v0.0.0-20210814191701-5fb58b9750e1/go.mod h1:Gn0quP5pdiMsz3X3GGMnDxBNlsNlVaHn/FmI/X7mzRQ=
+github.com/bzimmer/smugmug v0.0.0-20210817011219-9cf9ac6fecd5 h1:6rKIVe0vJju0hh/JpBWoOGyN4V2R+hv2zxQK534CbKM=
+github.com/bzimmer/smugmug v0.0.0-20210817011219-9cf9ac6fecd5/go.mod h1:Gn0quP5pdiMsz3X3GGMnDxBNlsNlVaHn/FmI/X7mzRQ=
 github.com/cavaliercoder/grab v2.0.0+incompatible h1:wZHbBQx56+Yxjx2TCGDcenhh3cJn7cCLMfkEPmySTSE=
 github.com/cavaliercoder/grab v2.0.0+incompatible/go.mod h1:tTBkfNqSBfuMmMBFaO2phgyhdYhiZQ/+iXCZDzcDsMI=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
@@ -158,6 +160,8 @@ golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e h1:WUoyKPm6nCo1BnNUvPGnFG3T5DUVem42yDJZZ4CNxMA=
 golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20210816183151-1e6c022a8912 h1:uCLL3g5wH2xjxVREVuAbP9JM5PPKjRbXKRa6IBjkzmU=
+golang.org/x/sys v0.0.0-20210816183151-1e6c022a8912/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.3/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
 golang.org/x/text v0.3.7 h1:olpwvP2KacW1ZWvsR7uQhoyTYvKAupfQrRGBFM352Gk=

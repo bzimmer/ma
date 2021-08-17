@@ -221,6 +221,9 @@ func (c *copier) cp(ctx context.Context, root, dest string) error {
 }
 
 func cp(c *cli.Context) error {
+	if c.NArg() < 2 {
+		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
+	}
 	met, err := metric(c)
 	if err != nil {
 		return err
@@ -277,12 +280,6 @@ func CommandCopy() *cli.Command {
 				Usage:   "the number of concurrent copies",
 				Value:   2,
 			},
-		},
-		Before: func(c *cli.Context) error {
-			if c.NArg() < 2 {
-				return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
-			}
-			return nil
 		},
 		Action: cp,
 		After:  stats,

@@ -129,6 +129,9 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 }
 
 func export(c *cli.Context) error {
+	if c.NArg() < 2 {
+		return fmt.Errorf("expected two arguments, not {%d}", c.NArg())
+	}
 	mg, err := client(c)
 	if err != nil {
 		return err
@@ -162,12 +165,6 @@ func CommandExport() *cli.Command {
 				Usage: "the number of concurrent downloads",
 				Value: 2,
 			},
-		},
-		Before: func(c *cli.Context) error {
-			if c.NArg() < 2 {
-				return fmt.Errorf("expected two arguments, not {%d}", c.NArg())
-			}
-			return nil
 		},
 		Action: export,
 	}

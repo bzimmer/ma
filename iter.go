@@ -8,11 +8,11 @@ import (
 func imageIterFunc(enc Encoder, albumKey string, op string) smugmug.ImageIterFunc {
 	return func(image *smugmug.Image) (bool, error) {
 		err := enc.Encode(op, map[string]interface{}{
+			"type":     "Image",
 			"albumKey": albumKey,
 			"imageKey": image.ImageKey,
 			"imageURI": image.URI,
 			"filename": image.FileName,
-			"type":     "Image",
 			"caption":  image.Caption,
 			"version":  image.Serial,
 			"keywords": image.KeywordArray,
@@ -24,13 +24,10 @@ func imageIterFunc(enc Encoder, albumKey string, op string) smugmug.ImageIterFun
 func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 	imageq := c.Bool("image")
 	return func(album *smugmug.Album) (bool, error) {
-		enc, err := encoder(c)
-		if err != nil {
-			return false, err
-		}
+		enc := encoder(c)
 		if err := enc.Encode(op, map[string]interface{}{
-			"name":       album.Name,
 			"type":       "Album",
+			"name":       album.Name,
 			"nodeID":     album.NodeID,
 			"albumKey":   album.AlbumKey,
 			"imageCount": album.ImageCount,
@@ -38,10 +35,7 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 			return false, err
 		}
 		if imageq {
-			mg, err := client(c)
-			if err != nil {
-				return false, err
-			}
+			mg := client(c)
 			f := imageIterFunc(enc, album.AlbumKey, op)
 			if err := mg.Image.ImagesIter(c.Context, album.AlbumKey, f); err != nil {
 				return false, err
@@ -57,16 +51,10 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 	albumq := c.Bool("album")
 	imageq := c.Bool("image")
 	return func(node *smugmug.Node) (bool, error) {
-		var albumKey string
-
-		enc, err := encoder(c)
-		if err != nil {
-			return false, err
-		}
-
+		enc := encoder(c)
 		msg := map[string]interface{}{
-			"name":   node.Name,
 			"type":   node.Type,
+			"name":   node.Name,
 			"nodeID": node.NodeID,
 		}
 		if node.Parent != nil {
@@ -80,9 +68,6 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			}
 			msg["albumKey"] = node.Album.AlbumKey
 			msg["imageCount"] = node.Album.ImageCount
-			if imageq {
-				albumKey = node.Album.AlbumKey
-			}
 		case "Folder":
 			if !nodeq {
 				return recurse, nil
@@ -93,13 +78,10 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			return false, err
 		}
 
-		if albumKey != "" {
-			mg, err := client(c)
-			if err != nil {
-				return false, err
-			}
+		if imageq && node.Album != nil {
+			albumKey := node.Album.AlbumKey
 			f := imageIterFunc(enc, albumKey, op)
-			if err := mg.Image.ImagesIter(c.Context, albumKey, f); err != nil {
+			if err := client(c).Image.ImagesIter(c.Context, albumKey, f); err != nil {
 				return false, err
 			}
 		}

@@ -6,19 +6,11 @@ import (
 )
 
 func user(c *cli.Context) error {
-	mg, err := client(c)
+	user, err := client(c).User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
 	if err != nil {
 		return err
 	}
-	user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
-	if err != nil {
-		return err
-	}
-	enc, err := encoder(c)
-	if err != nil {
-		return err
-	}
-	return enc.Encode("user", map[string]interface{}{
+	return encoder(c).Encode("user", map[string]interface{}{
 		"nickname": user.NickName,
 		"uri":      user.URI,
 		"nodeID":   user.Node.NodeID,

@@ -107,12 +107,12 @@ type req struct {
 type copyFunc func(src, dest string) error
 
 type copier struct {
-	fs         afero.Fs
-	dryrun     bool
-	dateFormat string
-	concurrent int
-	copyFunc   copyFunc
-	metric     *metrics.Metrics
+	fs          afero.Fs
+	dryrun      bool
+	dateFormat  string
+	concurrency int
+	copyFunc    copyFunc
+	metric      *metrics.Metrics
 }
 
 func (c *copier) dateTime(src string, info fs.FileInfo) dateTime {
@@ -206,8 +206,8 @@ func (c *copier) cp(ctx context.Context, root, dest string) error {
 		defer close(q)
 		return afero.Walk(c.fs, root, c.walker(ctx, q, dest))
 	})
-	log.Info().Str("root", root).Int("concurrent", c.concurrent).Msg("cp")
-	for i := 0; i < c.concurrent; i++ {
+	log.Info().Str("root", root).Int("concurrency", c.concurrency).Msg("cp")
+	for i := 0; i < c.concurrency; i++ {
 		grp.Go(func() error {
 			for x := range q {
 				if err := c.copy(x); err != nil {
@@ -224,10 +224,6 @@ func cp(c *cli.Context) error {
 	if c.NArg() < 2 {
 		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 	}
-	met, err := metric(c)
-	if err != nil {
-		return err
-	}
 	opts := copy.Options{
 		Sync:          true,
 		PreserveTimes: true,
@@ -240,13 +236,13 @@ func cp(c *cli.Context) error {
 	}
 	cpr := &copier{
 		fs:     afero.NewOsFs(),
-		metric: met,
+		metric: metric(c),
 		copyFunc: func(src, dst string) error {
 			return copy.Copy(src, dst, opts)
 		},
-		dryrun:     c.Bool("dryrun"),
-		dateFormat: c.String("format"),
-		concurrent: c.Int("concurrent"),
+		dryrun:      c.Bool("dryrun"),
+		dateFormat:  c.String("format"),
+		concurrency: c.Int("concurrency"),
 	}
 	n := c.NArg()
 	dest := c.Args().Get(n - 1)
@@ -275,7 +271,7 @@ func CommandCopy() *cli.Command {
 				Required: false,
 			},
 			&cli.IntFlag{
-				Name:    "concurrent",
+				Name:    "concurrency",
 				Aliases: []string{"c"},
 				Usage:   "the number of concurrent copies",
 				Value:   2,

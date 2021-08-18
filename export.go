@@ -132,14 +132,10 @@ func export(c *cli.Context) error {
 	if c.NArg() < 2 {
 		return fmt.Errorf("expected two arguments, not {%d}", c.NArg())
 	}
-	mg, err := client(c)
-	if err != nil {
-		return err
-	}
-
 	ctx, cancel := context.WithCancel(c.Context)
 	defer cancel()
 
+	mg := client(c)
 	x := &exporter{mg: mg, concurrent: c.Int("concurrent")}
 	f := x.export(ctx, c.Args().Get(1))
 	return mg.Node.Walk(ctx, c.Args().Get(0), func(node *smugmug.Node) (bool, error) {

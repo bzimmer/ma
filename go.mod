@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/armon/go-metrics v0.3.9
-	github.com/bzimmer/smugmug v0.0.0-20210817011219-9cf9ac6fecd5
+	github.com/bzimmer/smugmug v0.0.0-20210818005544-a7ab481fafc9
 	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
@@ -18,7 +18,7 @@ require (
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210816183151-1e6c022a8912 // indirect
+	golang.org/x/sys v0.0.0-20210817190340-bfb29a6856f2 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect

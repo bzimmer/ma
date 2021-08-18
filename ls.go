@@ -5,11 +5,23 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func album(c *cli.Context) error {
-	mg, err := client(c)
-	if err != nil {
-		return err
+func image(c *cli.Context) error {
+	mg := client(c)
+	for _, id := range c.Args().Slice() {
+		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum"))
+		if err != nil {
+			return err
+		}
+		f := imageIterFunc(encoder(c), image.Album.AlbumKey, "ls")
+		if _, err := f(image); err != nil {
+			return err
+		}
 	}
+	return nil
+}
+
+func album(c *cli.Context) error {
+	mg := client(c)
 	f := albumIterFunc(c, "ls")
 	for _, id := range c.Args().Slice() {
 		album, err := mg.Album.Album(c.Context, id)
@@ -24,10 +36,7 @@ func album(c *cli.Context) error {
 }
 
 func node(c *cli.Context) error {
-	mg, err := client(c)
-	if err != nil {
-		return err
-	}
+	mg := client(c)
 	nodeIDs := c.Args().Slice()
 	if len(nodeIDs) == 0 {
 		user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
@@ -54,7 +63,7 @@ func CommandList() *cli.Command {
 		Subcommands: []*cli.Command{
 			{
 				Name:      "album",
-				ArgsUsage: "<album key>[, <album key>, ...]",
+				ArgsUsage: "<album key> [<album key>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "image",
@@ -65,7 +74,7 @@ func CommandList() *cli.Command {
 			},
 			{
 				Name:      "node",
-				ArgsUsage: "<node id>[, <node id>, ...]",
+				ArgsUsage: "<node id> [<node id>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "album",
@@ -90,6 +99,11 @@ func CommandList() *cli.Command {
 				},
 				Before: albumOrNode,
 				Action: node,
+			},
+			{
+				Name:      "image",
+				ArgsUsage: "<image key> [<image key>, ...]",
+				Action:    image,
 			},
 		},
 	}

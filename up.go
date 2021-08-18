@@ -9,16 +9,7 @@ import (
 )
 
 func up(c *cli.Context) error {
-	mg, err := client(c)
-	if err != nil {
-		return err
-	}
-
-	metric, err := metric(c)
-	if err != nil {
-		return err
-	}
-
+	mg := client(c)
 	albumKey := c.String("album")
 	images := make(map[string]*smugmug.Image)
 
@@ -32,7 +23,7 @@ func up(c *cli.Context) error {
 	log.Info().Int("count", len(images)).Msg("existing gallery images")
 
 	u, err := filesystem.NewFsUploadable(
-		filesystem.WithMetrics(metric),
+		filesystem.WithMetrics(metric(c)),
 		filesystem.WithExtensions(".jpg"),
 		filesystem.WithImages(albumKey, images),
 	)

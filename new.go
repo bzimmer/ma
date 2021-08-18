@@ -29,19 +29,11 @@ func new(c *cli.Context) error {
 		Privacy: c.String("privacy"),
 	}
 
-	mg, err := client(c)
+	node, err := client(c).Node.Create(c.Context, c.String("parent"), nodelet)
 	if err != nil {
 		return err
 	}
-	node, err := mg.Node.Create(c.Context, c.String("parent"), nodelet)
-	if err != nil {
-		return err
-	}
-	enc, err := encoder(c)
-	if err != nil {
-		return err
-	}
-	return enc.Encode("new", map[string]interface{}{
+	return encoder(c).Encode("new", map[string]interface{}{
 		"name":    node.Name,
 		"nodeID":  node.NodeID,
 		"nodeURI": node.URI,

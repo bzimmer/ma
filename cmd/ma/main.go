@@ -44,6 +44,11 @@ func main() {
 				Usage:    "smugmug token secret",
 				EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
 			},
+			&cli.IntFlag{
+				Name:     "concurrency",
+				Value:    2,
+				Required: false,
+			},
 			&cli.BoolFlag{
 				Name:     "json",
 				Aliases:  []string{"j"},
@@ -99,6 +104,7 @@ func main() {
 
 			client, err := smugmug.NewClient(
 				smugmug.WithMetrics(metric),
+				smugmug.WithConcurrency(c.Int("concurrency")),
 				smugmug.WithHTTPClient(httpclient),
 				smugmug.WithPretty(c.Bool("debug")),
 				smugmug.WithHTTPTracing(c.Bool("debug")))
@@ -128,6 +134,7 @@ func main() {
 			ma.CommandFind(),
 			ma.CommandList(),
 			ma.CommandNew(),
+			ma.CommandPatch(),
 			ma.CommandUp(),
 			ma.CommandCopy(),
 			ma.CommandExport(),

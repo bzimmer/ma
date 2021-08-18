@@ -2,7 +2,6 @@ package ma
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/armon/go-metrics"
@@ -50,64 +49,24 @@ func (e *EncoderLog) Encode(op string, msg interface{}) error {
 	return nil
 }
 
-func encoder(c *cli.Context) (Encoder, error) {
-	t, ok := c.App.Metadata["encoder"]
-	if !ok {
-		return nil, errors.New("missing encoder")
-	}
-	switch x := t.(type) {
-	case Encoder:
-		return x, nil
-	default:
-		return nil, errors.New("missing encoder")
-	}
+func encoder(c *cli.Context) Encoder {
+	return c.App.Metadata["encoder"].(Encoder)
 }
 
-func client(c *cli.Context) (*smugmug.Client, error) {
-	t, ok := c.App.Metadata["client"]
-	if !ok {
-		return nil, errors.New("missing client")
-	}
-	switch x := t.(type) {
-	case *smugmug.Client:
-		return x, nil
-	default:
-		return nil, errors.New("missing client")
-	}
+func client(c *cli.Context) *smugmug.Client {
+	return c.App.Metadata["client"].(*smugmug.Client)
 }
 
-func sink(c *cli.Context) (*metrics.InmemSink, error) {
-	t, ok := c.App.Metadata["sink"]
-	if !ok {
-		return nil, errors.New("missing sink")
-	}
-	switch x := t.(type) {
-	case *metrics.InmemSink:
-		return x, nil
-	default:
-		return nil, errors.New("missing sink")
-	}
+func sink(c *cli.Context) *metrics.InmemSink {
+	return c.App.Metadata["sink"].(*metrics.InmemSink)
 }
 
-func metric(c *cli.Context) (*metrics.Metrics, error) {
-	t, ok := c.App.Metadata["metrics"]
-	if !ok {
-		return nil, errors.New("missing metrics")
-	}
-	switch x := t.(type) {
-	case *metrics.Metrics:
-		return x, nil
-	default:
-		return nil, errors.New("missing metrics")
-	}
+func metric(c *cli.Context) *metrics.Metrics {
+	return c.App.Metadata["metrics"].(*metrics.Metrics)
 }
 
 func stats(c *cli.Context) error {
-	snk, err := sink(c)
-	if err != nil {
-		return err
-	}
-	data := snk.Data()
+	data := sink(c).Data()
 	for i := range data {
 		for key, val := range data[i].Counters {
 			log.Info().

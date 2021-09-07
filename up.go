@@ -8,6 +8,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var exts = []string{".jpg"}
+
 func up(c *cli.Context) error {
 	mg := client(c)
 	albumKey := c.String("album")
@@ -24,7 +26,7 @@ func up(c *cli.Context) error {
 
 	u, err := filesystem.NewFsUploadable(
 		filesystem.WithMetrics(metric(c)),
-		filesystem.WithExtensions(".jpg"),
+		filesystem.WithExtensions(c.StringSlice("exts")...),
 		filesystem.WithImages(albumKey, images),
 	)
 	if err != nil {
@@ -36,6 +38,8 @@ func up(c *cli.Context) error {
 	uploadc, errc := mg.Upload.Uploads(c.Context, fsup)
 	for {
 		select {
+		case <-c.Context.Done():
+			return c.Context.Err()
 		case err := <-errc:
 			return err
 		case _, ok := <-uploadc:
@@ -56,6 +60,12 @@ func CommandUp() *cli.Command {
 				Name:     "album",
 				Aliases:  []string{"a"},
 				Required: true,
+			},
+			&cli.StringSliceFlag{
+				Name:     "ext",
+				Aliases:  []string{"x"},
+				Required: false,
+				Value:    cli.NewStringSlice(exts...),
 			},
 		},
 		Action: up,

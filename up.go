@@ -26,7 +26,7 @@ func up(c *cli.Context) error {
 
 	u, err := filesystem.NewFsUploadable(
 		filesystem.WithMetrics(metric(c)),
-		filesystem.WithExtensions(c.StringSlice("exts")...),
+		filesystem.WithExtensions(c.StringSlice("ext")...),
 		filesystem.WithImages(albumKey, images),
 	)
 	if err != nil {

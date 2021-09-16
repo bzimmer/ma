@@ -33,12 +33,21 @@ func new(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoder(c).Encode("new", map[string]interface{}{
+	m := map[string]interface{}{
 		"name":    node.Name,
 		"nodeID":  node.NodeID,
 		"nodeURI": node.URI,
 		"urlName": node.URLName,
-	})
+	}
+	if nodelet.Type == "Album" {
+		node, err = client(c).Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
+		if err != nil {
+			return err
+		}
+		m["albumKey"] = node.Album.AlbumKey
+		defer func() { fmt.Println(node.WebURI) }()
+	}
+	return encoder(c).Encode("new", m)
 }
 
 func CommandNew() *cli.Command {

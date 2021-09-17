@@ -92,7 +92,7 @@ func CommandPatch() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "force",
-				Usage: "force must specified to apply the patch",
+				Usage: "force must be specified to apply the patch",
 				Value: false,
 			},
 			&cli.StringSliceFlag{

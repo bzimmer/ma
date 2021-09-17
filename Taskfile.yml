@@ -7,8 +7,12 @@ dotenv: ['.env']
 vars:
   CWD:
     sh: git rev-parse --show-toplevel
+  APP:
+    sh: basename $PWD
+  PKG:
+    github.com/bzimmer/{{.APP}}
   DIST:
-    "{{.CWD}}/.dist"
+    "{{.CWD}}/dist"
 
 tasks:
   default:
@@ -18,7 +22,7 @@ tasks:
   ma:
     desc: Run the cli
     cmds:
-      - go run cmd/ma/*.go {{.CLI_ARGS}}
+      - go run cmd/{{.APP}}/*.go {{.CLI_ARGS}}
 
   test:
     desc: Run tests
@@ -32,8 +36,21 @@ tasks:
     cmds:
       - go tool cover -html={{.DIST}}/coverage.txt
 
-  install:
-    desc: Install the binary
-    deps: [test]
+  clean:
+    desc: Remove build artifacts
     cmds:
-      - go build -o {{.GOPATH}}/bin/ma cmd/ma/main.go
+      - rm -rf {{.DIST}}
+
+  build:
+    desc: Build all cmds
+    cmds:
+      - go build -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
+
+  install:
+    desc: Install {{.APP}}
+    deps: []
+    cmds:
+      - task: build
+        vars:
+          DIST:
+            sh: echo $GOPATH/bin

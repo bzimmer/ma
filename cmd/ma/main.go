@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/bzimmer/ma"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
 )
 
 func main() {

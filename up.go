@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 var exts = []string{".jpg"}
@@ -13,6 +14,7 @@ var exts = []string{".jpg"}
 func up(c *cli.Context) error {
 	mg := client(c)
 	albumKey := c.String("album")
+	albumbc := make(chan *smugmug.Album, 1)
 	images := make(map[string]*smugmug.Image)
 
 	log.Info().Msg("querying existing gallery images")
@@ -33,28 +35,47 @@ func up(c *cli.Context) error {
 		return err
 	}
 
-	fs := afero.NewOsFs()
-	fsup := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
-	uploadc, errc := mg.Upload.Uploads(c.Context, fsup)
-	for {
-		select {
-		case <-c.Context.Done():
-			return c.Context.Err()
-		case err := <-errc:
+	grp, ctx := errgroup.WithContext(c.Context)
+	grp.Go(func() error {
+		defer close(albumbc)
+		album, err := mg.Album.Album(ctx, albumKey)
+		if err != nil {
 			return err
-		case _, ok := <-uploadc:
-			if !ok {
-				log.Info().Msg("complete")
-				return nil
+		}
+		albumbc <- album
+		return nil
+	})
+	grp.Go(func() error {
+		fs := afero.NewOsFs()
+		fsup := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
+		uploadc, errc := mg.Upload.Uploads(ctx, fsup)
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case err := <-errc:
+				return err
+			case _, ok := <-uploadc:
+				if !ok {
+					select {
+					case <-ctx.Done():
+						return ctx.Err()
+					case album := <-albumbc:
+						log.Info().Str("albumKey", album.AlbumKey).Str("webURI", album.WebURI).Msg("complete")
+					}
+					return nil
+				}
 			}
 		}
-	}
+	})
+	return grp.Wait()
 }
 
 func CommandUp() *cli.Command {
 	return &cli.Command{
-		Name:  "up",
-		Usage: "upload images to SmugMug",
+		Name:    "up",
+		Aliases: []string{"upload"},
+		Usage:   "upload images to SmugMug",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "album",

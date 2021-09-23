@@ -9,16 +9,74 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var exts = []string{".jpg"}
+func extensions(c *cli.Context) filesystem.PreFunc {
+	f := filesystem.Extensions(c.StringSlice("ext")...)
+	return func(fs afero.Fs, filename string) (bool, error) {
+		ok, err := f(fs, filename)
+		if err != nil {
+			return ok, err
+		}
+		if !ok {
+			metric(c).IncrCounter([]string{"fsUploadable", "skip", "unsupported"}, 1)
+			log.Info().Str("reason", "unsupported").Str("path", filename).Msg("skipping")
+		}
+		return ok, err
+	}
+}
+
+func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
+	f := filesystem.Skip(false, images)
+	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+		metric(c).IncrCounter([]string{"fsUploadable", "open"}, 1)
+		sup, err := f(up)
+		if err != nil {
+			return nil, err
+		}
+		if sup == nil {
+			metric(c).IncrCounter([]string{"fsUploadable", "skip", "md5"}, 1)
+			log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
+			return nil, err
+		}
+		return sup, nil
+	}
+}
+
+func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
+	f := filesystem.Replace(true, images)
+	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+		up, err := f(up)
+		if err != nil {
+			return nil, err
+		}
+		if up == nil {
+			return nil, nil
+		}
+		if up.Replaces != "" {
+			metric(c).IncrCounter([]string{"fsUploadable", "replace"}, 1)
+		}
+		return up, err
+	}
+}
+
+func status(c *cli.Context) filesystem.UseFunc {
+	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+		log.Info().
+			Str("name", up.Name).
+			Str("album", up.AlbumKey).
+			Str("replaces", up.Replaces).
+			Str("status", "uploading").
+			Msg("upload")
+		metric(c).IncrCounter([]string{"upload", "attempt"}, 1)
+		return up, nil
+	}
+}
 
 func up(c *cli.Context) error {
 	mg := client(c)
 	albumKey := c.String("album")
-	albumbc := make(chan *smugmug.Album, 1)
 	images := make(map[string]*smugmug.Image)
-
 	log.Info().Msg("querying existing gallery images")
-	if err := mg.Image.ImagesIter(c.Context, albumKey, func(img *smugmug.Image) (bool, error) {
+	if err := client(c).Image.ImagesIter(c.Context, albumKey, func(img *smugmug.Image) (bool, error) {
 		images[img.FileName] = img
 		return true, nil
 	}); err != nil {
@@ -26,16 +84,16 @@ func up(c *cli.Context) error {
 	}
 	log.Info().Int("count", len(images)).Msg("existing gallery images")
 
-	u, err := filesystem.NewFsUploadable(
-		filesystem.WithMetrics(metric(c)),
-		filesystem.WithExtensions(c.StringSlice("ext")...),
-		filesystem.WithImages(albumKey, images),
-	)
+	u, err := filesystem.NewFsUploadable(albumKey)
 	if err != nil {
 		return err
 	}
+	u.Pre(extensions(c))
+	u.Use(skip(c, images), replace(c, images), status(c))
 
 	grp, ctx := errgroup.WithContext(c.Context)
+
+	albumbc := make(chan *smugmug.Album, 1)
 	grp.Go(func() error {
 		defer close(albumbc)
 		album, err := mg.Album.Album(ctx, albumKey)
@@ -47,15 +105,15 @@ func up(c *cli.Context) error {
 	})
 	grp.Go(func() error {
 		fs := afero.NewOsFs()
-		fsup := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
-		uploadc, errc := mg.Upload.Uploads(ctx, fsup)
+		ups := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
+		uploadc, errc := mg.Upload.Uploads(ctx, ups)
 		for {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
 			case err := <-errc:
 				return err
-			case _, ok := <-uploadc:
+			case up, ok := <-uploadc:
 				if !ok {
 					select {
 					case <-ctx.Done():
@@ -65,6 +123,15 @@ func up(c *cli.Context) error {
 					}
 					return nil
 				}
+				metric(c).IncrCounter([]string{"upload", "success"}, 1)
+				metric(c).AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
+				log.Info().
+					Str("name", up.Uploadable.Name).
+					Str("album", up.Uploadable.AlbumKey).
+					Dur("elapsed", up.Elapsed).
+					Str("uri", up.ImageURI).
+					Str("status", "success").
+					Msg("upload")
 			}
 		}
 	})
@@ -86,7 +153,7 @@ func CommandUp() *cli.Command {
 				Name:     "ext",
 				Aliases:  []string{"x"},
 				Required: false,
-				Value:    cli.NewStringSlice(exts...),
+				Value:    cli.NewStringSlice(".jpg"),
 			},
 		},
 		Action: up,

@@ -104,7 +104,6 @@ func main() {
 			}
 
 			client, err := smugmug.NewClient(
-				smugmug.WithMetrics(metric),
 				smugmug.WithConcurrency(c.Int("concurrency")),
 				smugmug.WithHTTPClient(httpclient),
 				smugmug.WithPretty(c.Bool("debug")),

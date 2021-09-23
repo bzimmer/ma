@@ -21,14 +21,15 @@ tasks:
 
   ma:
     desc: Run the cli
+    deps: [build]
     cmds:
-      - go run cmd/{{.APP}}/*.go {{.CLI_ARGS}}
+      - '{{.DIST}}/ma {{.CLI_ARGS}}'
 
   test:
     desc: Run tests
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
+      - go test -short -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
 
   cover:
     desc: Visualize test coverage

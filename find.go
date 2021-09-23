@@ -1,6 +1,8 @@
 package ma
 
 import (
+	"strings"
+
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
@@ -17,8 +19,10 @@ func find(c *cli.Context) error {
 		scope = user.URI
 	}
 
+	q := strings.Join(c.Args().Slice(), " ")
+	options := []smugmug.APIOption{smugmug.WithSearch(scope, q)}
+
 	grp, ctx := errgroup.WithContext(c.Context)
-	options := []smugmug.APIOption{smugmug.WithSearch(scope, c.Args().First())}
 	if c.Bool("node") {
 		grp.Go(func() error {
 			return mg.Node.SearchIter(ctx, nodeIterFunc(c, false, "find"), options...)

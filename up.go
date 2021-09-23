@@ -9,12 +9,19 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+func visit(c *cli.Context) filesystem.PreFunc {
+	return func(fs afero.Fs, filename string) (bool, error) {
+		metric(c).IncrCounter([]string{"fsUploadable", "visit"}, 1)
+		return true, nil
+	}
+}
+
 func extensions(c *cli.Context) filesystem.PreFunc {
 	f := filesystem.Extensions(c.StringSlice("ext")...)
 	return func(fs afero.Fs, filename string) (bool, error) {
 		ok, err := f(fs, filename)
 		if err != nil {
-			return ok, err
+			return false, err
 		}
 		if !ok {
 			metric(c).IncrCounter([]string{"fsUploadable", "skip", "unsupported"}, 1)
@@ -24,10 +31,16 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 	}
 }
 
+func open(c *cli.Context) filesystem.UseFunc {
+	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+		metric(c).IncrCounter([]string{"fsUploadable", "open"}, 1)
+		return up, nil
+	}
+}
+
 func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 	f := filesystem.Skip(false, images)
 	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		metric(c).IncrCounter([]string{"fsUploadable", "open"}, 1)
 		sup, err := f(up)
 		if err != nil {
 			return nil, err
@@ -88,8 +101,8 @@ func up(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	u.Pre(extensions(c))
-	u.Use(skip(c, images), replace(c, images), status(c))
+	u.Pre(visit(c), extensions(c))
+	u.Use(open(c), skip(c, images), replace(c, images), status(c))
 
 	grp, ctx := errgroup.WithContext(c.Context)
 

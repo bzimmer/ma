@@ -25,3 +25,4 @@ jobs:
         uses: arduino/setup-task@v1
       - name: Test
         run: task test
+        if: matrix.os == 'ubuntu-latest'

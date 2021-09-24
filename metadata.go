@@ -7,6 +7,7 @@ import (
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 )
 
@@ -63,6 +64,10 @@ func sink(c *cli.Context) *metrics.InmemSink {
 
 func metric(c *cli.Context) *metrics.Metrics {
 	return c.App.Metadata["metrics"].(*metrics.Metrics)
+}
+
+func afs(c *cli.Context) afero.Fs {
+	return c.App.Metadata["fs"].(afero.Fs)
 }
 
 func stats(c *cli.Context) error {

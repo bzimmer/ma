@@ -1,13 +1,27 @@
 package ma
 
 import (
+	"fmt"
+	"regexp"
+
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
 )
 
+var imageRE = regexp.MustCompile("[a-zA-Z0-9]+-[0-9]+")
+
 func image(c *cli.Context) error {
 	mg := client(c)
+	zv := c.Bool("zero-version")
 	for _, id := range c.Args().Slice() {
+		// preempt a common mistake
+		ok := imageRE.MatchString(id)
+		if !ok {
+			if !zv {
+				return fmt.Errorf("no version specified for image key {%s}", id)
+			}
+			id = fmt.Sprintf("%s-0", id)
+		}
 		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum"))
 		if err != nil {
 			return err
@@ -59,21 +73,23 @@ func CommandList() *cli.Command {
 	return &cli.Command{
 		Name:    "ls",
 		Aliases: []string{"list"},
-		Usage:   "list albums and/or nodes",
+		Usage:   "list nodes, albums, and/or images",
 		Subcommands: []*cli.Command{
 			{
 				Name:      "album",
+				Usage:     "list albums",
 				ArgsUsage: "<album key> [<album key>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "image",
-						Aliases: []string{"i"},
+						Aliases: []string{"i", "R"},
 					},
 				},
 				Action: album,
 			},
 			{
 				Name:      "node",
+				Usage:     "list nodes",
 				ArgsUsage: "<node id> [<node id>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
@@ -102,8 +118,17 @@ func CommandList() *cli.Command {
 			},
 			{
 				Name:      "image",
+				Usage:     "list images",
 				ArgsUsage: "<image key> [<image key>, ...]",
-				Action:    image,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:     "zero-version",
+						Aliases:  []string{"z"},
+						Value:    false,
+						Required: false,
+					},
+				},
+				Action: image,
 			},
 		},
 	}

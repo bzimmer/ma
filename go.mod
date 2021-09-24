@@ -1,6 +1,6 @@
 module github.com/bzimmer/ma
 
-go 1.16
+go 1.17
 
 require (
 	github.com/armon/go-metrics v0.3.9
@@ -14,10 +14,22 @@ require (
 	github.com/rs/zerolog v1.25.0
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/spf13/afero v1.6.0
-	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/stretchr/testify v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20210921065528-437939a70204 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	trimmer.io/go-xmp v0.0.0-20200923092433-f9b6ca6c4a87
+)
+
+require (
+	github.com/bzimmer/httpwares v0.0.3 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/mattn/go-colorable v0.1.9 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 )

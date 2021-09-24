@@ -71,14 +71,18 @@ func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFun
 	}
 }
 
-func status(c *cli.Context) filesystem.UseFunc {
+func upload(c *cli.Context) filesystem.UseFunc {
 	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		log.Info().
+		info := log.Info().
 			Str("name", up.Name).
 			Str("album", up.AlbumKey).
-			Str("replaces", up.Replaces).
-			Str("status", "uploading").
-			Msg("upload")
+			Str("replaces", up.Replaces)
+		if c.Bool("dryrun") {
+			info.Str("status", "dryrun").Msg("upload")
+			metric(c).IncrCounter([]string{"upload", "dryrun"}, 1)
+			return nil, nil
+		}
+		info.Str("status", "attempt").Msg("upload")
 		metric(c).IncrCounter([]string{"upload", "attempt"}, 1)
 		return up, nil
 	}
@@ -102,7 +106,7 @@ func up(c *cli.Context) error {
 		return err
 	}
 	u.Pre(visit(c), extensions(c))
-	u.Use(open(c), skip(c, images), replace(c, images), status(c))
+	u.Use(open(c), skip(c, images), replace(c, images), upload(c))
 
 	grp, ctx := errgroup.WithContext(c.Context)
 
@@ -117,8 +121,7 @@ func up(c *cli.Context) error {
 		return nil
 	})
 	grp.Go(func() error {
-		fs := afero.NewOsFs()
-		ups := filesystem.NewFsUploadables(fs, c.Args().Slice(), u)
+		ups := filesystem.NewFsUploadables(afs(c), c.Args().Slice(), u)
 		uploadc, errc := mg.Upload.Uploads(ctx, ups)
 		for {
 			select {
@@ -167,6 +170,12 @@ func CommandUp() *cli.Command {
 				Aliases:  []string{"x"},
 				Required: false,
 				Value:    cli.NewStringSlice(".jpg"),
+			},
+			&cli.BoolFlag{
+				Name:     "dryrun",
+				Aliases:  []string{"n"},
+				Value:    false,
+				Required: false,
 			},
 		},
 		Action: up,

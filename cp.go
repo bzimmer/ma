@@ -235,7 +235,7 @@ func cp(c *cli.Context) error {
 		},
 	}
 	cpr := &copier{
-		fs:     afero.NewOsFs(),
+		fs:     afs(c),
 		metric: metric(c),
 		copyFunc: func(src, dst string) error {
 			return copy.Copy(src, dst, opts)

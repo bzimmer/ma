@@ -10,6 +10,7 @@ import (
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/ma"
@@ -125,6 +126,7 @@ func main() {
 				"metrics": metric,
 				"sink":    sink,
 				"encoder": enc,
+				"fs":      afero.NewOsFs(),
 			}
 
 			return nil

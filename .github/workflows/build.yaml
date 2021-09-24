@@ -24,4 +24,4 @@ jobs:
       - name: Install Task
         uses: arduino/setup-task@v1
       - name: Test
-         run: task test
+        run: task test

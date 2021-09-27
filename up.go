@@ -91,15 +91,27 @@ func upload(c *cli.Context) filesystem.UseFunc {
 func up(c *cli.Context) error {
 	mg := client(c)
 	albumKey := c.String("album")
+
+	grp, ctx := errgroup.WithContext(c.Context)
+
+	album := (*smugmug.Album)(nil)
 	images := make(map[string]*smugmug.Image)
-	log.Info().Msg("querying existing gallery images")
-	if err := client(c).Image.ImagesIter(c.Context, albumKey, func(img *smugmug.Image) (bool, error) {
-		images[img.FileName] = img
-		return true, nil
-	}); err != nil {
+	grp.Go(func() error {
+		log.Info().Str("albumKey", albumKey).Msg("querying existing gallery images")
+		return client(c).Image.ImagesIter(ctx, albumKey, func(img *smugmug.Image) (bool, error) {
+			images[img.FileName] = img
+			return true, nil
+		})
+	})
+	grp.Go(func() error {
+		var err error
+		album, err = client(c).Album.Album(ctx, albumKey)
+		return err
+	})
+	if err := grp.Wait(); err != nil {
 		return err
 	}
-	log.Info().Int("count", len(images)).Msg("existing gallery images")
+	log.Info().Int("count", len(images)).Str("name", album.Name).Str("albumKey", albumKey).Msg("existing gallery images")
 
 	u, err := filesystem.NewFsUploadable(albumKey)
 	if err != nil {
@@ -108,7 +120,7 @@ func up(c *cli.Context) error {
 	u.Pre(visit(c), extensions(c))
 	u.Use(open(c), skip(c, images), replace(c, images), upload(c))
 
-	grp, ctx := errgroup.WithContext(c.Context)
+	grp, ctx = errgroup.WithContext(c.Context)
 
 	albumbc := make(chan *smugmug.Album, 1)
 	grp.Go(func() error {

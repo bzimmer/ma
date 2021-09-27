@@ -2,6 +2,7 @@ package ma
 
 import (
 	"github.com/bzimmer/smugmug"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -10,11 +11,8 @@ func user(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	return encoder(c).Encode("user", map[string]interface{}{
-		"nickname": user.NickName,
-		"uri":      user.URI,
-		"nodeID":   user.Node.NodeID,
-	})
+	log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Str("nodeID", user.Node.NodeID).Msg("user")
+	return encoder(c).Encode(user)
 }
 
 func CommandUser() *cli.Command {

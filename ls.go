@@ -26,7 +26,7 @@ func image(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		f := imageIterFunc(encoder(c), image.Album.AlbumKey, "ls")
+		f := imageIterFunc(c, image.Album, "ls")
 		if _, err := f(image); err != nil {
 			return err
 		}

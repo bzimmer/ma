@@ -75,7 +75,7 @@ func patch(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
-			f := imageIterFunc(encoder(c), "", "patch")
+			f := imageIterFunc(c, nil, "patch")
 			if _, err := f(img); err != nil {
 				return err
 			}

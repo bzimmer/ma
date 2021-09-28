@@ -55,7 +55,7 @@ func stats(c *cli.Context) error {
 				Msg("samples")
 		}
 	}
-	return nil
+	return encoder(c).Encode(data)
 }
 
 func albumOrNode(c *cli.Context) error {

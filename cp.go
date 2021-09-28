@@ -115,17 +115,19 @@ type copier struct {
 	metric      *metrics.Metrics
 }
 
-func (c *copier) dateTime(src string, info fs.FileInfo) dateTime {
+// dateTime returns a dateTime instance capable of returning the date and time from
+//  metadata and the extension of the file
+// if the return value of dateTime is nil, the filetype is unsupported
+func (c *copier) dateTime(src string, info fs.FileInfo) (dateTime, string) {
 	if strings.HasPrefix(info.Name(), ".") {
-		c.metric.IncrCounter([]string{"cp", "skip", "unsupported", "hidden"}, 1)
-		return nil
+		return nil, ""
 	}
 	ext := strings.ToLower(filepath.Ext(info.Name()))
 	switch ext {
 	case ".jpg", ".raf", ".dng", ".nef", ".jpeg":
-		return &dateTimeExif{fs: c.fs, src: src, ext: ext, info: info}
+		return &dateTimeExif{fs: c.fs, src: src, ext: ext, info: info}, ext
 	case ".xmp":
-		return &dateTimeXmp{fs: c.fs, src: src}
+		return &dateTimeXmp{fs: c.fs, src: src}, ext
 	case "":
 		ext = ".<none>"
 	case ".mp4", ".mov", ".avi":
@@ -134,13 +136,11 @@ func (c *copier) dateTime(src string, info fs.FileInfo) dateTime {
 		// @todo(orf)
 	default:
 	}
-	ext = ext[1:]
-	log.Info().Str("src", src).Str("reason", "unsupported").Str("ext", ext).Msg("skip")
-	c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
-	return nil
+	return nil, ext
 }
 
 func (c *copier) copy(q req) error {
+	defer c.metric.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
 	log.Info().Str("src", q.src).Str("dst", q.dst).Msg("cp")
 	if c.dryrun {
 		c.metric.IncrCounter([]string{"cp", "dryrun"}, 1)
@@ -165,8 +165,17 @@ func (c *copier) walker(ctx context.Context, q chan<- req, dest string) filepath
 		}
 		c.metric.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dt := c.dateTime(src, info)
+		dt, ext := c.dateTime(src, info)
 		if dt == nil {
+			switch ext {
+			case "":
+				log.Info().Str("src", src).Str("reason", "unsupported.hidden").Msg("skip")
+				c.metric.IncrCounter([]string{"cp", "skip", "unsupported", "hidden"}, 1)
+			default:
+				ext = strings.TrimPrefix(ext, ".")
+				log.Info().Str("src", src).Str("reason", "unsupported."+ext).Msg("skip")
+				c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
+			}
 			return nil // not an error but not supported
 		}
 
@@ -244,6 +253,9 @@ func cp(c *cli.Context) error {
 		dateFormat:  c.String("format"),
 		concurrency: c.Int("concurrency"),
 	}
+
+	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
+
 	n := c.NArg()
 	dest := c.Args().Get(n - 1)
 	for i := 0; i < n-1; i++ {

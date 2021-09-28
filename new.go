@@ -6,6 +6,7 @@ import (
 	"unicode"
 
 	"github.com/bzimmer/smugmug"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -33,21 +34,22 @@ func new(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	m := map[string]interface{}{
-		"name":    node.Name,
-		"nodeID":  node.NodeID,
-		"nodeURI": node.URI,
-		"urlName": node.URLName,
-	}
+	msg := log.Info()
+	msg = msg.Str("name", node.Name)
+	msg = msg.Str("nodeID", node.NodeID)
+	msg = msg.Str("nodeURI", node.URI)
+	msg = msg.Str("urlName", node.URLName)
+	msg = msg.Str("webURI", node.WebURI)
 	if nodelet.Type == "Album" {
 		node, err = client(c).Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
 		if err != nil {
 			return err
 		}
-		m["albumKey"] = node.Album.AlbumKey
-		defer func() { fmt.Println(node.WebURI) }()
+		msg = msg.Str("albumKey", node.Album.AlbumKey)
+		msg = msg.Str("albumKey", node.Album.AlbumKey)
 	}
-	return encoder(c).Encode("new", m)
+	msg.Msg("new")
+	return encoder(c).Encode(node)
 }
 
 func CommandNew() *cli.Command {

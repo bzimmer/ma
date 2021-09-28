@@ -16,6 +16,20 @@ import (
 	"github.com/bzimmer/ma"
 )
 
+type encoderBlackhole struct{}
+
+func (e *encoderBlackhole) Encode(_ interface{}) error {
+	return nil
+}
+
+type encoderJSON struct {
+	encoder *json.Encoder
+}
+
+func (e *encoderJSON) Encode(v interface{}) error {
+	return e.encoder.Encode(v)
+}
+
 func main() {
 	app := &cli.App{
 		Name:     "ma",
@@ -116,9 +130,9 @@ func main() {
 			var enc ma.Encoder
 			switch {
 			case c.Bool("json"):
-				enc = &ma.EncoderJSON{Encoder: json.NewEncoder(c.App.Writer)}
+				enc = &encoderJSON{encoder: json.NewEncoder(c.App.Writer)}
 			default:
-				enc = &ma.EncoderLog{}
+				enc = &encoderBlackhole{}
 			}
 
 			c.App.Metadata = map[string]interface{}{

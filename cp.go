@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -18,8 +17,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
-	xmpexif "trimmer.io/go-xmp/models/exif"
-	"trimmer.io/go-xmp/xmp"
 )
 
 const (
@@ -27,34 +24,21 @@ const (
 	defaultDateFormat = "2006/2006-01/02"
 )
 
-type dateTime interface {
-	dateTime() (time.Time, error)
-}
+var defaultImages = []string{".raf", ".nef", ".dng", ".jpg", ".jpeg"}
 
-type dateTimeXmp struct {
-	fs  afero.Fs
-	src string
-}
-
-func (b *dateTimeXmp) dateTime() (time.Time, error) {
-	fp, err := b.fs.Open(b.src)
-	if err != nil {
-		return time.Time{}, nil
+func split(fullname string) (dirname, basename string) {
+	dirname, filename := filepath.Split(fullname)
+	n := strings.LastIndexFunc(filename, func(s rune) bool {
+		return s == '.'
+	})
+	switch n {
+	case -1:
+		basename = filename
+	default:
+		basename = filename[0:n]
 	}
-	defer fp.Close()
-	data, err := io.ReadAll(fp)
-	if err != nil {
-		return time.Time{}, nil
-	}
-	var document xmp.Document
-	if err := xmp.Unmarshal(data, &document); err != nil {
-		return time.Time{}, nil
-	}
-	x := xmpexif.FindModel(&document)
-	if x == nil {
-		return time.Time{}, nil
-	}
-	return x.DateTimeOriginal.Value(), nil
+	dirname = filepath.Clean(dirname)
+	return
 }
 
 type dateTimeExif struct {
@@ -74,7 +58,7 @@ func (b *dateTimeExif) bufferSize() (int64, error) {
 }
 
 func (b *dateTimeExif) dateTime() (time.Time, error) {
-	fp, err := b.fs.Open(b.src)
+	fp, err := b.fs.Open(filepath.Join(b.src, b.info.Name()))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -99,63 +83,158 @@ func (b *dateTimeExif) dateTime() (time.Time, error) {
 	return tm, err
 }
 
-type req struct {
-	src string
-	dst string
+type fileSet struct {
+	files []fs.FileInfo
+}
+
+func (f *fileSet) add(info fs.FileInfo) {
+	f.files = append(f.files, info)
+}
+
+func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
+	// for every file in the fileset attempt to create a time.Time
+	times := make(map[string]time.Time)
+	for i := range f.files {
+		info := f.files[i]
+		ext := strings.ToLower(filepath.Ext(info.Name()))
+		switch ext {
+		case ".jpg", ".jpeg", ".raf", ".dng", ".nef":
+			dt := &dateTimeExif{fs: fs, src: dirname, ext: ext, info: info}
+			t, err := dt.dateTime()
+			if err != nil {
+				return time.Time{}, err
+			}
+			times[ext] = t
+		case ".mp4", ".mov", ".avi":
+			// @todo(movies)
+		case ".orf":
+			// @todo(orf)
+		case "", ".xmp":
+			// not trustworthy for valid dates
+		}
+	}
+
+	// in priority order, find the first non-zero time.Time
+	for _, ext := range defaultImages {
+		t, ok := times[ext]
+		if ok {
+			return t, nil
+		}
+	}
+
+	// found no time
+	return time.Time{}, nil
 }
 
 type copyFunc func(src, dest string) error
 
-type copier struct {
+type entangle struct {
+	source  string
+	fileSet *fileSet
+}
+
+type entangler struct {
 	fs          afero.Fs
+	metric      *metrics.Metrics
+	copyFunc    copyFunc
+	concurrency int
 	dryrun      bool
 	dateFormat  string
-	concurrency int
-	copyFunc    copyFunc
-	metric      *metrics.Metrics
 }
 
-// dateTime returns a dateTime instance capable of returning the date and time from
-//  metadata and the extension of the file
-// if the return value of dateTime is nil, the filetype is unsupported
-func (c *copier) dateTime(src string, info fs.FileInfo) (dateTime, string) {
-	if strings.HasPrefix(info.Name(), ".") {
-		return nil, ""
+func (c *entangler) cp(ctx context.Context, sources []string, destination string) error {
+	q := make(chan *entangle)
+	grp, ctx := errgroup.WithContext(ctx)
+	grp.Go(func() error {
+		defer close(q)
+		sets := make(map[string]map[string]*fileSet)
+		for i := range sources {
+			if err := afero.Walk(c.fs, sources[i], c.filesets(sets)); err != nil {
+				return err
+			}
+		}
+		for dirname, filesets := range sets {
+			for _, fileset := range filesets {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case q <- &entangle{source: dirname, fileSet: fileset}:
+					c.metric.IncrCounter([]string{"cp", "filesets"}, 1)
+				}
+			}
+		}
+		return nil
+	})
+	for i := 0; i < c.concurrency; i++ {
+		grp.Go(c.copyFileSet(q, destination))
 	}
-	ext := strings.ToLower(filepath.Ext(info.Name()))
-	switch ext {
-	case ".jpg", ".raf", ".dng", ".nef", ".jpeg":
-		return &dateTimeExif{fs: c.fs, src: src, ext: ext, info: info}, ext
-	case ".xmp":
-		return &dateTimeXmp{fs: c.fs, src: src}, ext
-	case "":
-		ext = ".<none>"
-	case ".mp4", ".mov", ".avi":
-		// @todo(movies)
-	case ".orf":
-		// @todo(orf)
-	default:
-	}
-	return nil, ext
+	return grp.Wait()
 }
 
-func (c *copier) copy(q req) error {
-	defer c.metric.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
-	log.Info().Str("src", q.src).Str("dst", q.dst).Msg("cp")
-	if c.dryrun {
-		c.metric.IncrCounter([]string{"cp", "dryrun"}, 1)
+func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() error {
+	return func() error {
+		for ent := range q {
+			c.metric.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
+			dt, err := ent.fileSet.dateTime(c.fs, ent.source)
+			if err != nil {
+				return err
+			}
+			if dt.IsZero() {
+				c.metric.IncrCounter([]string{"cp", "fileset", "skip", "unsupported"}, 1)
+				for i := range ent.fileSet.files {
+					filename := ent.fileSet.files[i].Name()
+					ext := filepath.Ext(filename)
+					ext = strings.TrimPrefix(ext, ".")
+					if ext == "" {
+						ext = "<none>"
+					}
+					log.Warn().Str("filename", filename).Str("reason", "unsupported."+ext).Msg("skip")
+					c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
+				}
+			}
+			df := dt.Format(c.dateFormat)
+			for i := range ent.fileSet.files {
+				src := filepath.Join(ent.source, ent.fileSet.files[i].Name())
+				dst := filepath.Join(destination, df, ent.fileSet.files[i].Name())
+				if err := c.copyFile(src, dst); err != nil {
+					return err
+				}
+			}
+		}
 		return nil
 	}
-	if err := c.copyFunc(q.src, q.dst); err != nil {
-		c.metric.IncrCounter([]string{"cp", "failed"}, 1)
+}
+
+func (c *entangler) copyFile(source, destination string) error {
+	defer c.metric.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
+	c.metric.IncrCounter([]string{"cp", "file", "attempt"}, 1)
+	stat, err := c.fs.Stat(destination)
+	if err != nil {
+		if !errors.Is(err, afero.ErrFileNotFound) {
+			return err
+		}
+	}
+	if stat != nil {
+		c.metric.IncrCounter([]string{"cp", "skip", "exists"}, 1)
+		log.Info().Str("src", source).Str("dst", destination).Str("reason", "exists").Msg("skip")
+		return nil
+	}
+	log.Info().Str("src", source).Str("dst", destination).Msg("cp")
+	if c.dryrun {
+		c.metric.IncrCounter([]string{"cp", "file", "dryrun"}, 1)
+		return nil
+	}
+	if err := c.copyFunc(source, destination); err != nil {
+		c.metric.IncrCounter([]string{"cp", "file", "failed"}, 1)
 		return err
 	}
-	c.metric.IncrCounter([]string{"cp", "success"}, 1)
+	c.metric.IncrCounter([]string{"cp", "file", "success"}, 1)
 	return nil
 }
 
-func (c *copier) walker(ctx context.Context, q chan<- req, dest string) filepath.WalkFunc {
-	return func(src string, info fs.FileInfo, err error) error {
+// filesets creates fileSets from a directory traversal
+func (c *entangler) filesets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
+	return func(fullname string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -163,107 +242,62 @@ func (c *copier) walker(ctx context.Context, q chan<- req, dest string) filepath
 			c.metric.IncrCounter([]string{"cp", "visited", "directories"}, 1)
 			return nil
 		}
+		if strings.HasPrefix(info.Name(), ".") {
+			c.metric.IncrCounter([]string{"cp", "skip", "hidden"}, 1)
+			return nil
+		}
 		c.metric.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dt, ext := c.dateTime(src, info)
-		if dt == nil {
-			switch ext {
-			case "":
-				log.Info().Str("src", src).Str("reason", "unsupported.hidden").Msg("skip")
-				c.metric.IncrCounter([]string{"cp", "skip", "unsupported", "hidden"}, 1)
-			default:
-				ext = strings.TrimPrefix(ext, ".")
-				log.Info().Str("src", src).Str("reason", "unsupported."+ext).Msg("skip")
-				c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
-			}
-			return nil // not an error but not supported
+		dirname, basename := split(fullname)
+		dirs, ok := sets[dirname]
+		if !ok {
+			dirs = make(map[string]*fileSet)
+			sets[dirname] = dirs
 		}
+		fs, ok := dirs[basename]
+		if !ok {
+			fs = new(fileSet)
+			dirs[basename] = fs
+		}
+		fs.add(info)
 
-		tm, err := dt.dateTime()
-		if err != nil {
-			log.Error().Err(err).Str("src", src).Msg("dateTime")
-			return err
-		}
-
-		dst := filepath.Join(dest, tm.Format(c.dateFormat), info.Name())
-		stat, err := c.fs.Stat(dst)
-		if err != nil {
-			if !errors.Is(err, afero.ErrFileNotFound) {
-				return err
-			}
-		}
-		if stat != nil {
-			c.metric.IncrCounter([]string{"cp", "skip", "exists"}, 1)
-			log.Info().Str("src", src).Str("dst", dst).Str("reason", "exists").Msg("skip")
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case q <- req{src: src, dst: dst}:
-			c.metric.IncrCounter([]string{"cp", "attempt"}, 1)
-		}
 		return nil
 	}
-}
-
-func (c *copier) cp(ctx context.Context, root, dest string) error {
-	q := make(chan req)
-	grp, ctx := errgroup.WithContext(ctx)
-	grp.Go(func() error {
-		defer close(q)
-		return afero.Walk(c.fs, root, c.walker(ctx, q, dest))
-	})
-	log.Info().Str("root", root).Int("concurrency", c.concurrency).Msg("cp")
-	for i := 0; i < c.concurrency; i++ {
-		grp.Go(func() error {
-			for x := range q {
-				if err := c.copy(x); err != nil {
-					return err
-				}
-			}
-			return nil
-		})
-	}
-	return grp.Wait()
 }
 
 func cp(c *cli.Context) error {
 	if c.NArg() < 2 {
 		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 	}
+
 	opts := copy.Options{
 		Sync:          true,
 		PreserveTimes: true,
 		Skip: func(string) (bool, error) {
-			return false, nil // Don't skip
+			return false, nil // Never skip
 		},
 		OnDirExists: func(src, dest string) copy.DirExistsAction {
 			return copy.Merge
 		},
 	}
-	cpr := &copier{
-		fs:     afs(c),
-		metric: metric(c),
+
+	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
+	en := &entangler{
+		fs:          afs(c),
+		metric:      metric(c),
+		concurrency: c.Int("concurrency"),
 		copyFunc: func(src, dst string) error {
 			return copy.Copy(src, dst, opts)
 		},
-		dryrun:      c.Bool("dryrun"),
-		dateFormat:  c.String("format"),
-		concurrency: c.Int("concurrency"),
+		dryrun:     c.Bool("dryrun"),
+		dateFormat: c.String("format"),
 	}
-
-	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
-
-	n := c.NArg()
-	dest := c.Args().Get(n - 1)
-	for i := 0; i < n-1; i++ {
-		if err := cpr.cp(c.Context, c.Args().Get(i), dest); err != nil {
-			return err
-		}
+	args := c.Args().Slice()
+	destination, err := filepath.Abs(args[len(args)-1])
+	if err != nil {
+		return err
 	}
-	return nil
+	return en.cp(c.Context, args[0:len(args)-1], destination)
 }
 
 func CommandCopy() *cli.Command {

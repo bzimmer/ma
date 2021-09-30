@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func new(c *cli.Context) error {
+func knew(c *cli.Context) error {
 	var url string
 	name := c.Args().First()
 	switch c.NArg() {
@@ -86,13 +86,13 @@ func CommandNew() *cli.Command {
 				Name:   "album",
 				Flags:  flags,
 				Before: before,
-				Action: new,
+				Action: knew,
 			},
 			{
 				Name:   "folder",
 				Flags:  flags,
 				Before: before,
-				Action: new,
+				Action: knew,
 			},
 		},
 	}

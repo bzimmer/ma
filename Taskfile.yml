@@ -13,6 +13,8 @@ vars:
     github.com/bzimmer/{{.APP}}
   DIST:
     "{{.CWD}}/dist"
+  GO_PACKAGES:
+    sh: go list ./...
 
 tasks:
   default:
@@ -55,3 +57,9 @@ tasks:
         vars:
           DIST:
             sh: echo $GOPATH/bin
+
+  lint:
+    desc: Runs golint
+    cmds:
+      - golangci-lint -v run
+      - go vet {{catLines .GO_PACKAGES}}

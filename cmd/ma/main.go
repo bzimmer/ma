@@ -136,15 +136,18 @@ func main() {
 			}
 
 			c.App.Metadata = map[string]interface{}{
-				"client":  client,
-				"metrics": metric,
-				"sink":    sink,
-				"encoder": enc,
-				"fs":      afero.NewOsFs(),
+				ma.RuntimeKey: &ma.Runtime{
+					Client:  client,
+					Metrics: metric,
+					Sink:    sink,
+					Encoder: enc,
+					Fs:      afero.NewOsFs(),
+				},
 			}
 
 			return nil
 		},
+		After: ma.Stats,
 		Commands: []*cli.Command{
 			ma.CommandUser(),
 			ma.CommandFind(),

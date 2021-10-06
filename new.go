@@ -34,6 +34,7 @@ func knew(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	metric(c).IncrCounter([]string{"album", "new"}, 1)
 	msg := log.Info()
 	msg = msg.Str("name", node.Name)
 	msg = msg.Str("nodeID", node.NodeID)

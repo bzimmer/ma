@@ -133,7 +133,7 @@ func up(c *cli.Context) error {
 		return nil
 	})
 	grp.Go(func() error {
-		ups := filesystem.NewFsUploadables(afs(c), c.Args().Slice(), u)
+		ups := filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u)
 		uploadc, errc := mg.Upload.Uploads(ctx, ups)
 		for {
 			select {
@@ -191,6 +191,5 @@ func CommandUp() *cli.Command {
 			},
 		},
 		Action: up,
-		After:  stats,
 	}
 }

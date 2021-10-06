@@ -11,6 +11,7 @@ func user(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	metric(c).IncrCounter([]string{"user", "user"}, 1)
 	log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Str("nodeID", user.Node.NodeID).Msg("user")
 	return encoder(c).Encode(user)
 }

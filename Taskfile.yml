@@ -23,19 +23,20 @@ vars:
 tasks:
   default:
     cmds:
-      - task: ma
-
-  ma:
-    desc: Run the cli
-    deps: [build]
-    cmds:
-      - '{{.DIST}}/ma {{.CLI_ARGS}}'
+      - task: build
 
   test:
     desc: Run tests
     cmds:
       - mkdir -p {{.DIST}}
       - go test -short -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
+
+  test-integration:
+    desc: Run integration tests
+    deps: [build]
+    cmds:
+      - mkdir -p {{.DIST}}
+      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
 
   cover:
     desc: Visualize test coverage
@@ -55,7 +56,6 @@ tasks:
 
   install:
     desc: Install {{.APP}}
-    deps: []
     cmds:
       - task: build
         vars:

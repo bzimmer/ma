@@ -154,6 +154,7 @@ func main() {
 			ma.CommandUp(),
 			ma.CommandCopy(),
 			ma.CommandExport(),
+			ma.CommandVersion(),
 		},
 	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {

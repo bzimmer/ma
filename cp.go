@@ -283,7 +283,7 @@ func cp(c *cli.Context) error {
 
 	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
 	en := &entangler{
-		fs:          afs(c),
+		fs:          runtime(c).Fs,
 		metric:      metric(c),
 		concurrency: c.Int("concurrency"),
 		copyFunc: func(src, dst string) error {
@@ -324,6 +324,5 @@ func CommandCopy() *cli.Command {
 			},
 		},
 		Action: cp,
-		After:  stats,
 	}
 }

@@ -63,14 +63,16 @@ func patch(c *cli.Context) error {
 		}
 	}
 
-	switch {
-	case len(patches) == 0:
-		log.Warn().Msg("no patches to apply")
-	case !c.Bool("force"):
-		log.Info().Interface("patches", patches).Msg("dryrun")
-	default:
-		log.Info().Interface("patches", patches).Msg("applying")
-		for _, imageKey := range c.Args().Slice() {
+	for _, imageKey := range c.Args().Slice() {
+		switch {
+		case len(patches) == 0:
+			log.Warn().Str("imageKey", imageKey).Msg("no patches to apply")
+		case !c.Bool("force"):
+			metric(c).IncrCounter([]string{"patch", "patched", "dryrun"}, 1)
+			log.Info().Str("imageKey", imageKey).Interface("patches", patches).Msg("dryrun")
+		default:
+			metric(c).IncrCounter([]string{"patch", "patched"}, 1)
+			log.Info().Str("imageKey", imageKey).Interface("patches", patches).Msg("applying")
 			img, err := client(c).Image.Patch(c.Context, imageKey, patches)
 			if err != nil {
 				return err

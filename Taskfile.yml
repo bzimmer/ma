@@ -15,6 +15,10 @@ vars:
     "{{.CWD}}/dist"
   GO_PACKAGES:
     sh: go list ./...
+  COMMIT:
+    sh: git rev-parse --short HEAD
+  LDFLAGS:
+    -ldflags "-X {{.PKG}}.buildCommit={{.COMMIT}} -X {{.PKG}}.buildTime="{{now | date "2006-01-02T15:04:05Z07:00"}}""
 
 tasks:
   default:
@@ -47,7 +51,7 @@ tasks:
   build:
     desc: Build all cmds
     cmds:
-      - go build -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
+      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
 
   install:
     desc: Install {{.APP}}
@@ -63,3 +67,8 @@ tasks:
     cmds:
       - golangci-lint -v run
       - go vet {{catLines .GO_PACKAGES}}
+
+  snapshot:
+    desc: Build a snapshot
+    cmds:
+      - goreleaser release --snapshot --rm-dist

@@ -1,5 +1,3 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
     - go mod tidy
@@ -11,6 +9,8 @@ builds:
       - windows
       - darwin
     main: ./cmd/ma
+    ldflags:
+      - -s -w -X {{.ModulePath}}.buildVersion={{.Version}} -X {{.ModulePath}}.buildCommit={{.ShortCommit}} -X {{.ModulePath}}.buildTime={{.Date}} -X {{.ModulePath}}.buildBuilder=goreleaser
 archives:
   - replacements:
       darwin: Darwin
@@ -28,3 +28,5 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+announce:
+  skip: "true"

@@ -35,7 +35,7 @@ func TestFind(t *testing.T) {
 	}))
 	defer svr.Close()
 
-	app := NewTestApp(t, ma.CommandFind(), smugmug.WithBaseURL(svr.URL))
+	app := NewTestApp(t, "find", ma.CommandFind(), smugmug.WithBaseURL(svr.URL))
 	a.NoError(app.RunContext(context.TODO(), []string{"ma", "find", "Marmot"}))
 
 	counter, err := findCounter(app, "ma.find.album")

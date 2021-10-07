@@ -57,7 +57,7 @@ func TestPatch(t *testing.T) {
 			}))
 			defer svr.Close()
 
-			app := NewTestApp(t, ma.CommandPatch(), smugmug.WithBaseURL(svr.URL))
+			app := NewTestApp(t, tt.name, ma.CommandPatch(), smugmug.WithBaseURL(svr.URL))
 
 			_, err := findCounter(app, tt.counter)
 			a.Error(err)

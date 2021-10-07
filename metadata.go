@@ -1,6 +1,8 @@
 package ma
 
 import (
+	"net/http"
+
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
@@ -23,6 +25,8 @@ type Runtime struct {
 	Fs afero.Fs
 	// Metrics for capturing metrics
 	Metrics *metrics.Metrics
+	// Grab for bulk querying images
+	Grab *http.Client
 }
 
 // Encoder encodes a struct to a specific format

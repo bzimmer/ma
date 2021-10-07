@@ -71,9 +71,10 @@ func node(c *cli.Context) error {
 
 func CommandList() *cli.Command {
 	return &cli.Command{
-		Name:    "ls",
-		Aliases: []string{"list"},
-		Usage:   "list nodes, albums, and/or images",
+		Name:     "ls",
+		HelpName: "ls",
+		Aliases:  []string{"list"},
+		Usage:    "list nodes, albums, and/or images",
 		Subcommands: []*cli.Command{
 			{
 				Name:      "album",

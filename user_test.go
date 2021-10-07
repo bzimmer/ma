@@ -30,15 +30,15 @@ func TestUser(t *testing.T) {
 	}))
 	defer svr.Close()
 
-	app := NewTestApp(t, ma.CommandUser(), smugmug.WithBaseURL(svr.URL))
+	app := NewTestApp(t, "user", ma.CommandUser(), smugmug.WithBaseURL(svr.URL))
 	a.NoError(app.RunContext(context.TODO(), []string{"ma", "user"}))
 }
 
 func TestUserIntegration(t *testing.T) {
+	t.Parallel()
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 	tests := []struct {
 		name string
 		args []string

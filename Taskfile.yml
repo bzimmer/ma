@@ -29,14 +29,14 @@ tasks:
     desc: Run tests
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -short -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
+      - go test -race -short -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   test-integration:
     desc: Run integration tests
     deps: [build]
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt ./...
+      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   cover:
     desc: Visualize test coverage

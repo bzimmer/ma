@@ -26,3 +26,10 @@ jobs:
       - name: Test
         run: task test
         if: matrix.os == 'ubuntu-latest'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./dist/coverage.txt
+          verbose: true
+        if: matrix.os == 'ubuntu-latest'

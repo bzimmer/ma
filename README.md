@@ -1,6 +1,7 @@
 # ma (media archiver)
 
 ![build](https://github.com/bzimmer/ma/actions/workflows/build.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/bzimmer/ma/branch/main/graph/badge.svg?token=J4JYIPRZUC)](https://codecov.io/gh/bzimmer/ma)
 
 Simple tools for managing media files with [SmugMug](https://smugmug.com/)
 

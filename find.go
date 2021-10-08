@@ -38,8 +38,9 @@ func find(c *cli.Context) error {
 
 func CommandFind() *cli.Command {
 	return &cli.Command{
-		Name:  "find",
-		Usage: "search for albums or folders by name",
+		Name:     "find",
+		HelpName: "find",
+		Usage:    "search for albums or folders by name",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name: "scope",

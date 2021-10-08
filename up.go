@@ -181,7 +181,7 @@ func CommandUp() *cli.Command {
 				Name:     "ext",
 				Aliases:  []string{"x"},
 				Required: false,
-				Value:    cli.NewStringSlice(".jpg"),
+				Value:    cli.NewStringSlice(".jpg", ".jpeg"),
 			},
 			&cli.BoolFlag{
 				Name:     "dryrun",

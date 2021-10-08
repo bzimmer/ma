@@ -18,7 +18,6 @@ import (
 )
 
 func TestList(t *testing.T) {
-	t.Parallel()
 	tests := []struct {
 		name    string
 		args    []string
@@ -62,7 +61,6 @@ func TestList(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			a := assert.New(t)
 
 			svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -87,17 +85,17 @@ func TestList(t *testing.T) {
 			}))
 			defer svr.Close()
 
-			app := NewTestApp(t, ma.CommandList(), smugmug.WithBaseURL(svr.URL))
+			app := NewTestApp(t, tt.name, ma.CommandList(), smugmug.WithBaseURL(svr.URL))
 
 			_, err := findCounter(app, tt.counter)
 			a.Error(err)
 
+			err = app.RunContext(context.TODO(), tt.args)
 			switch {
 			case tt.errmsg != "":
-				err := app.RunContext(context.TODO(), tt.args)
 				a.True(strings.Contains(err.Error(), tt.errmsg))
 			default:
-				a.NoError(app.RunContext(context.TODO(), tt.args))
+				a.NoError(err)
 			}
 
 			if tt.counter == "" {
@@ -114,7 +112,6 @@ func TestListIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	t.Parallel()
 	tests := []struct {
 		name string
 		args []string
@@ -128,7 +125,6 @@ func TestListIntegration(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			a := assert.New(t)
 			ma := Command(tt.args...)
 			out, err := ma.Output()

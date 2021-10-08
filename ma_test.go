@@ -2,6 +2,7 @@ package ma_test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,9 +13,18 @@ import (
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/ma"
 	"github.com/bzimmer/smugmug"
+	"github.com/rs/zerolog"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 )
+
+func init() {
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+}
+
+func runtime(app *cli.App) *ma.Runtime {
+	return app.Metadata[ma.RuntimeKey].(*ma.Runtime)
+}
 
 type encoderBlackhole struct{}
 
@@ -22,7 +32,7 @@ func (e *encoderBlackhole) Encode(_ interface{}) error {
 	return nil
 }
 
-func NewTestApp(t *testing.T, cmd *cli.Command, opts ...smugmug.Option) *cli.App {
+func NewTestApp(t *testing.T, name string, cmd *cli.Command, opts ...smugmug.Option) *cli.App {
 	cfg := metrics.DefaultConfig("ma")
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
@@ -38,14 +48,21 @@ func NewTestApp(t *testing.T, cmd *cli.Command, opts ...smugmug.Option) *cli.App
 	}
 
 	return &cli.App{
-		After:    ma.Stats,
+		Name:     name,
+		HelpName: name,
+		After: func(c *cli.Context) error {
+			t.Log(name)
+			runtime(c.App).Fs.(*afero.MemMapFs).List()
+			return ma.Stats(c)
+		},
 		Commands: []*cli.Command{cmd},
 		Metadata: map[string]interface{}{
 			ma.RuntimeKey: &ma.Runtime{
 				Client:  client,
 				Metrics: metric,
 				Sink:    sink,
-				Encoder: &encoderBlackhole{},
+				Grab:    new(http.Client),
+				Encoder: new(encoderBlackhole),
 				Fs:      afero.NewMemMapFs(),
 			},
 		},
@@ -53,7 +70,7 @@ func NewTestApp(t *testing.T, cmd *cli.Command, opts ...smugmug.Option) *cli.App
 }
 
 func findCounter(app *cli.App, name string) (metrics.SampledValue, error) {
-	sink := app.Metadata[ma.RuntimeKey].(*ma.Runtime).Sink
+	sink := runtime(app).Sink
 	for i := range sink.Data() {
 		im := sink.Data()[i]
 		if sample, ok := im.Counters[name]; ok {

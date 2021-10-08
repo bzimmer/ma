@@ -47,7 +47,6 @@ func knew(c *cli.Context) error {
 			return err
 		}
 		msg = msg.Str("albumKey", node.Album.AlbumKey)
-		msg = msg.Str("albumKey", node.Album.AlbumKey)
 	}
 	msg.Msg("new")
 	return encoder(c).Encode(node)
@@ -68,30 +67,29 @@ func CommandNew() *cli.Command {
 		}
 		return nil
 	}
-	flags := []cli.Flag{
-		&cli.StringFlag{
-			Name:     "parent",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:  "privacy",
-			Value: "",
-		},
-	}
 	return &cli.Command{
 		Name:      "new",
+		HelpName:  "new",
 		Usage:     "create a new node",
 		ArgsUsage: "<node name> [<node url>]",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "parent",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:  "privacy",
+				Value: "",
+			},
+		},
 		Subcommands: []*cli.Command{
 			{
 				Name:   "album",
-				Flags:  flags,
 				Before: before,
 				Action: knew,
 			},
 			{
 				Name:   "folder",
-				Flags:  flags,
 				Before: before,
 				Action: knew,
 			},

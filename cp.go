@@ -5,13 +5,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/otiai10/copy"
 	"github.com/rs/zerolog/log"
 	"github.com/rwcarlsen/goexif/exif"
 	"github.com/spf13/afero"
@@ -126,7 +126,45 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 	return time.Time{}, nil
 }
 
-type copyFunc func(src, dest string) error
+func copy(fs afero.Fs, src, dst string) error {
+	dirname, _ := filepath.Split(dst)
+	if err := fs.MkdirAll(dirname, 0777); err != nil {
+		return err
+	}
+	log.Debug().Str("file", dst).Msg("writing")
+	out, err := fs.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	log.Debug().Str("file", src).Msg("reading")
+	in, err := fs.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	if err := out.Sync(); err != nil {
+		return err
+	}
+	info, err := in.Stat()
+	if err != nil {
+		return err
+	}
+	mtime := info.ModTime()
+	if err := fs.Chtimes(dst, mtime, mtime); err != nil {
+		return err
+	}
+	info, err = fs.Stat(dst)
+	if err != nil {
+		return err
+	}
+	log.Debug().Str("src", src).Str("dst", dst).Time("src-mtime", mtime).Time("dst-mtime", info.ModTime()).Msg("preserve times")
+	return nil
+}
 
 type entangle struct {
 	source  string
@@ -135,8 +173,7 @@ type entangle struct {
 
 type entangler struct {
 	fs          afero.Fs
-	metric      *metrics.Metrics
-	copyFunc    copyFunc
+	metrics     *metrics.Metrics
 	concurrency int
 	dryrun      bool
 	dateFormat  string
@@ -159,7 +196,7 @@ func (c *entangler) cp(ctx context.Context, sources []string, destination string
 				case <-ctx.Done():
 					return ctx.Err()
 				case q <- &entangle{source: dirname, fileSet: fileset}:
-					c.metric.IncrCounter([]string{"cp", "filesets"}, 1)
+					c.metrics.IncrCounter([]string{"cp", "filesets"}, 1)
 				}
 			}
 		}
@@ -174,13 +211,13 @@ func (c *entangler) cp(ctx context.Context, sources []string, destination string
 func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() error {
 	return func() error {
 		for ent := range q {
-			c.metric.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
+			c.metrics.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
 			dt, err := ent.fileSet.dateTime(c.fs, ent.source)
 			if err != nil {
 				return err
 			}
 			if dt.IsZero() {
-				c.metric.IncrCounter([]string{"cp", "fileset", "skip", "unsupported"}, 1)
+				c.metrics.IncrCounter([]string{"cp", "fileset", "skip", "unsupported"}, 1)
 				for i := range ent.fileSet.files {
 					filename := ent.fileSet.files[i].Name()
 					ext := filepath.Ext(filename)
@@ -189,8 +226,9 @@ func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() e
 						ext = "<none>"
 					}
 					log.Warn().Str("filename", filename).Str("reason", "unsupported."+ext).Msg("skip")
-					c.metric.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
+					c.metrics.IncrCounter([]string{"cp", "skip", "unsupported", ext}, 1)
 				}
+				continue
 			}
 			df := dt.Format(c.dateFormat)
 			for i := range ent.fileSet.files {
@@ -206,8 +244,8 @@ func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() e
 }
 
 func (c *entangler) copyFile(source, destination string) error {
-	defer c.metric.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
-	c.metric.IncrCounter([]string{"cp", "file", "attempt"}, 1)
+	defer c.metrics.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
+	c.metrics.IncrCounter([]string{"cp", "file", "attempt"}, 1)
 	stat, err := c.fs.Stat(destination)
 	if err != nil {
 		if !errors.Is(err, afero.ErrFileNotFound) {
@@ -215,20 +253,20 @@ func (c *entangler) copyFile(source, destination string) error {
 		}
 	}
 	if stat != nil {
-		c.metric.IncrCounter([]string{"cp", "skip", "exists"}, 1)
+		c.metrics.IncrCounter([]string{"cp", "skip", "exists"}, 1)
 		log.Info().Str("src", source).Str("dst", destination).Str("reason", "exists").Msg("skip")
 		return nil
 	}
 	log.Info().Str("src", source).Str("dst", destination).Msg("cp")
 	if c.dryrun {
-		c.metric.IncrCounter([]string{"cp", "file", "dryrun"}, 1)
+		c.metrics.IncrCounter([]string{"cp", "file", "dryrun"}, 1)
 		return nil
 	}
-	if err := c.copyFunc(source, destination); err != nil {
-		c.metric.IncrCounter([]string{"cp", "file", "failed"}, 1)
+	if err := copy(c.fs, source, destination); err != nil {
+		c.metrics.IncrCounter([]string{"cp", "file", "failed"}, 1)
 		return err
 	}
-	c.metric.IncrCounter([]string{"cp", "file", "success"}, 1)
+	c.metrics.IncrCounter([]string{"cp", "file", "success"}, 1)
 	return nil
 }
 
@@ -239,14 +277,14 @@ func (c *entangler) filesets(sets map[string]map[string]*fileSet) filepath.WalkF
 			return err
 		}
 		if info.IsDir() {
-			c.metric.IncrCounter([]string{"cp", "visited", "directories"}, 1)
+			c.metrics.IncrCounter([]string{"cp", "visited", "directories"}, 1)
 			return nil
 		}
 		if strings.HasPrefix(info.Name(), ".") {
-			c.metric.IncrCounter([]string{"cp", "skip", "hidden"}, 1)
+			c.metrics.IncrCounter([]string{"cp", "skip", "hidden"}, 1)
 			return nil
 		}
-		c.metric.IncrCounter([]string{"cp", "visited", "files"}, 1)
+		c.metrics.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
 		dirname, basename := split(fullname)
 		dirs, ok := sets[dirname]
@@ -270,27 +308,13 @@ func cp(c *cli.Context) error {
 		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 	}
 
-	opts := copy.Options{
-		Sync:          true,
-		PreserveTimes: true,
-		Skip: func(string) (bool, error) {
-			return false, nil // Never skip
-		},
-		OnDirExists: func(src, dest string) copy.DirExistsAction {
-			return copy.Merge
-		},
-	}
-
 	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
 	en := &entangler{
 		fs:          runtime(c).Fs,
-		metric:      metric(c),
+		metrics:     metric(c),
 		concurrency: c.Int("concurrency"),
-		copyFunc: func(src, dst string) error {
-			return copy.Copy(src, dst, opts)
-		},
-		dryrun:     c.Bool("dryrun"),
-		dateFormat: c.String("format"),
+		dryrun:      c.Bool("dryrun"),
+		dateFormat:  c.String("format"),
 	}
 	args := c.Args().Slice()
 	destination, err := filepath.Abs(args[len(args)-1])
@@ -302,8 +326,10 @@ func cp(c *cli.Context) error {
 
 func CommandCopy() *cli.Command {
 	return &cli.Command{
-		Name:  "cp",
-		Usage: "copy files to a pre-determined directory structure",
+		Name:      "cp",
+		HelpName:  "cp",
+		Usage:     "copy files to a pre-determined directory structure",
+		ArgsUsage: "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:     "dryrun",

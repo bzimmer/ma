@@ -89,6 +89,7 @@ func patch(c *cli.Context) error {
 func CommandPatch() *cli.Command {
 	return &cli.Command{
 		Name:      "patch",
+		HelpName:  "patch",
 		Usage:     "patch an image (or images)",
 		ArgsUsage: "<image key> [<image key>, ...]",
 		Flags: []cli.Flag{

@@ -33,8 +33,9 @@ func version(c *cli.Context) error {
 
 func CommandVersion() *cli.Command {
 	return &cli.Command{
-		Name:   "version",
-		Usage:  "version information",
-		Action: version,
+		Name:     "version",
+		HelpName: "version",
+		Usage:    "version information",
+		Action:   version,
 	}
 }

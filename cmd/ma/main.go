@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/armon/go-metrics"
+	"github.com/bzimmer/httpwares"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -109,6 +111,11 @@ func main() {
 				return err
 			}
 
+			grabber := &http.Client{}
+			if c.Bool("debug") {
+				grabber.Transport = &httpwares.VerboseTransport{}
+			}
+
 			httpclient, err := smugmug.NewHTTPClient(
 				c.String("smugmug-client-key"),
 				c.String("smugmug-client-secret"),
@@ -138,8 +145,9 @@ func main() {
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: &ma.Runtime{
 					Client:  client,
-					Metrics: metric,
 					Sink:    sink,
+					Grab:    grabber,
+					Metrics: metric,
 					Encoder: enc,
 					Fs:      afero.NewOsFs(),
 				},

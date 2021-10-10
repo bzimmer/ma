@@ -48,12 +48,12 @@ type dateTimeExif struct {
 	info fs.FileInfo
 }
 
-func (b *dateTimeExif) bufferSize() (int64, error) {
+func (b *dateTimeExif) bufferSize() int64 {
 	switch b.ext {
 	case ".orf", ".dng", ".nef":
-		return b.info.Size(), nil
+		return b.info.Size()
 	default:
-		return defaultBufferSize, nil
+		return defaultBufferSize
 	}
 }
 
@@ -63,11 +63,7 @@ func (b *dateTimeExif) dateTime() (time.Time, error) {
 		return time.Time{}, err
 	}
 	defer fp.Close()
-	size, err := b.bufferSize()
-	if err != nil {
-		return time.Time{}, err
-	}
-	data := make([]byte, size)
+	data := make([]byte, b.bufferSize())
 	_, err = fp.Read(data)
 	if err != nil {
 		return time.Time{}, err
@@ -214,6 +210,7 @@ func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() e
 			c.metrics.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
 			dt, err := ent.fileSet.dateTime(c.fs, ent.source)
 			if err != nil {
+				c.metrics.IncrCounter([]string{"cp", "fileset", "failed", "exif"}, 1)
 				return err
 			}
 			if dt.IsZero() {

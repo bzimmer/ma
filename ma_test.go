@@ -63,7 +63,11 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, opts ...smugmug.Opt
 		HelpName: name,
 		After: func(c *cli.Context) error {
 			t.Log(name)
-			runtime(c.App).Fs.(*afero.MemMapFs).List()
+			switch v := runtime(c.App).Fs.(type) {
+			case *afero.MemMapFs:
+				v.List()
+			default:
+			}
 			return ma.Stats(c)
 		},
 		Commands: []*cli.Command{cmd},

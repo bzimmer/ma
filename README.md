@@ -17,18 +17,24 @@ USAGE:
    ma [global options] command [command options] [arguments...]
 
 COMMANDS:
-   user      query the authenticated user
-   find      search for album or folders by name
-   ls, list  list albums and/or folders
-   up        upload images to SmugMug
-   cp        copy files to a pre-determined directory structure
-   help, h   Shows a list of commands or help for one command
+   user        query the authenticated user
+   find        search for albums or folders by name
+   ls, list    list nodes, albums, and/or images
+   new         create a new node
+   patch       patch an image (or images)
+   up, upload  upload images to SmugMug
+   cp          copy files to a pre-determined directory structure
+   export      export images from albums
+   version     version information
+   help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --smugmug-client-key value     smugmug client key (default: "xxx") [$SMUGMUG_CLIENT_KEY]
-   --smugmug-client-secret value  smugmug client secret (default: "xxx") [$SMUGMUG_CLIENT_SECRET]
-   --smugmug-access-token value   smugmug access token (default: "xxx") [$SMUGMUG_ACCESS_TOKEN]
-   --smugmug-token-secret value   smugmug token secret (default: "xxx") [$SMUGMUG_TOKEN_SECRET]
+   --smugmug-client-key value     smugmug client key (default: "") [$SMUGMUG_CLIENT_KEY]
+   --smugmug-client-secret value  smugmug client secret (default: "") [$SMUGMUG_CLIENT_SECRET]
+   --smugmug-access-token value   smugmug access token (default: "") [$SMUGMUG_ACCESS_TOKEN]
+   --smugmug-token-secret value   smugmug token secret (default: "") [$SMUGMUG_TOKEN_SECRET]
+   --concurrency value            (default: 2)
+   --json, -j                     (default: false)
    --debug                        enable debugging (default: false)
    --help, -h                     show help (default: false)
 ```
@@ -45,61 +51,58 @@ $ ma find --scope "/api/v2/user/cmac" Event
 2021-08-02T18:55:02-07:00 INF find albumKey=dDMKTz imageCount=6 name="SmugMug camera straps!" nodeID=vGtbt
 ```
 
-```sh
-$ ma find --json --scope "/api/v2/user/cmac" Event
-{"name":"Events","nodeID":"kTR76","parentID":"zx4Fx","type":"Folder"}
-{"albumKey":"mjXDhW","imageCount":79,"name":"Harley Pan America event","nodeID":"sBt5dp"}
-{"albumKey":"dDMKTz","imageCount":6,"name":"SmugMug camera straps!","nodeID":"vGtbt"}
-```
-
 ## ls (list)
 
 `ls` returns all the nodes under the specified parent node.
 
 ```sh
-$ ma --json ls node -R kTR76
-{"name":"Events","nodeID":"kTR76","parentID":"zx4Fx","type":"Folder"}
-{"albumKey":"jbBNhR","imageCount":16,"name":"Black lives matter protest","nodeID":"q2qP7F","parentID":"kTR76","type":"Album"}
-{"albumKey":"GNpNRf","imageCount":11,"name":"47th annual electric vehicle show silicon valley","nodeID":"6zFLgD","parentID":"kTR76","type":"Album"}
-{"albumKey":"LPZThB","imageCount":21,"name":"Humans melt and pets soak up love at the Bay Area Pet Fair","nodeID":"MG5c5r","parentID":"kTR76","type":"Album"}
-{"albumKey":"MGxZXq","imageCount":36,"name":"San Francisco Reptile Expo","nodeID":"kvh7p7","parentID":"kTR76","type":"Album"}
-{"albumKey":"KJXpSD","imageCount":25,"name":"Muttville adoption ceremony","nodeID":"JbnGdJ","parentID":"kTR76","type":"Album"}
-{"albumKey":"pttBvK","imageCount":18,"name":"SF Body Art Expo 2018","nodeID":"xH9vPF","parentID":"kTR76","type":"Album"}
-{"albumKey":"gJ7d6r","imageCount":35,"name":"Maker Faire 2008","nodeID":"BjcPR","parentID":"kTR76","type":"Album"}
-{"albumKey":"2XrGxm","imageCount":33,"name":"Santa Cruz fungus festival 2019","nodeID":"jM739r","parentID":"kTR76","type":"Album"}
-{"albumKey":"B8BLsX","imageCount":30,"name":"Golden Gate dog show 2019","nodeID":"LtqS2s","parentID":"kTR76","type":"Album"}
-{"albumKey":"wqmpff","imageCount":22,"name":"Spanish Fork High 50th reunion 2019","nodeID":"5FD6k8","parentID":"kTR76","type":"Album"}
-{"albumKey":"qH5CG3","imageCount":35,"name":"Spanish Fork Fiesta Days parade 2019","nodeID":"J3wNMj","parentID":"kTR76","type":"Album"}
+$ ma ls node -R kTR76
+2021-10-10T13:27:45-07:00 INF ls name=Events nodeID=kTR76 parentID=zx4Fx type=Folder
+2021-10-10T13:27:46-07:00 INF ls albumKey=jbBNhR imageCount=16 name="Black lives matter protest" nodeID=q2qP7F parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=GNpNRf imageCount=11 name="47th annual electric vehicle show silicon valley" nodeID=6zFLgD parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=LPZThB imageCount=21 name="Humans melt and pets soak up love at the Bay Area Pet Fair" nodeID=MG5c5r parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=MGxZXq imageCount=36 name="San Francisco Reptile Expo" nodeID=kvh7p7 parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=KJXpSD imageCount=25 name="Muttville adoption ceremony" nodeID=JbnGdJ parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=pttBvK imageCount=18 name="SF Body Art Expo 2018" nodeID=xH9vPF parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=gJ7d6r imageCount=35 name="Maker Faire 2008" nodeID=BjcPR parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=2XrGxm imageCount=33 name="Santa Cruz fungus festival 2019" nodeID=jM739r parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=B8BLsX imageCount=30 name="Golden Gate dog show 2019" nodeID=LtqS2s parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=wqmpff imageCount=22 name="Spanish Fork High 50th reunion 2019" nodeID=5FD6k8 parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF ls albumKey=qH5CG3 imageCount=35 name="Spanish Fork Fiesta Days parade 2019" nodeID=J3wNMj parentID=kTR76 type=Album
+2021-10-10T13:27:46-07:00 INF counters count=12 metric=ma.ls.node
 ```
 
 If `ls` queries an album, only the album details are returned.
 
 ```sh
-$ ma --json ls node -R q2qP7F
-{"albumKey":"jbBNhR","imageCount":16,"name":"Black lives matter protest","nodeID":"q2qP7F","parentID":"kTR76","type":"Album"}
+$ ma ls node -R q2qP7F
+2021-10-10T13:28:33-07:00 INF ls albumKey=jbBNhR imageCount=16 name="Black lives matter protest" nodeID=q2qP7F parentID=kTR76 type=Album
+2021-10-10T13:28:33-07:00 INF counters count=1 metric=ma.ls.node
 ```
 
 To list the images for an album, use the `-i` flag.
 
 ```sh
 $ ma --json ls node -R -i q2qP7F
-{"albumKey":"jbBNhR","imageCount":16,"name":"Black lives matter protest","nodeID":"q2qP7F","parentID":"kTR76","type":"Album"}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--3.jpg","imageKey":"pjVHggG","imageURI":"/api/v2/album/jbBNhR/image/pjVHggG-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--6.jpg","imageKey":"Wzk7Lk5","imageURI":"/api/v2/album/jbBNhR/image/Wzk7Lk5-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--7.jpg","imageKey":"mQRcX2V","imageURI":"/api/v2/album/jbBNhR/image/mQRcX2V-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--8.jpg","imageKey":"Vhhbw4j","imageURI":"/api/v2/album/jbBNhR/image/Vhhbw4j-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--9.jpg","imageKey":"3MgjDCT","imageURI":"/api/v2/album/jbBNhR/image/3MgjDCT-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--10.jpg","imageKey":"jfChpW8","imageURI":"/api/v2/album/jbBNhR/image/jfChpW8-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--11.jpg","imageKey":"VDt5z9K","imageURI":"/api/v2/album/jbBNhR/image/VDt5z9K-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--12.jpg","imageKey":"S9jS4PW","imageURI":"/api/v2/album/jbBNhR/image/S9jS4PW-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--13.jpg","imageKey":"f6hWww5","imageURI":"/api/v2/album/jbBNhR/image/f6hWww5-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--14.jpg","imageKey":"JdL4NbN","imageURI":"/api/v2/album/jbBNhR/image/JdL4NbN-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--15.jpg","imageKey":"F8QQhnN","imageURI":"/api/v2/album/jbBNhR/image/F8QQhnN-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--16.jpg","imageKey":"bvh5hgQ","imageURI":"/api/v2/album/jbBNhR/image/bvh5hgQ-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--17.jpg","imageKey":"g6F7kfS","imageURI":"/api/v2/album/jbBNhR/image/g6F7kfS-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--18.jpg","imageKey":"wd626B2","imageURI":"/api/v2/album/jbBNhR/image/wd626B2-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--19.jpg","imageKey":"DLp2Mkt","imageURI":"/api/v2/album/jbBNhR/image/DLp2Mkt-0","keywords":["flowers"],"type":"Image","version":0}
-{"albumKey":"jbBNhR","caption":"","filename":"flowers--20.jpg","imageKey":"B9C6jjx","imageURI":"/api/v2/album/jbBNhR/image/B9C6jjx-0","keywords":["flowers"],"type":"Image","version":0}
+2021-10-10T13:28:53-07:00 INF ls albumKey=jbBNhR imageCount=16 name="Black lives matter protest" nodeID=q2qP7F parentID=kTR76 type=Album
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--3.jpg imageKey=pjVHggG imageURI=/api/v2/album/jbBNhR/image/pjVHggG-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--6.jpg imageKey=Wzk7Lk5 imageURI=/api/v2/album/jbBNhR/image/Wzk7Lk5-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--7.jpg imageKey=mQRcX2V imageURI=/api/v2/album/jbBNhR/image/mQRcX2V-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--8.jpg imageKey=Vhhbw4j imageURI=/api/v2/album/jbBNhR/image/Vhhbw4j-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--9.jpg imageKey=3MgjDCT imageURI=/api/v2/album/jbBNhR/image/3MgjDCT-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--10.jpg imageKey=jfChpW8 imageURI=/api/v2/album/jbBNhR/image/jfChpW8-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--11.jpg imageKey=VDt5z9K imageURI=/api/v2/album/jbBNhR/image/VDt5z9K-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--12.jpg imageKey=S9jS4PW imageURI=/api/v2/album/jbBNhR/image/S9jS4PW-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--13.jpg imageKey=f6hWww5 imageURI=/api/v2/album/jbBNhR/image/f6hWww5-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--14.jpg imageKey=JdL4NbN imageURI=/api/v2/album/jbBNhR/image/JdL4NbN-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--15.jpg imageKey=F8QQhnN imageURI=/api/v2/album/jbBNhR/image/F8QQhnN-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--16.jpg imageKey=bvh5hgQ imageURI=/api/v2/album/jbBNhR/image/bvh5hgQ-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--17.jpg imageKey=g6F7kfS imageURI=/api/v2/album/jbBNhR/image/g6F7kfS-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--18.jpg imageKey=wd626B2 imageURI=/api/v2/album/jbBNhR/image/wd626B2-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--19.jpg imageKey=DLp2Mkt imageURI=/api/v2/album/jbBNhR/image/DLp2Mkt-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF ls albumKey=jbBNhR caption= filename=flowers--20.jpg imageKey=B9C6jjx imageURI=/api/v2/album/jbBNhR/image/B9C6jjx-0 keywords=["flowers"] type=Image version=0
+2021-10-10T13:28:54-07:00 INF counters count=1 metric=ma.ls.node
+2021-10-10T13:28:54-07:00 INF counters count=16 metric=ma.ls.image
 ```
 
 ## up (upload)

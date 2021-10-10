@@ -19,27 +19,20 @@ func createTestFile(fs afero.Fs) (afero.File, error) {
 	if err := fs.MkdirAll("/foo/bar", 0777); err != nil {
 		return nil, err
 	}
-	image, err := fs.Create("/foo/bar/Nikon_D70.jpg")
-	if err != nil {
-		return nil, err
-	}
-	defer image.Close()
-	fp, err := os.Open("testdata/Nikon_D70.jpg")
+	fp, err := fs.Create("/foo/bar/Nikon_D70.jpg")
 	if err != nil {
 		return nil, err
 	}
 	defer fp.Close()
-	if _, err := io.Copy(image, fp); err != nil {
+	if err := copyFile(fp, "testdata/Nikon_D70.jpg"); err != nil {
 		return nil, err
 	}
-	if err := image.Sync(); err != nil {
-		return nil, err
-	}
-	return image, nil
+	return fp, nil
 }
 
 func TestCopy(t *testing.T) {
 	t.Parallel()
+	a := assert.New(t)
 	tests := []struct {
 		name     string
 		args     []string
@@ -294,6 +287,23 @@ func TestCopy(t *testing.T) {
 				_, err = runtime.Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
 				a.Error(err)
 				a.True(os.IsNotExist(err))
+				return nil
+			},
+		},
+		{
+			name: "image with garbage exif",
+			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			err:  "EOF",
+			counters: map[string]int{
+				"ma.cp.filesets":            1,
+				"ma.cp.visited.directories": 1,
+				"ma.cp.visited.files":       1,
+				"ma.cp.fileset.failed.exif": 1,
+			},
+			before: func(runtime *ma.Runtime) error {
+				fp, err := runtime.Fs.Create("/foo/bar/Nikon_D70.jpg")
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/user_cmac.json"))
 				return nil
 			},
 		},

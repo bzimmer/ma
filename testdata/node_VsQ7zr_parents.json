@@ -38,7 +38,7 @@
                 "NodeID": "VsQ7zr",
                 "UrlPath": "/Foo",
                 "Uri": "/api/v2/node/VsQ7zr",
-                "WebUri": "https://photos.gravl.cc/Foo/n-VsQ7zr",
+                "WebUri": "https://example.com/Foo/n-VsQ7zr",
                 "UriDescription": "Node with the given id.",
                 "Uris": {
                     "Album": {
@@ -134,7 +134,7 @@
                 "NodeID": "hdxDH",
                 "UrlPath": "/",
                 "Uri": "/api/v2/node/hdxDH",
-                "WebUri": "https://photos.gravl.cc",
+                "WebUri": "https://example.com",
                 "UriDescription": "Node with the given id.",
                 "Uris": {
                     "FolderByID": {

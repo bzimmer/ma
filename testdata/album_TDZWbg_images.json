@@ -82,7 +82,7 @@
                     }
                 },
                 "Uri": "/api/v2/album/TDZWbg/image/TL4PJfh-0",
-                "WebUri": "https://photos.gravl.cc/Foo/n-VsQ7zr/i-TL4PJfh",
+                "WebUri": "https://example.com/Foo/n-VsQ7zr/i-TL4PJfh",
                 "UriDescription": "Image from album",
                 "Uris": {
                     "LargestImage": {

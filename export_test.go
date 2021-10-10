@@ -2,13 +2,13 @@ package ma_test
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/httpwares"
 	"github.com/bzimmer/ma"
@@ -19,35 +19,26 @@ func TestExport(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	copy := func(w io.Writer, filename string) {
-		fp, err := os.Open(filename)
-		a.NoError(err)
-		defer fp.Close()
-		_, err = io.Copy(w, fp)
-		a.NoError(err)
-	}
-
-	setup := func(mux *http.ServeMux) {
+	handler := func(mux *http.ServeMux) {
 		mux.HandleFunc("/node/VsQ7zr!parents", func(w http.ResponseWriter, r *http.Request) {
-			copy(w, "testdata/node_VsQ7zr_parents.json")
+			a.NoError(copyFile(w, "testdata/node_VsQ7zr_parents.json"))
 		})
 		mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
-			copy(w, "testdata/node_VsQ7zr.json")
+			a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
 		})
 		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-			copy(w, "testdata/album_TDZWbg_images.json")
+			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
 		})
 	}
 
 	tests := []struct {
-		name      string
-		args      []string
-		err       string
-		counters  map[string]int
-		handlers  func(*http.ServeMux)
-		transport http.RoundTripper
-		before    func(runtime *ma.Runtime) error
-		after     func(runtime *ma.Runtime) error
+		name     string
+		args     []string
+		err      string
+		counters map[string]int
+		handler  func(*http.ServeMux)
+		before   func(app *cli.App)
+		after    func(app *cli.App)
 	}{
 		{
 			name: "export with no arguments",
@@ -57,81 +48,83 @@ func TestExport(t *testing.T) {
 		{
 			name: "export album",
 			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
-			transport: &httpwares.TestDataTransport{
-				Status:      http.StatusOK,
-				Filename:    "Nikon_D70.jpg",
-				ContentType: "image/jpg",
-			},
 			counters: map[string]int{
 				"ma.export.download.ok": 1,
 			},
-			handlers: setup,
-			after: func(runtime *ma.Runtime) error {
-				stat, err := runtime.Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			handler: handler,
+			before: func(app *cli.App) {
+				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
+					Status:      http.StatusOK,
+					Filename:    "Nikon_D70.jpg",
+					ContentType: "image/jpg",
+				}}
+			},
+			after: func(app *cli.App) {
+				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
-				return err
 			},
 		},
 		{
 			name: "export album image not found",
 			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
-			transport: &httpwares.TestDataTransport{
-				Status: http.StatusNotFound,
-			},
 			counters: map[string]int{
 				"ma.export.download.failed.not_found": 1,
 			},
-			handlers: setup,
-			after: func(runtime *ma.Runtime) error {
-				stat, err := runtime.Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			handler: handler,
+			before: func(app *cli.App) {
+				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
+					Status: http.StatusNotFound,
+				}}
+			},
+			after: func(app *cli.App) {
+				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.Nil(stat)
 				a.Error(err)
 				a.True(os.IsNotExist(err))
-				return nil
 			},
 		},
 		{
 			name: "export album image server error",
 			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
-			transport: &httpwares.TestDataTransport{
-				Status: http.StatusInternalServerError,
-			},
 			counters: map[string]int{
 				"ma.export.download.failed.internal_server_error": 1,
 			},
-			err:      "download failed",
-			handlers: setup,
-			after: func(runtime *ma.Runtime) error {
-				stat, err := runtime.Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			err:     "download failed",
+			handler: handler,
+			before: func(app *cli.App) {
+				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
+					Status: http.StatusInternalServerError,
+				}}
+			},
+			after: func(app *cli.App) {
+				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.Nil(stat)
 				a.Error(err)
 				a.True(os.IsNotExist(err))
-				return nil
 			},
 		},
 		{
 			name: "skip existing image",
 			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
-			transport: &httpwares.TestDataTransport{
-				Status: http.StatusOK,
-			},
 			counters: map[string]int{
 				"ma.export.download.skipping.exists": 1,
 			},
-			handlers: setup,
-			before: func(runtime *ma.Runtime) error {
-				fp, err := runtime.Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			handler: handler,
+			before: func(app *cli.App) {
+				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
+					Status: http.StatusOK,
+				}}
+				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
-				copy(fp, "testdata/Nikon_D70.jpg")
-				return nil
+				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
+				a.NoError(fp.Close())
 			},
-			after: func(runtime *ma.Runtime) error {
-				stat, err := runtime.Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			after: func(app *cli.App) {
+				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
-				return nil
 			},
 		},
 	}
@@ -143,17 +136,16 @@ func TestExport(t *testing.T) {
 			a := assert.New(t)
 
 			mux := http.NewServeMux()
-			if tt.handlers != nil {
-				tt.handlers(mux)
+			if tt.handler != nil {
+				tt.handler(mux)
 			}
 			svr := httptest.NewServer(mux)
 			defer svr.Close()
 
 			app := NewTestApp(t, tt.name, ma.CommandExport(), smugmug.WithBaseURL(svr.URL))
-			runtime(app).Grab = &http.Client{Transport: tt.transport}
 
 			if tt.before != nil {
-				a.NoError(tt.before(runtime(app)))
+				tt.before(app)
 			}
 
 			err := app.RunContext(context.TODO(), tt.args)
@@ -172,7 +164,7 @@ func TestExport(t *testing.T) {
 			}
 
 			if tt.after != nil {
-				a.NoError(tt.after(runtime(app)))
+				tt.after(app)
 			}
 		})
 	}

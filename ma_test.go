@@ -2,6 +2,7 @@ package ma_test
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/exec"
@@ -24,6 +25,16 @@ func init() {
 
 func runtime(app *cli.App) *ma.Runtime {
 	return app.Metadata[ma.RuntimeKey].(*ma.Runtime)
+}
+
+func copyFile(w io.Writer, filename string) error {
+	fp, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer fp.Close()
+	_, err = io.Copy(w, fp)
+	return err
 }
 
 type encoderBlackhole struct{}

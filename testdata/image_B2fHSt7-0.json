@@ -56,7 +56,7 @@
                 }
             },
             "Uri": "/api/v2/image/B2fHSt7-0",
-            "WebUri": "https://photos.gravl.cc/Activities/2020/2020-08-25-Babyshoe-Pass/n-t7jTf7/i-B2fHSt7",
+            "WebUri": "https://example.com/Activities/2020/2020-08-25-Babyshoe-Pass/n-t7jTf7/i-B2fHSt7",
             "UriDescription": "Image by key",
             "Uris": {
                 "LargestImage": {
@@ -248,7 +248,7 @@
                 "HasDownloadPassword": false,
                 "Packages": false,
                 "Uri": "/api/v2/album/S45Qsz",
-                "WebUri": "https://photos.gravl.cc/Activities/2020/2020-08-25-Babyshoe-Pass/n-t7jTf7",
+                "WebUri": "https://example.com/Activities/2020/2020-08-25-Babyshoe-Pass/n-t7jTf7",
                 "UriDescription": "Album by key",
                 "Uris": {
                     "AlbumShareUris": {

@@ -12,6 +12,7 @@ import (
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 
@@ -84,7 +85,7 @@ func main() {
 			if err == nil {
 				return
 			}
-			log.Error().Err(err).Msg(c.App.Name)
+			log.Error().Stack().Err(err).Msg(c.App.Name)
 		},
 		Before: func(c *cli.Context) error {
 			level := zerolog.InfoLevel
@@ -94,6 +95,7 @@ func main() {
 			zerolog.SetGlobalLevel(level)
 			zerolog.DurationFieldUnit = time.Millisecond
 			zerolog.DurationFieldInteger = false
+			zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 			log.Logger = log.Output(
 				zerolog.ConsoleWriter{
 					Out:        c.App.ErrWriter,
@@ -162,7 +164,7 @@ func main() {
 			ma.CommandList(),
 			ma.CommandNew(),
 			ma.CommandPatch(),
-			ma.CommandUp(),
+			ma.CommandUpload(),
 			ma.CommandCopy(),
 			ma.CommandExport(),
 			ma.CommandVersion(),

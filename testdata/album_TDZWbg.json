@@ -1,0 +1,214 @@
+{
+    "Response": {
+        "Uri": "/api/v2/album/TDZWbg?_pretty=true",
+        "Locator": "Album",
+        "LocatorType": "Object",
+        "Album": {
+            "NiceName": "Foo",
+            "UrlName": "Foo",
+            "Title": "Foo",
+            "Name": "Foo",
+            "TemplateUri": "/api/v2/template/17",
+            "AllowDownloads": false,
+            "Backprinting": "",
+            "BoutiquePackaging": "No",
+            "CanRank": true,
+            "Clean": false,
+            "Comments": true,
+            "Description": "",
+            "EXIF": true,
+            "External": true,
+            "FamilyEdit": false,
+            "Filenames": false,
+            "FriendEdit": false,
+            "Geography": true,
+            "Header": "Custom",
+            "HideOwner": false,
+            "InterceptShipping": "Inherit from User",
+            "Keywords": "",
+            "LargestSize": "5K",
+            "PackagingBranding": true,
+            "Password": "",
+            "PasswordHint": "",
+            "Printable": true,
+            "Privacy": "Unlisted",
+            "ProofDays": 0,
+            "ProofDigital": false,
+            "Protected": false,
+            "Share": true,
+            "Slideshow": true,
+            "SmugSearchable": "Inherit from User",
+            "SortDirection": "Ascending",
+            "SortMethod": "Date Taken",
+            "SquareThumbs": true,
+            "Watermark": false,
+            "WorldSearchable": true,
+            "SecurityType": "None",
+            "CommerceLightbox": false,
+            "AlbumKey": "TDZWbg",
+            "CanBuy": true,
+            "CanFavorite": false,
+            "Date": "2021-10-08T02:46:20+00:00",
+            "LastUpdated": "2021-10-09T01:18:07+00:00",
+            "ImagesLastUpdated": "2021-10-09T01:18:21+00:00",
+            "NodeID": "VsQ7zr",
+            "OriginalSizes": 0,
+            "TotalSizes": 0,
+            "ImageCount": 0,
+            "UrlPath": "/Foo",
+            "CanShare": true,
+            "HasDownloadPassword": false,
+            "Packages": false,
+            "Uri": "/api/v2/album/TDZWbg",
+            "WebUri": "https://example.com/Foo/n-VsQ7zr",
+            "UriDescription": "Album by key",
+            "Uris": {
+                "AlbumShareUris": {
+                    "Uri": "/api/v2/album/TDZWbg!shareuris",
+                    "Locator": "AlbumShareUris",
+                    "LocatorType": "Object",
+                    "UriDescription": "URIs that are useful for sharing",
+                    "EndpointType": "AlbumShareUris"
+                },
+                "Node": {
+                    "Uri": "/api/v2/node/VsQ7zr",
+                    "Locator": "Node",
+                    "LocatorType": "Object",
+                    "UriDescription": "Node with the given id.",
+                    "EndpointType": "Node"
+                },
+                "NodeCoverImage": {
+                    "Uri": "/api/v2/node/VsQ7zr!cover",
+                    "Locator": "Image",
+                    "LocatorType": "Object",
+                    "UriDescription": "Cover image for a folder, album, or page",
+                    "EndpointType": "NodeCoverImage"
+                },
+                "User": {
+                    "Uri": "/api/v2/user/zimmer",
+                    "Locator": "User",
+                    "LocatorType": "Object",
+                    "UriDescription": "User By Nickname",
+                    "EndpointType": "User"
+                },
+                "Folder": {
+                    "Uri": "/api/v2/folder/user/zimmer",
+                    "Locator": "Folder",
+                    "LocatorType": "Object",
+                    "UriDescription": "A folder or legacy (sub)category by UrlPath",
+                    "EndpointType": "Folder"
+                },
+                "ParentFolders": {
+                    "Uri": "/api/v2/folder/user/zimmer!parents",
+                    "Locator": "Folder",
+                    "LocatorType": "Objects",
+                    "UriDescription": "The sequence of parent folders, from the given folder to the root",
+                    "EndpointType": "ParentFolders"
+                },
+                "HighlightImage": {
+                    "Uri": "/api/v2/highlight/node/VsQ7zr",
+                    "Locator": "Image",
+                    "LocatorType": "Object",
+                    "UriDescription": "Highlight image for a folder, album, or page",
+                    "EndpointType": "HighlightImage"
+                },
+                "AlbumHighlightImage": {
+                    "Uri": "/api/v2/album/TDZWbg!highlightimage",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Object",
+                    "UriDescription": "Highlight image for album",
+                    "EndpointType": "AlbumHighlightImage"
+                },
+                "AlbumImages": {
+                    "Uri": "/api/v2/album/TDZWbg!images",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Images from album",
+                    "EndpointType": "AlbumImages"
+                },
+                "AlbumPopularMedia": {
+                    "Uri": "/api/v2/album/TDZWbg!popularmedia",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Popular images from album",
+                    "EndpointType": "AlbumPopularMedia"
+                },
+                "AlbumGeoMedia": {
+                    "Uri": "/api/v2/album/TDZWbg!geomedia",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Geotagged images from album",
+                    "EndpointType": "AlbumGeoMedia"
+                },
+                "AlbumComments": {
+                    "Uri": "/api/v2/album/TDZWbg!comments",
+                    "Locator": "Comment",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Comments on album",
+                    "EndpointType": "AlbumComments"
+                },
+                "MoveAlbumImages": {
+                    "Uri": "/api/v2/album/TDZWbg!moveimages",
+                    "UriDescription": "Move images into album",
+                    "EndpointType": "MoveAlbumImages"
+                },
+                "CollectImages": {
+                    "Uri": "/api/v2/album/TDZWbg!collectimages",
+                    "UriDescription": "Collect images into album",
+                    "EndpointType": "CollectImages"
+                },
+                "ApplyAlbumTemplate": {
+                    "Uri": "/api/v2/album/TDZWbg!applyalbumtemplate",
+                    "Locator": "ApplyAlbumTemplate",
+                    "LocatorType": "Object",
+                    "UriDescription": "Apply an album template",
+                    "EndpointType": "ApplyAlbumTemplate"
+                },
+                "DeleteAlbumImages": {
+                    "Uri": "/api/v2/album/TDZWbg!deleteimages",
+                    "UriDescription": "Delete album images",
+                    "EndpointType": "DeleteAlbumImages"
+                },
+                "UploadFromUri": {
+                    "Uri": "/api/v2/album/TDZWbg!uploadfromuri",
+                    "UriDescription": "Upload a photo or video from elsewhere on the web",
+                    "EndpointType": "UploadFromUri"
+                },
+                "AlbumGrants": {
+                    "Uri": "/api/v2/album/TDZWbg!grants",
+                    "Locator": "Grant",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Grants for the Album",
+                    "EndpointType": "AlbumGrants"
+                },
+                "AlbumDownload": {
+                    "Uri": "/api/v2/album/TDZWbg!download",
+                    "Locator": "Download",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Download album",
+                    "EndpointType": "AlbumDownload"
+                },
+                "AlbumPrices": {
+                    "Uri": "/api/v2/album/TDZWbg!prices",
+                    "Locator": "CatalogSkuPrice",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Purchasable Skus",
+                    "EndpointType": "AlbumPrices"
+                },
+                "AlbumPricelistExclusions": {
+                    "Uri": "/api/v2/album/TDZWbg!pricelistexclusions",
+                    "Locator": "AlbumPricelistExclusions",
+                    "LocatorType": "Object",
+                    "UriDescription": "Pricelist information for an Album",
+                    "EndpointType": "AlbumPricelistExclusions"
+                }
+            },
+            "ResponseLevel": "Full"
+        },
+        "UriDescription": "Album by key",
+        "EndpointType": "Album",
+        "DocUri": "https://api.smugmug.com/api/v2/doc/reference/album.html"
+    },
+    "Code": 200,
+    "Message": "Ok"
+}

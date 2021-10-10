@@ -29,7 +29,7 @@ tasks:
     desc: Run tests
     cmds:
       - mkdir -p {{.DIST}}
-      - go test -race -short -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+      - go test {{.CLI_ARGS}} -race -short -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   test-integration:
     desc: Run integration tests

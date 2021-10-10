@@ -37,7 +37,7 @@
             "NodeID": "VsQ7zr",
             "UrlPath": "/Foo",
             "Uri": "/api/v2/node/VsQ7zr",
-            "WebUri": "https://photos.gravl.cc/Foo/n-VsQ7zr",
+            "WebUri": "https://example.com/Foo/n-VsQ7zr",
             "UriDescription": "Node with the given id.",
             "Uris": {
                 "Album": {
@@ -167,7 +167,7 @@
                 "HasDownloadPassword": false,
                 "Packages": false,
                 "Uri": "/api/v2/album/TDZWbg",
-                "WebUri": "https://photos.gravl.cc/Foo/n-VsQ7zr",
+                "WebUri": "https://example.com/Foo/n-VsQ7zr",
                 "UriDescription": "Album by key",
                 "Uris": {
                     "AlbumShareUris": {

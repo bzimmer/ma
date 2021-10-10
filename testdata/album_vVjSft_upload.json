@@ -1,0 +1,14 @@
+{
+    "stat": "ok",
+    "method": "smugmug.images.upload",
+    "Image": {
+        "StatusImageReplaceUri": null,
+        "ImageUri": "/api/v2/image/JNkmRBZ-0",
+        "AlbumImageUri": "/api/v2/album/vVjSft/image/JNkmRBZ-0",
+        "URL": "https://example.com/Foo/n-8LzmxT/i-JNkmRBZ"
+    },
+    "Asset": {
+        "AssetComponentUri": "/api/v2/library/asset/JNkmRBZ/component/i/JNkmRBZ",
+        "AssetUri": "/api/v2/library/asset/JNkmRBZ"
+    }
+}

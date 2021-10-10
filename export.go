@@ -81,8 +81,9 @@ func (x *exporter) request(image *smugmug.Image, destination string) (*request, 
 }
 
 func (x *exporter) do(ctx context.Context, req *request) (*response, error) {
-	t := time.Now()
-	x.metrics.AddSample([]string{"export", "download"}, float32(time.Since(t).Seconds()))
+	defer func(t time.Time) {
+		x.metrics.AddSample([]string{"export", "download"}, float32(time.Since(t).Seconds()))
+	}(time.Now())
 	res, err := x.grab.Do(req.HTTPRequest.WithContext(ctx))
 	if err != nil {
 		return nil, err

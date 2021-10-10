@@ -1,6 +1,8 @@
 package ma
 
 import (
+	"context"
+
 	"github.com/bzimmer/smugmug"
 	"github.com/bzimmer/smugmug/uploadable/filesystem"
 	"github.com/rs/zerolog/log"
@@ -88,85 +90,77 @@ func upload(c *cli.Context) filesystem.UseFunc {
 	}
 }
 
-func up(c *cli.Context) error {
-	mg := client(c)
-	albumKey := c.String("album")
-
-	grp, ctx := errgroup.WithContext(c.Context)
-
-	album := (*smugmug.Album)(nil)
+func existing(ctx context.Context, mg *smugmug.Client, albumKey string) (*smugmug.Album, map[string]*smugmug.Image, error) {
+	albumc := make(chan *smugmug.Album, 1)
 	images := make(map[string]*smugmug.Image)
+	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		log.Info().Str("albumKey", albumKey).Msg("querying existing gallery images")
-		return client(c).Image.ImagesIter(ctx, albumKey, func(img *smugmug.Image) (bool, error) {
+		return mg.Image.ImagesIter(ctx, albumKey, func(img *smugmug.Image) (bool, error) {
 			images[img.FileName] = img
 			return true, nil
 		})
 	})
 	grp.Go(func() error {
-		var err error
-		album, err = client(c).Album.Album(ctx, albumKey)
-		return err
+		defer close(albumc)
+		album, err := mg.Album.Album(ctx, albumKey)
+		if err != nil {
+			return err
+		}
+		albumc <- album
+		return nil
 	})
 	if err := grp.Wait(); err != nil {
+		log.Error().Err(err).Msg("failed to query album or album images")
+		return nil, nil, err
+	}
+	return <-albumc, images, nil
+}
+
+func up(c *cli.Context) error {
+	mg := client(c)
+	album, images, err := existing(c.Context, mg, c.String("album"))
+	if err != nil {
 		return err
 	}
-	log.Info().Int("count", len(images)).Str("name", album.Name).Str("albumKey", albumKey).Msg("existing gallery images")
+	log.Info().
+		Int("count", len(images)).
+		Str("name", album.Name).
+		Str("albumKey", album.AlbumKey).
+		Msg("existing gallery images")
 
-	u, err := filesystem.NewFsUploadable(albumKey)
+	u, err := filesystem.NewFsUploadable(album.AlbumKey)
 	if err != nil {
 		return err
 	}
 	u.Pre(visit(c), extensions(c))
 	u.Use(open(c), skip(c, images), replace(c, images), upload(c))
 
-	grp, ctx = errgroup.WithContext(c.Context)
-
-	albumbc := make(chan *smugmug.Album, 1)
+	grp, ctx := errgroup.WithContext(c.Context)
+	uploadc, errc := mg.Upload.Uploads(
+		ctx, filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u))
 	grp.Go(func() error {
-		defer close(albumbc)
-		album, err := mg.Album.Album(ctx, albumKey)
-		if err != nil {
-			return err
-		}
-		albumbc <- album
-		return nil
+		return <-errc
 	})
 	grp.Go(func() error {
-		ups := filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u)
-		uploadc, errc := mg.Upload.Uploads(ctx, ups)
-		for {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case err := <-errc:
-				return err
-			case up, ok := <-uploadc:
-				if !ok {
-					select {
-					case <-ctx.Done():
-						return ctx.Err()
-					case album := <-albumbc:
-						log.Info().Str("albumKey", album.AlbumKey).Str("webURI", album.WebURI).Msg("complete")
-					}
-					return nil
-				}
-				metric(c).IncrCounter([]string{"upload", "success"}, 1)
-				metric(c).AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
-				log.Info().
-					Str("name", up.Uploadable.Name).
-					Str("album", up.Uploadable.AlbumKey).
-					Dur("elapsed", up.Elapsed).
-					Str("uri", up.ImageURI).
-					Str("status", "success").
-					Msg("upload")
-			}
+		for up := range uploadc {
+			metric(c).IncrCounter([]string{"upload", "success"}, 1)
+			metric(c).AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
+			log.Info().
+				Str("name", up.Uploadable.Name).
+				Str("album", up.Uploadable.AlbumKey).
+				Dur("elapsed", up.Elapsed).
+				Str("uri", up.ImageURI).
+				Str("status", "success").
+				Msg("upload")
 		}
+		log.Info().Str("albumKey", album.AlbumKey).Str("webURI", album.WebURI).Msg("complete")
+		return nil
 	})
 	return grp.Wait()
 }
 
-func CommandUp() *cli.Command {
+func CommandUpload() *cli.Command {
 	return &cli.Command{
 		Name:    "up",
 		Aliases: []string{"upload"},

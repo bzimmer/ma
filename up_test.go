@@ -1,0 +1,203 @@
+package ma_test
+
+import (
+	"context"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
+	"github.com/bzimmer/smugmug"
+)
+
+func TestUpload(t *testing.T) {
+	t.Parallel()
+	a := assert.New(t)
+
+	handler := func(mux *http.ServeMux) {
+		mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+		})
+		mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+		})
+		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+		})
+		mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
+			a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
+		})
+		mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
+			a.Equal(http.MethodPut, r.Method)
+			a.NoError(copyFile(w, "testdata/album_vVjSft_upload.json"))
+		})
+	}
+
+	tests := []struct {
+		name     string
+		args     []string
+		err      string
+		handler  func(*http.ServeMux)
+		counters map[string]int
+		before   func(app *cli.App)
+		after    func(app *cli.App)
+	}{
+		{
+			name: "upload with no arguments",
+			args: []string{"ma", "upload"},
+			err:  "Required flag \"album\" not set",
+		},
+		{
+			name:    "upload invalid album",
+			args:    []string{"ma", "upload", "--album", "qety", "/tmp/foo/bar"},
+			err:     "Not Found",
+			handler: handler,
+		},
+		{
+			name:    "upload directory does not exist",
+			args:    []string{"ma", "upload", "--album", "TDZWbg", "/tmp/foo/bar"},
+			handler: handler,
+			err:     "file does not exist",
+		},
+		{
+			name:    "upload no valid files",
+			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			before: func(app *cli.App) {
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+			},
+		},
+		{
+			name:    "upload file already exists",
+			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			counters: map[string]int{
+				"ma.fsUploadable.visit":    1,
+				"ma.fsUploadable.open":     1,
+				"ma.fsUploadable.skip.md5": 1,
+			},
+			before: func(app *cli.App) {
+				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
+				a.NoError(fp.Close())
+			},
+		},
+		{
+			name:    "upload skip unsupported file",
+			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			counters: map[string]int{
+				"ma.fsUploadable.visit":            1,
+				"ma.fsUploadable.skip.unsupported": 1,
+			},
+			before: func(app *cli.App) {
+				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(fp.Close())
+			},
+		},
+		{
+			name:    "upload replace existing image (dryrun)",
+			args:    []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			counters: map[string]int{
+				"ma.fsUploadable.visit":   1,
+				"ma.fsUploadable.open":    1,
+				"ma.fsUploadable.replace": 1,
+				"ma.upload.dryrun":        1,
+			},
+			before: func(app *cli.App) {
+				// create a file of the same name as a previously uploaded file but copy the
+				//  contents of a different file to force the md5s to be different
+				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+			},
+		},
+		{
+			name:    "upload new image",
+			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			counters: map[string]int{
+				"ma.fsUploadable.visit": 1,
+				"ma.upload.attempt":     1,
+				"ma.fsUploadable.open":  1,
+				"ma.upload.success":     1,
+			},
+			before: func(app *cli.App) {
+				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+			},
+		},
+		{
+			name:    "upload new image (dryrun)",
+			args:    []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
+			handler: handler,
+			counters: map[string]int{
+				"ma.fsUploadable.visit": 1,
+				"ma.upload.dryrun":      1,
+				"ma.fsUploadable.open":  1,
+			},
+			before: func(app *cli.App) {
+				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			a := assert.New(t)
+
+			mux := http.NewServeMux()
+			if tt.handler != nil {
+				tt.handler(mux)
+			}
+			svr := httptest.NewServer(mux)
+			defer svr.Close()
+
+			app := NewTestApp(t, tt.name, ma.CommandUpload(), smugmug.WithBaseURL(svr.URL))
+
+			if tt.before != nil {
+				tt.before(app)
+			}
+
+			err := app.RunContext(context.TODO(), tt.args)
+			switch tt.err == "" {
+			case true:
+				a.NoError(err)
+			case false:
+				a.Error(err)
+				a.Contains(err.Error(), tt.err)
+			}
+
+			for key, value := range tt.counters {
+				counter, err := findCounter(app, key)
+				a.NoError(err)
+				a.Equalf(value, counter.Count, key)
+			}
+
+			if tt.after != nil {
+				tt.after(app)
+			}
+		})
+	}
+}

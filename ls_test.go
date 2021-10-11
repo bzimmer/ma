@@ -34,6 +34,15 @@ func TestList(t *testing.T) {
 			w.WriteHeader(http.StatusNotFound)
 			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
 		})
+		mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
+			a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
+		})
+		mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
+			a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
+		})
+		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+		})
 	}
 
 	tests := []struct {
@@ -71,6 +80,29 @@ func TestList(t *testing.T) {
 			name: "invalid album",
 			args: []string{"ma", "ls", "album", "qety"},
 			err:  "Not Found",
+		},
+		{
+			name: "node type album with no album flag",
+			args: []string{"ma", "ls", "node", "VsQ7zr"},
+			counters: map[string]int{
+				"ma.ls.node": 1,
+			},
+		},
+		{
+			name: "node recurse and image",
+			args: []string{"ma", "ls", "node", "-R", "-i", "VsQ7zr"},
+			counters: map[string]int{
+				"ma.ls.node":  1,
+				"ma.ls.image": 1,
+			},
+		},
+		{
+			name: "album recurse and image",
+			args: []string{"ma", "ls", "album", "-i", "TDZWbg"},
+			counters: map[string]int{
+				"ma.ls.album": 1,
+				"ma.ls.image": 1,
+			},
 		},
 	}
 

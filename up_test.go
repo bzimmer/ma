@@ -17,32 +17,30 @@ func TestUpload(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	handler := func(mux *http.ServeMux) {
-		mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
-		})
-		mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
-		})
-		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
-		})
-		mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
-		})
-		mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
-			a.Equal(http.MethodPut, r.Method)
-			a.NoError(copyFile(w, "testdata/album_vVjSft_upload.json"))
-		})
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+	})
+	mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+	})
+	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+	})
+	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
+	})
+	mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		a.NoError(copyFile(w, "testdata/album_vVjSft_upload.json"))
+	})
 
 	tests := []struct {
 		name     string
 		args     []string
 		err      string
-		handler  func(*http.ServeMux)
 		counters map[string]int
 		before   func(app *cli.App)
 		after    func(app *cli.App)
@@ -53,29 +51,25 @@ func TestUpload(t *testing.T) {
 			err:  "Required flag \"album\" not set",
 		},
 		{
-			name:    "upload invalid album",
-			args:    []string{"ma", "upload", "--album", "qety", "/tmp/foo/bar"},
-			err:     "Not Found",
-			handler: handler,
+			name: "upload invalid album",
+			args: []string{"ma", "upload", "--album", "qety", "/tmp/foo/bar"},
+			err:  "Not Found",
 		},
 		{
-			name:    "upload directory does not exist",
-			args:    []string{"ma", "upload", "--album", "TDZWbg", "/tmp/foo/bar"},
-			handler: handler,
-			err:     "file does not exist",
+			name: "upload directory does not exist",
+			args: []string{"ma", "upload", "--album", "TDZWbg", "/tmp/foo/bar"},
+			err:  "file does not exist",
 		},
 		{
-			name:    "upload no valid files",
-			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload no valid files",
+			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
 			before: func(app *cli.App) {
 				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
 			},
 		},
 		{
-			name:    "upload file already exists",
-			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload file already exists",
+			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
 				"ma.fsUploadable.visit":    1,
 				"ma.fsUploadable.open":     1,
@@ -90,9 +84,8 @@ func TestUpload(t *testing.T) {
 			},
 		},
 		{
-			name:    "upload skip unsupported file",
-			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload skip unsupported file",
+			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
 				"ma.fsUploadable.visit":            1,
 				"ma.fsUploadable.skip.unsupported": 1,
@@ -105,9 +98,8 @@ func TestUpload(t *testing.T) {
 			},
 		},
 		{
-			name:    "upload replace existing image (dryrun)",
-			args:    []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload replace existing image (dryrun)",
+			args: []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
 				"ma.fsUploadable.visit":   1,
 				"ma.fsUploadable.open":    1,
@@ -125,9 +117,8 @@ func TestUpload(t *testing.T) {
 			},
 		},
 		{
-			name:    "upload new image",
-			args:    []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload new image",
+			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
 				"ma.fsUploadable.visit": 1,
 				"ma.upload.attempt":     1,
@@ -143,9 +134,8 @@ func TestUpload(t *testing.T) {
 			},
 		},
 		{
-			name:    "upload new image (dryrun)",
-			args:    []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
-			handler: handler,
+			name: "upload new image (dryrun)",
+			args: []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
 				"ma.fsUploadable.visit": 1,
 				"ma.upload.dryrun":      1,
@@ -167,10 +157,6 @@ func TestUpload(t *testing.T) {
 			t.Parallel()
 			a := assert.New(t)
 
-			mux := http.NewServeMux()
-			if tt.handler != nil {
-				tt.handler(mux)
-			}
 			svr := httptest.NewServer(mux)
 			defer svr.Close()
 

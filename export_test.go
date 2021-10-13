@@ -19,24 +19,22 @@ func TestExport(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	handler := func(mux *http.ServeMux) {
-		mux.HandleFunc("/node/VsQ7zr!parents", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/node_VsQ7zr_parents.json"))
-		})
-		mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
-		})
-		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
-		})
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/node/VsQ7zr!parents", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/node_VsQ7zr_parents.json"))
+	})
+	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
+	})
+	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+	})
 
 	tests := []struct {
 		name     string
 		args     []string
 		err      string
 		counters map[string]int
-		handler  func(*http.ServeMux)
 		before   func(app *cli.App)
 		after    func(app *cli.App)
 	}{
@@ -51,7 +49,6 @@ func TestExport(t *testing.T) {
 			counters: map[string]int{
 				"ma.export.download.ok": 1,
 			},
-			handler: handler,
 			before: func(app *cli.App) {
 				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
 					Status:      http.StatusOK,
@@ -71,7 +68,6 @@ func TestExport(t *testing.T) {
 			counters: map[string]int{
 				"ma.export.download.failed.not_found": 1,
 			},
-			handler: handler,
 			before: func(app *cli.App) {
 				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
 					Status: http.StatusNotFound,
@@ -90,8 +86,7 @@ func TestExport(t *testing.T) {
 			counters: map[string]int{
 				"ma.export.download.failed.internal_server_error": 1,
 			},
-			err:     "download failed",
-			handler: handler,
+			err: "download failed",
 			before: func(app *cli.App) {
 				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
 					Status: http.StatusInternalServerError,
@@ -110,7 +105,6 @@ func TestExport(t *testing.T) {
 			counters: map[string]int{
 				"ma.export.download.skipping.exists": 1,
 			},
-			handler: handler,
 			before: func(app *cli.App) {
 				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
 					Status: http.StatusOK,
@@ -135,10 +129,6 @@ func TestExport(t *testing.T) {
 			t.Parallel()
 			a := assert.New(t)
 
-			mux := http.NewServeMux()
-			if tt.handler != nil {
-				tt.handler(mux)
-			}
 			svr := httptest.NewServer(mux)
 			defer svr.Close()
 

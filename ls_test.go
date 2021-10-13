@@ -17,33 +17,32 @@ import (
 func TestList(t *testing.T) {
 	a := assert.New(t)
 
-	handler := func(mux *http.ServeMux) {
-		mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/user_cmac.json"))
-		})
-		mux.HandleFunc("/node/zx4Fx", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/node_zx4Fx.json"))
-		})
-		mux.HandleFunc("/image/B2fHSt7-0", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
-		})
-		mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_RM4BL2.json"))
-		})
-		mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-			a.NoError(copyFile(w, "testdata/album_qety_404.json"))
-		})
-		mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
-		})
-		mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
-		})
-		mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-			a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
-		})
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/user_cmac.json"))
+	})
+	mux.HandleFunc("/node/zx4Fx", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/node_zx4Fx.json"))
+	})
+	mux.HandleFunc("/image/B2fHSt7-0", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
+	})
+	mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_RM4BL2.json"))
+	})
+	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+	})
+	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
+	})
+	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
+	})
+	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+	})
 
 	tests := []struct {
 		name     string
@@ -111,8 +110,6 @@ func TestList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 
-			mux := http.NewServeMux()
-			handler(mux)
 			svr := httptest.NewServer(mux)
 			defer svr.Close()
 

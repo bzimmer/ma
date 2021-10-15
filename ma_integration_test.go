@@ -3,11 +3,16 @@
 package ma_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // root finds the root of the source tree by recursively ascending until 'go.mod' is located
@@ -34,22 +39,37 @@ func root() (string, error) {
 	return "", errors.New("unable to find go.mod")
 }
 
-func binary() (string, error) {
+func command(t *testing.T, args ...string) *exec.Cmd {
 	dir, err := root()
 	if err != nil {
-		return "", err
+		t.Error(err)
 	}
 	cmd := filepath.Join(dir, "dist", "ma")
 	if _, err = os.Stat(cmd); err != nil {
-		return "", err
+		t.Error(err)
 	}
-	return cmd, nil
+	if err != nil {
+		t.Error(err)
+	}
+	return exec.Command(cmd, args...)
 }
 
-func command(args ...string) (*exec.Cmd, error) {
-	cmd, err := binary()
-	if err != nil {
-		return nil, err
+type harnessIntegration struct {
+	name  string
+	args  []string
+	exit  int
+	after func(map[string]interface{})
+}
+
+func harnessIntegrationFunc(t *testing.T, tt harnessIntegration) {
+	a := assert.New(t)
+	ma := command(t, tt.args...)
+	out, err := ma.Output()
+	a.NoError(err)
+	res := make(map[string]interface{})
+	dec := json.NewDecoder(bytes.NewBuffer(out))
+	a.NoError(dec.Decode(&res))
+	if tt.after != nil {
+		tt.after(res)
 	}
-	return exec.Command(cmd, args...), nil
 }

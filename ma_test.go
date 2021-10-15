@@ -2,6 +2,7 @@ package ma_test
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -20,7 +21,11 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	// hijack the `go test` verbose flag to manage logging
+	verbose := flag.CommandLine.Lookup("test.v")
+	if verbose.Value.String() != "" {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 	os.Exit(m.Run())
 }
 

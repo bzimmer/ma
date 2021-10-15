@@ -136,13 +136,11 @@ func copy(fs afero.Fs, src, dst string) error {
 	if err := fs.MkdirAll(dirname, 0777); err != nil {
 		return err
 	}
-	log.Debug().Str("file", dst).Msg("writing")
 	out, err := fs.Create(dst)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
-	log.Debug().Str("file", src).Msg("reading")
 	in, err := fs.Open(src)
 	if err != nil {
 		return err
@@ -163,12 +161,8 @@ func copy(fs afero.Fs, src, dst string) error {
 	if err = fs.Chtimes(dst, mtime, mtime); err != nil {
 		return err
 	}
-	info, err = fs.Stat(dst)
-	if err != nil {
-		return err
-	}
-	log.Debug().Str("src", src).Str("dst", dst).Time("src-mtime", mtime).Time("dst-mtime", info.ModTime()).Msg("preserve times")
-	return nil
+	_, err = fs.Stat(dst)
+	return err
 }
 
 type entangle struct {

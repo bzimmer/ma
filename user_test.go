@@ -1,8 +1,6 @@
 package ma_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -28,37 +26,6 @@ func TestUser(t *testing.T) {
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			harnessFunc(t, tt, mux, ma.CommandUser)
-		})
-	}
-}
-
-func TestUserIntegration(t *testing.T) {
-	t.Parallel()
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-	tests := []struct {
-		name string
-		args []string
-	}{
-		{
-			name: "auth user",
-			args: []string{"-j", "user"},
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			a := assert.New(t)
-			ma := command(tt.args...)
-			out, err := ma.Output()
-			a.NoError(err)
-			res := make(map[string]interface{})
-			dec := json.NewDecoder(bytes.NewBuffer(out))
-			a.NoError(dec.Decode(&res))
-			a.NotEqual("", res["nickname"])
 		})
 	}
 }

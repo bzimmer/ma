@@ -28,6 +28,7 @@ const (
 	nef               = ".nef"
 	orf               = ".orf"
 	raf               = ".raf"
+	xmp               = ".xmp"
 )
 
 func defaultImages() []string {
@@ -102,7 +103,7 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 		info := f.files[i]
 		ext := strings.ToLower(filepath.Ext(info.Name()))
 		switch ext {
-		case ".jpg", ".jpeg", ".raf", ".dng", ".nef":
+		case jpg, jpeg, raf, dng, nef:
 			dt := &dateTimeExif{fs: fs, src: dirname, ext: ext, info: info}
 			t, err := dt.dateTime()
 			if err != nil {
@@ -111,9 +112,9 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 			times[ext] = t
 		case ".mp4", ".mov", ".avi":
 			// @todo(movies)
-		case ".orf":
+		case orf:
 			// @todo(orf)
-		case "", ".xmp":
+		case "", xmp:
 			// not trustworthy for valid dates
 		}
 	}
@@ -190,7 +191,7 @@ func (c *entangler) cp(ctx context.Context, sources []string, destination string
 		defer close(q)
 		sets := make(map[string]map[string]*fileSet)
 		for i := range sources {
-			if err := afero.Walk(c.fs, sources[i], c.filesets(sets)); err != nil {
+			if err := afero.Walk(c.fs, sources[i], c.fileSets(sets)); err != nil {
 				return err
 			}
 		}
@@ -275,8 +276,8 @@ func (c *entangler) copyFile(source, destination string) error {
 	return nil
 }
 
-// filesets creates fileSets from a directory traversal
-func (c *entangler) filesets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
+// fileSets creates fileSets from a directory traversal
+func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
 	return func(fullname string, info fs.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -312,7 +313,6 @@ func cp(c *cli.Context) error {
 	if c.NArg() < 2 {
 		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 	}
-
 	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
 	en := &entangler{
 		fs:          runtime(c).Fs,

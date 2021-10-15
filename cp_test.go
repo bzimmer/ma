@@ -15,19 +15,19 @@ import (
 	"github.com/bzimmer/ma"
 )
 
-func createTestFile(fs afero.Fs) (afero.File, error) {
+func createTestFile(t *testing.T, fs afero.Fs) afero.File {
 	if err := fs.MkdirAll("/foo/bar", 0777); err != nil {
-		return nil, err
+		t.Error(err)
 	}
 	fp, err := fs.Create("/foo/bar/Nikon_D70.jpg")
 	if err != nil {
-		return nil, err
+		t.Error(err)
 	}
 	defer fp.Close()
 	if err := copyFile(fp, "testdata/Nikon_D70.jpg"); err != nil {
-		return nil, err
+		t.Error(err)
 	}
-	return fp, nil
+	return fp
 }
 
 func TestCopy(t *testing.T) { //nolint
@@ -105,8 +105,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 			},
 			before: func(app *cli.App) {
-				image, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				image := createTestFile(t, runtime(app).Fs)
 				a.NoError(image.Close())
 				// a bit of hack to test reading the entire contents of a .dng file
 				// the exif parser doesn't care about file extensions, it sees only bytes
@@ -122,8 +121,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 			},
 			before: func(app *cli.App) {
-				image, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				image := createTestFile(t, runtime(app).Fs)
 				a.NoError(image.Close())
 
 				tm := time.Date(2008, time.March, 15, 11, 22, 0, 0, time.Local)
@@ -178,10 +176,9 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 			},
 			before: func(app *cli.App) {
-				fp, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				fp := createTestFile(t, runtime(app).Fs)
 				a.NoError(fp.Close())
-				fp, err = runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
 			},
@@ -202,10 +199,9 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.file.dryrun":         2,
 			},
 			before: func(app *cli.App) {
-				fp, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				fp := createTestFile(t, runtime(app).Fs)
 				a.NoError(fp.Close())
-				fp, err = runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
 			},
@@ -227,11 +223,10 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.fileset.skip.unsupported": 1,
 			},
 			before: func(app *cli.App) {
-				fp, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				fp := createTestFile(t, runtime(app).Fs)
 				a.NoError(fp.Close())
 				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0777))
-				fp, err = runtime(app).Fs.Create("/foo/bar/boo/Nikon_D70.xmp")
+				fp, err := runtime(app).Fs.Create("/foo/bar/boo/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
 			},
@@ -269,8 +264,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 			},
 			before: func(app *cli.App) {
-				fp, err := createTestFile(runtime(app).Fs)
-				a.NoError(err)
+				fp := createTestFile(t, runtime(app).Fs)
 				a.NoError(fp.Close())
 				runtime(app).Fs = afero.NewReadOnlyFs(runtime(app).Fs)
 			},

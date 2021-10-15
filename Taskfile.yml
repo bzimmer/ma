@@ -23,18 +23,22 @@ tasks:
     cmds:
       - task: build
 
-  test:
-    desc: Run tests
+  dist:
+    desc: Create dist directory
     cmds:
       - mkdir -p {{.DIST}}
-      - go test {{.CLI_ARGS}} -race -short -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+
+  test:
+    desc: Run tests
+    deps: [dist]
+    cmds:
+      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   test-integration:
     desc: Run integration tests
     deps: [build]
     cmds:
-      - mkdir -p {{.DIST}}
-      - go test -count=1 -covermode count -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
 
   cover:
     desc: Visualize test coverage
@@ -49,6 +53,7 @@ tasks:
 
   build:
     desc: Build all cmds
+    deps: [dist]
     cmds:
       - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
 

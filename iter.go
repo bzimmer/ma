@@ -39,7 +39,7 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 	return func(album *smugmug.Album) (bool, error) {
 		metric(c).IncrCounter([]string{op, "album"}, 1)
 		log.Info().
-			Str("type", "Album").
+			Str("type", smugmug.TypeAlbum).
 			Str("name", album.Name).
 			Str("nodeID", album.NodeID).
 			Str("albumKey", album.AlbumKey).

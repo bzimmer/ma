@@ -99,8 +99,8 @@ func findCounter(app *cli.App, name string) (metrics.SampledValue, error) {
 	return metrics.SampledValue{}, fmt.Errorf("cannot find sample value for {%s}", name)
 }
 
-// Root finds the root of the source tree by recursively ascending until 'go.mod' is located
-func Root() string {
+// root finds the root of the source tree by recursively ascending until 'go.mod' is located
+func root() string {
 	path, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -123,8 +123,8 @@ func Root() string {
 	panic("unable to find go.mod")
 }
 
-func Command(args ...string) *exec.Cmd {
-	return exec.Command(filepath.Join(Root(), "dist", "ma"), args...) //nolint:gosec
+func command(args ...string) *exec.Cmd {
+	return exec.Command(filepath.Join(root(), "dist", "ma"), args...) //nolint:gosec
 }
 
 type harness struct {

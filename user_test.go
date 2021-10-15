@@ -2,36 +2,34 @@ package ma_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"io"
 	"net/http"
-	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/ma"
-	"github.com/bzimmer/smugmug"
 )
 
 func TestUser(t *testing.T) {
 	t.Parallel()
 	a := assert.New(t)
 
-	svr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		a.Equal("/!authuser", r.URL.Path)
-		fp, err := os.Open("testdata/user_cmac.json")
-		a.NoError(err)
-		defer fp.Close()
-		_, err = io.Copy(w, fp)
-		a.NoError(err)
-	}))
-	defer svr.Close()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/user_cmac.json"))
+	})
 
-	app := NewTestApp(t, "user", ma.CommandUser(), smugmug.WithBaseURL(svr.URL))
-	a.NoError(app.RunContext(context.TODO(), []string{"ma", "user"}))
+	for _, tt := range []harness{
+		{
+			name: "authuser",
+			args: []string{"ma", "user"},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			harnessFunc(t, tt, mux, ma.CommandUser)
+		})
+	}
 }
 
 func TestUserIntegration(t *testing.T) {
@@ -54,7 +52,7 @@ func TestUserIntegration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			a := assert.New(t)
-			ma := Command(tt.args...)
+			ma := command(tt.args...)
 			out, err := ma.Output()
 			a.NoError(err)
 			res := make(map[string]interface{})

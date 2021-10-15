@@ -84,11 +84,10 @@ func (x *exporter) do(ctx context.Context, req *request) (*response, error) {
 	defer func(t time.Time) {
 		x.metrics.AddSample([]string{"export", "download"}, float32(time.Since(t).Seconds()))
 	}(time.Now())
-	res, err := x.grab.Do(req.HTTPRequest.WithContext(ctx))
+	res, err := x.grab.Do(req.HTTPRequest.WithContext(ctx)) //nolint
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 	resp := &response{
 		Request:      req,
 		HTTPResponse: res,

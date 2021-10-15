@@ -2,16 +2,13 @@ package ma_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/ma"
-	"github.com/bzimmer/smugmug"
 )
 
 func TestList(t *testing.T) {
@@ -44,12 +41,7 @@ func TestList(t *testing.T) {
 		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
 	})
 
-	tests := []struct {
-		name     string
-		args     []string
-		err      string
-		counters map[string]int
-	}{
+	tests := []harness{
 		{
 			name:     "album",
 			args:     []string{"ma", "ls", "album", "RM4BL2"},
@@ -108,27 +100,7 @@ func TestList(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			a := assert.New(t)
-
-			svr := httptest.NewServer(mux)
-			defer svr.Close()
-
-			app := NewTestApp(t, tt.name, ma.CommandList(), smugmug.WithBaseURL(svr.URL))
-
-			err := app.RunContext(context.TODO(), tt.args)
-			switch tt.err == "" {
-			case true:
-				a.NoError(err)
-			case false:
-				a.Error(err)
-				a.Contains(err.Error(), tt.err)
-			}
-
-			for key, value := range tt.counters {
-				counter, err := findCounter(app, key)
-				a.NoError(err)
-				a.Equalf(value, counter.Count, key)
-			}
+			harnessFunc(t, tt, mux, ma.CommandList)
 		})
 	}
 }

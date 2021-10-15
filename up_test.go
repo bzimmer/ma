@@ -1,19 +1,15 @@
 package ma_test
 
 import (
-	"context"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
+	"github.com/bzimmer/ma"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
-
-	"github.com/bzimmer/ma"
-	"github.com/bzimmer/smugmug"
 )
 
-func TestUpload(t *testing.T) {
+func TestUpload(t *testing.T) { //nolint
 	t.Parallel()
 	a := assert.New(t)
 
@@ -37,14 +33,7 @@ func TestUpload(t *testing.T) {
 		a.NoError(copyFile(w, "testdata/album_vVjSft_upload.json"))
 	})
 
-	tests := []struct {
-		name     string
-		args     []string
-		err      string
-		counters map[string]int
-		before   func(app *cli.App)
-		after    func(app *cli.App)
-	}{
+	for _, tt := range []harness{
 		{
 			name: "upload with no arguments",
 			args: []string{"ma", "upload"},
@@ -149,41 +138,10 @@ func TestUpload(t *testing.T) {
 				a.NoError(fp.Close())
 			},
 		},
-	}
-
-	for _, tt := range tests {
+	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			a := assert.New(t)
-
-			svr := httptest.NewServer(mux)
-			defer svr.Close()
-
-			app := NewTestApp(t, tt.name, ma.CommandUpload(), smugmug.WithBaseURL(svr.URL))
-
-			if tt.before != nil {
-				tt.before(app)
-			}
-
-			err := app.RunContext(context.TODO(), tt.args)
-			switch tt.err == "" {
-			case true:
-				a.NoError(err)
-			case false:
-				a.Error(err)
-				a.Contains(err.Error(), tt.err)
-			}
-
-			for key, value := range tt.counters {
-				counter, err := findCounter(app, key)
-				a.NoError(err)
-				a.Equalf(value, counter.Count, key)
-			}
-
-			if tt.after != nil {
-				tt.after(app)
-			}
+			harnessFunc(t, tt, mux, ma.CommandUpload)
 		})
 	}
 }

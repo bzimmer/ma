@@ -76,13 +76,13 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 		}
 
 		switch node.Type {
-		case "Album":
+		case smugmug.TypeAlbum:
 			if !albumq {
 				return recurse, nil
 			}
 			msg = msg.Str("albumKey", node.Album.AlbumKey)
 			msg = msg.Int("imageCount", node.Album.ImageCount)
-		case "Folder":
+		case smugmug.TypeFolder:
 			if !nodeq {
 				return recurse, nil
 			}

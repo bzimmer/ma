@@ -13,8 +13,6 @@ vars:
     github.com/bzimmer/{{.APP}}
   DIST:
     "{{.CWD}}/dist"
-  GO_PACKAGES:
-    sh: go list ./...
   COMMIT:
     sh: git rev-parse --short HEAD
   LDFLAGS:
@@ -66,7 +64,6 @@ tasks:
     desc: Runs golint
     cmds:
       - golangci-lint -v run
-      - go vet {{catLines .GO_PACKAGES}}
 
   snapshot:
     desc: Build a snapshot

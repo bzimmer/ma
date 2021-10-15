@@ -22,9 +22,17 @@ import (
 const (
 	defaultBufferSize = 1024 * 1024
 	defaultDateFormat = "2006/2006-01/02"
+	dng               = ".dng"
+	jpeg              = ".jpeg"
+	jpg               = ".jpg"
+	nef               = ".nef"
+	orf               = ".orf"
+	raf               = ".raf"
 )
 
-var defaultImages = []string{".raf", ".nef", ".dng", ".jpg", ".jpeg"}
+func defaultImages() []string {
+	return []string{raf, nef, dng, jpg, jpeg}
+}
 
 func split(fullname string) (dirname, basename string) {
 	dirname, filename := filepath.Split(fullname)
@@ -50,7 +58,7 @@ type dateTimeExif struct {
 
 func (b *dateTimeExif) bufferSize() int64 {
 	switch b.ext {
-	case ".orf", ".dng", ".nef":
+	case orf, dng, nef:
 		return b.info.Size()
 	default:
 		return defaultBufferSize
@@ -111,7 +119,7 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 	}
 
 	// in priority order, find the first non-zero time.Time
-	for _, ext := range defaultImages {
+	for _, ext := range defaultImages() {
 		t, ok := times[ext]
 		if ok {
 			return t, nil
@@ -143,7 +151,7 @@ func copy(fs afero.Fs, src, dst string) error {
 	if err != nil {
 		return err
 	}
-	if err := out.Sync(); err != nil {
+	if err = out.Sync(); err != nil {
 		return err
 	}
 	info, err := in.Stat()
@@ -151,7 +159,7 @@ func copy(fs afero.Fs, src, dst string) error {
 		return err
 	}
 	mtime := info.ModTime()
-	if err := fs.Chtimes(dst, mtime, mtime); err != nil {
+	if err = fs.Chtimes(dst, mtime, mtime); err != nil {
 		return err
 	}
 	info, err = fs.Stat(dst)

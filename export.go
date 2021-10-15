@@ -64,7 +64,7 @@ func (x *exporter) request(image *smugmug.Image, destination string) (*request, 
 				return nil, err
 			}
 		}
-		if stat != nil && stat.Size() == int64(original.Size) {
+		if stat != nil && stat.Size() == original.Size {
 			return nil, nil
 		}
 	}
@@ -88,6 +88,7 @@ func (x *exporter) do(ctx context.Context, req *request) (*response, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	resp := &response{
 		Request:      req,
 		HTTPResponse: res,
@@ -95,7 +96,7 @@ func (x *exporter) do(ctx context.Context, req *request) (*response, error) {
 	return resp, nil
 }
 
-func (x *exporter) write(ct context.Context, res *response) error {
+func (x *exporter) write(res *response) error {
 	if res.HTTPResponse != nil && res.HTTPResponse.Body != nil {
 		defer res.HTTPResponse.Body.Close()
 	}
@@ -161,7 +162,7 @@ func (x *exporter) download(ctx context.Context, reqs []*request) error {
 				if err != nil {
 					return err
 				}
-				if err := x.write(ctx, res); err != nil {
+				if err := x.write(res); err != nil {
 					return err
 				}
 			}
@@ -187,8 +188,9 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 
 		var reqs []*request
 		err = x.mg.Image.ImagesIter(ctx, album.AlbumKey, func(image *smugmug.Image) (bool, error) {
+			var req *request
 			dest := filepath.Join(out, image.FileName)
-			req, err := x.request(image, dest)
+			req, err = x.request(image, dest)
 			if err != nil {
 				return false, err
 			}
@@ -215,7 +217,7 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			return false, nil
 		}
 
-		if err := x.fs.MkdirAll(out, 0777); err != nil {
+		if err = x.fs.MkdirAll(out, 0777); err != nil {
 			return false, err
 		}
 
@@ -237,11 +239,11 @@ func export(c *cli.Context) error {
 		concurrency: c.Int("concurrency")}
 	f := x.export(c.Context, c.Args().Get(1))
 	return x.mg.Node.Walk(c.Context, c.Args().Get(0), func(node *smugmug.Node) (bool, error) {
-		if node.Type == "Album" {
+		if node.Type == smugmug.TypeAlbum {
 			return f(node.Album)
 		}
 		return true, nil
-	}, smugmug.WithExpansions("Album"))
+	}, smugmug.WithExpansions(smugmug.TypeAlbum))
 }
 
 func CommandExport() *cli.Command {

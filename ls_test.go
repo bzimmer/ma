@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/ma"
+	"github.com/bzimmer/smugmug"
 )
 
 func TestList(t *testing.T) {
@@ -123,13 +124,13 @@ func TestListIntegration(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
-			ma := Command(tt.args...)
+			ma := command(tt.args...)
 			out, err := ma.Output()
 			a.NoError(err)
 			res := make(map[string]interface{})
 			dec := json.NewDecoder(bytes.NewBuffer(out))
 			a.NoError(dec.Decode(&res))
-			a.Equal("Folder", res["Type"])
+			a.Equal(smugmug.TypeFolder, res["Type"])
 		})
 	}
 }

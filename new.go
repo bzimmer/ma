@@ -41,7 +41,7 @@ func knew(c *cli.Context) error {
 	msg = msg.Str("nodeURI", node.URI)
 	msg = msg.Str("urlName", node.URLName)
 	msg = msg.Str("webURI", node.WebURI)
-	if nodelet.Type == "Album" {
+	if nodelet.Type == smugmug.TypeAlbum {
 		node, err = client(c).Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
 		if err != nil {
 			return err

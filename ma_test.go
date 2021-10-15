@@ -1,9 +1,11 @@
 package ma_test
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,11 +18,13 @@ import (
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 )
 
-func init() {
+func TestMain(m *testing.M) {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	os.Exit(m.Run())
 }
 
 func runtime(app *cli.App) *ma.Runtime {
@@ -120,5 +124,44 @@ func Root() string {
 }
 
 func Command(args ...string) *exec.Cmd {
-	return exec.Command(filepath.Join(Root(), "dist", "ma"), args...)
+	return exec.Command(filepath.Join(Root(), "dist", "ma"), args...) //nolint:gosec
+}
+
+type harness struct {
+	name, err     string
+	args          []string
+	counters      map[string]int
+	before, after func(app *cli.App)
+}
+
+func harnessFunc(t *testing.T, tt harness, mux *http.ServeMux, cmd func() *cli.Command) {
+	a := assert.New(t)
+
+	svr := httptest.NewServer(mux)
+	defer svr.Close()
+
+	app := NewTestApp(t, tt.name, cmd(), smugmug.WithBaseURL(svr.URL), smugmug.WithHTTPTracing(false))
+
+	if tt.before != nil {
+		tt.before(app)
+	}
+
+	err := app.RunContext(context.TODO(), tt.args)
+	switch tt.err == "" {
+	case true:
+		a.NoError(err)
+	case false:
+		a.Error(err)
+		a.Contains(err.Error(), tt.err)
+	}
+
+	for key, value := range tt.counters {
+		counter, err := findCounter(app, key)
+		a.NoError(err)
+		a.Equalf(value, counter.Count, key)
+	}
+
+	if tt.after != nil {
+		tt.after(app)
+	}
 }

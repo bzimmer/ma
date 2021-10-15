@@ -33,54 +33,76 @@ func (e *encoderJSON) Encode(v interface{}) error {
 	return e.encoder.Encode(v)
 }
 
+func flags() []cli.Flag {
+	return []cli.Flag{
+		&cli.StringFlag{
+			Name:     "smugmug-client-key",
+			Required: true,
+			Usage:    "smugmug client key",
+			EnvVars:  []string{"SMUGMUG_CLIENT_KEY"},
+		},
+		&cli.StringFlag{
+			Name:     "smugmug-client-secret",
+			Required: true,
+			Usage:    "smugmug client secret",
+			EnvVars:  []string{"SMUGMUG_CLIENT_SECRET"},
+		},
+		&cli.StringFlag{
+			Name:     "smugmug-access-token",
+			Required: true,
+			Usage:    "smugmug access token",
+			EnvVars:  []string{"SMUGMUG_ACCESS_TOKEN"},
+		},
+		&cli.StringFlag{
+			Name:     "smugmug-token-secret",
+			Required: true,
+			Usage:    "smugmug token secret",
+			EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
+		},
+		&cli.IntFlag{
+			Name:     "concurrency",
+			Value:    2,
+			Required: false,
+		},
+		&cli.BoolFlag{
+			Name:     "json",
+			Aliases:  []string{"j"},
+			Value:    false,
+			Required: false,
+		},
+		&cli.BoolFlag{
+			Name:     "debug",
+			Required: false,
+			Usage:    "enable debugging",
+			Value:    false,
+		},
+	}
+}
+
+func initLogging(c *cli.Context) {
+	level := zerolog.InfoLevel
+	if c.Bool("debug") {
+		level = zerolog.DebugLevel
+	}
+	zerolog.SetGlobalLevel(level)
+	zerolog.DurationFieldUnit = time.Millisecond
+	zerolog.DurationFieldInteger = false
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	log.Logger = log.Output(
+		zerolog.ConsoleWriter{
+			Out:        c.App.ErrWriter,
+			NoColor:    false,
+			TimeFormat: time.RFC3339,
+		},
+	)
+}
+
 func main() {
 	app := &cli.App{
 		Name:     "ma",
 		HelpName: "ma",
 		Usage:    "CLI for managing photos locally and at SmugMug",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "smugmug-client-key",
-				Required: true,
-				Usage:    "smugmug client key",
-				EnvVars:  []string{"SMUGMUG_CLIENT_KEY"},
-			},
-			&cli.StringFlag{
-				Name:     "smugmug-client-secret",
-				Required: true,
-				Usage:    "smugmug client secret",
-				EnvVars:  []string{"SMUGMUG_CLIENT_SECRET"},
-			},
-			&cli.StringFlag{
-				Name:     "smugmug-access-token",
-				Required: true,
-				Usage:    "smugmug access token",
-				EnvVars:  []string{"SMUGMUG_ACCESS_TOKEN"},
-			},
-			&cli.StringFlag{
-				Name:     "smugmug-token-secret",
-				Required: true,
-				Usage:    "smugmug token secret",
-				EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
-			},
-			&cli.IntFlag{
-				Name:     "concurrency",
-				Value:    2,
-				Required: false,
-			},
-			&cli.BoolFlag{
-				Name:     "json",
-				Aliases:  []string{"j"},
-				Value:    false,
-				Required: false,
-			},
-			&cli.BoolFlag{
-				Name:     "debug",
-				Required: false,
-				Usage:    "enable debugging",
-				Value:    false,
-			},
-		},
+		Flags:    flags(),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
@@ -88,21 +110,7 @@ func main() {
 			log.Error().Stack().Err(err).Msg(c.App.Name)
 		},
 		Before: func(c *cli.Context) error {
-			level := zerolog.InfoLevel
-			if c.Bool("debug") {
-				level = zerolog.DebugLevel
-			}
-			zerolog.SetGlobalLevel(level)
-			zerolog.DurationFieldUnit = time.Millisecond
-			zerolog.DurationFieldInteger = false
-			zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
-			log.Logger = log.Output(
-				zerolog.ConsoleWriter{
-					Out:        c.App.ErrWriter,
-					NoColor:    false,
-					TimeFormat: time.RFC3339,
-				},
-			)
+			initLogging(c)
 
 			cfg := metrics.DefaultConfig("ma")
 			cfg.EnableRuntimeMetrics = false

@@ -7,15 +7,19 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const keywordArray = "KeywordArray"
+
 type patchFunc func(c *cli.Context) (bool, string, interface{})
 
-var patchFuncs = []patchFunc{
-	keywords,
-	str("caption"),
-	str("title"),
-	float("altitude"),
-	float("latitude"),
-	float("longitude"),
+func patchFuncs() []patchFunc {
+	return []patchFunc{
+		keywords,
+		str("caption"),
+		str("title"),
+		float("altitude"),
+		float("latitude"),
+		float("longitude"),
+	}
 }
 
 func keywords(c *cli.Context) (bool, string, interface{}) {
@@ -26,12 +30,12 @@ func keywords(c *cli.Context) (bool, string, interface{}) {
 	for _, kw := range c.StringSlice("keyword") {
 		switch kw {
 		case "":
-			return true, "KeywordArray", []string{}
+			return true, keywordArray, []string{}
 		default:
 			kws = append(kws, kw)
 		}
 	}
-	return true, "KeywordArray", kws
+	return true, keywordArray, kws
 }
 
 func str(key string) patchFunc {
@@ -56,7 +60,7 @@ func float(key string) patchFunc {
 
 func patch(c *cli.Context) error {
 	patches := make(map[string]interface{})
-	for _, f := range patchFuncs {
+	for _, f := range patchFuncs() {
 		ok, key, value := f(c)
 		if ok {
 			patches[key] = value

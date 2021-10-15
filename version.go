@@ -7,13 +7,13 @@ import (
 
 var (
 	// buildVersion of the package
-	buildVersion = "development"
+	buildVersion = "development" //nolint
 	// buildTime of the package
-	buildTime = "now"
+	buildTime = "now" //nolint
 	// buildCommit of the package
-	buildCommit = "snapshot"
+	buildCommit = "snapshot" //nolint
 	// buildBuilder of the package
-	buildBuilder = "local"
+	buildBuilder = "local" //nolint
 )
 
 func version(c *cli.Context) error {

@@ -10,7 +10,6 @@ import (
 )
 
 func TestPatch(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

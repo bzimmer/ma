@@ -121,9 +121,9 @@ func main() {
 				return err
 			}
 
-			grabber := &http.Client{}
+			grab := &http.Client{}
 			if c.Bool("debug") {
-				grabber.Transport = &httpwares.VerboseTransport{}
+				grab.Transport = &httpwares.VerboseTransport{}
 			}
 
 			httpclient, err := smugmug.NewHTTPClient(
@@ -156,7 +156,7 @@ func main() {
 				ma.RuntimeKey: &ma.Runtime{
 					Client:  client,
 					Sink:    sink,
-					Grab:    grabber,
+					Grab:    grab,
 					Metrics: metric,
 					Encoder: enc,
 					Fs:      afero.NewOsFs(),

@@ -19,6 +19,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+type Grab interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type request struct {
 	URI         string
 	URL         string
@@ -34,7 +38,7 @@ type response struct {
 type exporter struct {
 	mg          *smugmug.Client
 	fs          afero.Fs
-	grab        *http.Client
+	grab        Grab
 	metrics     *metrics.Metrics
 	force       bool
 	concurrency int

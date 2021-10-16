@@ -31,7 +31,6 @@ func createTestFile(t *testing.T, fs afero.Fs) afero.File {
 }
 
 func TestCopy(t *testing.T) { //nolint
-	t.Parallel()
 	a := assert.New(t)
 	tests := []harness{
 		{

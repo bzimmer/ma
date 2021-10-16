@@ -10,7 +10,6 @@ import (
 )
 
 func TestListIntegration(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 	for _, tt := range []harnessIntegration{
 		{

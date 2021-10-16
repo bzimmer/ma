@@ -10,7 +10,6 @@ import (
 )
 
 func TestFind(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

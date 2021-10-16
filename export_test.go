@@ -1,6 +1,9 @@
 package ma_test
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"testing"
@@ -8,12 +11,34 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 
-	"github.com/bzimmer/httpwares"
 	"github.com/bzimmer/ma"
 )
 
+type grab struct {
+	url    string
+	status int
+}
+
+func (g *grab) Do(req *http.Request) (*http.Response, error) {
+	if g.status > 0 {
+		res := &http.Response{
+			StatusCode:    g.status,
+			ContentLength: 0,
+			Body:          ioutil.NopCloser(bytes.NewBuffer(nil)),
+			Header:        make(map[string][]string),
+			Request:       req,
+		}
+		return res, nil
+	}
+	url := fmt.Sprintf("%s%s", g.url, req.URL.Path)
+	proxy, err := http.NewRequestWithContext(req.Context(), req.Method, url, req.Body)
+	if err != nil {
+		return nil, err
+	}
+	return http.DefaultClient.Do(proxy)
+}
+
 func TestExport(t *testing.T) { //nolint
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
@@ -25,6 +50,9 @@ func TestExport(t *testing.T) { //nolint
 	})
 	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
 		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+	})
+	mux.HandleFunc("/photos/", func(w http.ResponseWriter, r *http.Request) {
+		a.NoError(copyFile(w, "testdata/Nikon_D70.jpg"))
 	})
 
 	tests := []harness{
@@ -40,11 +68,7 @@ func TestExport(t *testing.T) { //nolint
 				"ma.export.download.ok": 1,
 			},
 			before: func(app *cli.App) {
-				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
-					Status:      http.StatusOK,
-					Filename:    "Nikon_D70.jpg",
-					ContentType: "image/jpg",
-				}}
+				runtime(app).Grab = &grab{url: runtime(app).URL}
 			},
 			after: func(app *cli.App) {
 				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
@@ -59,9 +83,10 @@ func TestExport(t *testing.T) { //nolint
 				"ma.export.download.failed.not_found": 1,
 			},
 			before: func(app *cli.App) {
-				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
-					Status: http.StatusNotFound,
-				}}
+				runtime(app).Grab = &grab{
+					url:    runtime(app).URL,
+					status: http.StatusNotFound,
+				}
 			},
 			after: func(app *cli.App) {
 				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
@@ -78,9 +103,10 @@ func TestExport(t *testing.T) { //nolint
 			},
 			err: "download failed",
 			before: func(app *cli.App) {
-				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
-					Status: http.StatusInternalServerError,
-				}}
+				runtime(app).Grab = &grab{
+					url:    runtime(app).URL,
+					status: http.StatusInternalServerError,
+				}
 			},
 			after: func(app *cli.App) {
 				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
@@ -96,9 +122,7 @@ func TestExport(t *testing.T) { //nolint
 				"ma.export.download.skipping.exists": 1,
 			},
 			before: func(app *cli.App) {
-				runtime(app).Grab = &http.Client{Transport: &httpwares.TestDataTransport{
-					Status: http.StatusOK,
-				}}
+				runtime(app).Grab = &grab{url: runtime(app).URL}
 				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NotNil(fp)
 				a.NoError(err)

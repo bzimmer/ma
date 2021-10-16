@@ -1,8 +1,6 @@
 package ma
 
 import (
-	"net/http"
-
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
@@ -11,7 +9,7 @@ import (
 )
 
 // RuntimeKey in app metadata
-const RuntimeKey = "_runtime"
+const RuntimeKey = "github.com/bzimmer/ma#RuntimeKey"
 
 // Runtime for access to runtime components
 type Runtime struct {
@@ -26,7 +24,7 @@ type Runtime struct {
 	// Metrics for capturing metrics
 	Metrics *metrics.Metrics
 	// Grab for bulk querying images
-	Grab *http.Client
+	Grab Grab
 }
 
 // Encoder encodes a struct to a specific format

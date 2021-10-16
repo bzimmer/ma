@@ -10,9 +10,8 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
-	app := NewTestApp(t, "version", ma.CommandVersion())
+	app := NewTestApp(t, "version", ma.CommandVersion(), "")
 	a.NoError(app.RunContext(context.TODO(), []string{"ma", "version"}))
 }

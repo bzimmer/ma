@@ -10,7 +10,6 @@ import (
 )
 
 func TestUpload(t *testing.T) { //nolint
-	t.Parallel()
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

@@ -12,7 +12,6 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	t.Parallel()
 	a := assert.New(t)
 
 	type response struct {

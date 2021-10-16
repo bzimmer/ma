@@ -2,6 +2,7 @@ package ma_test
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,21 +12,33 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/bzimmer/ma"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
 )
 
+const RuntimeKey = "github.com/bzimmer/ma#testRuntimeKey"
+
+type Runtime struct {
+	*ma.Runtime
+	URL string
+}
+
 func TestMain(m *testing.M) {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	// hijack the `go test` verbose flag to manage logging
+	verbose := flag.CommandLine.Lookup("test.v")
+	if verbose.Value.String() != "" {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 	os.Exit(m.Run())
 }
 
-func runtime(app *cli.App) *ma.Runtime {
-	return app.Metadata[ma.RuntimeKey].(*ma.Runtime)
+func runtime(app *cli.App) *Runtime {
+	return app.Metadata[RuntimeKey].(*Runtime)
 }
 
 func copyFile(w io.Writer, filename string) error {
@@ -44,7 +57,7 @@ func (e *encoderBlackhole) Encode(_ interface{}) error {
 	return nil
 }
 
-func NewTestApp(t *testing.T, name string, cmd *cli.Command, opts ...smugmug.Option) *cli.App {
+func NewTestApp(t *testing.T, name string, cmd *cli.Command, url string, opts ...smugmug.Option) *cli.App {
 	cfg := metrics.DefaultConfig("ma")
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
@@ -54,9 +67,18 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, opts ...smugmug.Opt
 		t.Error(err)
 	}
 
-	client, err := smugmug.NewClient(opts...)
+	client, err := smugmug.NewClient(append(opts, smugmug.WithBaseURL(url))...)
 	if err != nil {
 		t.Error(err)
+	}
+
+	rt := &ma.Runtime{
+		Client:  client,
+		Metrics: metric,
+		Sink:    sink,
+		Grab:    new(http.Client),
+		Encoder: new(encoderBlackhole),
+		Fs:      afero.NewMemMapFs(),
 	}
 
 	return &cli.App{
@@ -73,13 +95,10 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, opts ...smugmug.Opt
 		},
 		Commands: []*cli.Command{cmd},
 		Metadata: map[string]interface{}{
-			ma.RuntimeKey: &ma.Runtime{
-				Client:  client,
-				Metrics: metric,
-				Sink:    sink,
-				Grab:    new(http.Client),
-				Encoder: new(encoderBlackhole),
-				Fs:      afero.NewMemMapFs(),
+			ma.RuntimeKey: rt,
+			RuntimeKey: &Runtime{
+				Runtime: rt,
+				URL:     url,
 			},
 		},
 	}
@@ -109,7 +128,7 @@ func harnessFunc(t *testing.T, tt harness, mux *http.ServeMux, cmd func() *cli.C
 	svr := httptest.NewServer(mux)
 	defer svr.Close()
 
-	app := NewTestApp(t, tt.name, cmd(), smugmug.WithBaseURL(svr.URL), smugmug.WithHTTPTracing(false))
+	app := NewTestApp(t, tt.name, cmd(), svr.URL, smugmug.WithHTTPTracing(false))
 
 	if tt.before != nil {
 		tt.before(app)

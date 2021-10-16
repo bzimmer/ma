@@ -3,8 +3,6 @@
 package ma_test
 
 import (
-	"bytes"
-	"encoding/json"
 	"testing"
 
 	"github.com/bzimmer/smugmug"
@@ -12,28 +10,19 @@ import (
 )
 
 func TestListIntegration(t *testing.T) {
-	tests := []struct {
-		name string
-		args []string
-	}{
+	a := assert.New(t)
+	for _, tt := range []harnessIntegration{
 		{
 			name: "ls",
 			args: []string{"-j", "ls", "node"},
+			after: func(res map[string]interface{}) {
+				a.Equal(smugmug.TypeFolder, res["Type"])
+			},
 		},
-	}
-
-	for _, tt := range tests {
+	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			a := assert.New(t)
-			ma, err := command(tt.args...)
-			a.NoError(err)
-			out, err := ma.Output()
-			a.NoError(err)
-			res := make(map[string]interface{})
-			dec := json.NewDecoder(bytes.NewBuffer(out))
-			a.NoError(dec.Decode(&res))
-			a.Equal(smugmug.TypeFolder, res["Type"])
+			harnessIntegrationFunc(t, tt)
 		})
 	}
 }

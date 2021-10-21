@@ -18,6 +18,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
+require github.com/bzimmer/manual v0.1.0
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 // indirect

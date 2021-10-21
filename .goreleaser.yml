@@ -28,5 +28,6 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+      - '^Merge pull request'
 announce:
   skip: "true"

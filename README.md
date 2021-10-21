@@ -9,6 +9,8 @@ Uses [smugmug](https://github.com/bzimmer/smugmug) for accessing the SmugMug [AP
 
 # usage
 
+See the [manual](docs/manual.md) for an overview of all the commands.
+
 ```sh
 NAME:
    ma - CLI for managing photos locally and at SmugMug

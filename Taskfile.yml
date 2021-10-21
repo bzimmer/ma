@@ -2,7 +2,7 @@
 
 version: '3'
 
-dotenv: ['.env']
+dotenv: [".clean.env"]
 
 vars:
   CWD:
@@ -74,3 +74,10 @@ tasks:
     desc: Build a snapshot
     cmds:
       - goreleaser release --snapshot --rm-dist
+
+  manual:
+    desc: Generate the user manual
+    deps: [build]
+    cmds:
+      - mkdir -p docs/
+      - dist/{{.APP}} manual docs/templates > docs/manual.md

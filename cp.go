@@ -158,11 +158,7 @@ func copy(fs afero.Fs, src, dst string) error {
 		return err
 	}
 	mtime := info.ModTime()
-	if err = fs.Chtimes(dst, mtime, mtime); err != nil {
-		return err
-	}
-	_, err = fs.Stat(dst)
-	return err
+	return fs.Chtimes(dst, mtime, mtime)
 }
 
 type entangle struct {

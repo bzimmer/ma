@@ -9,6 +9,7 @@ import (
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/httpwares"
+	"github.com/bzimmer/manual"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -99,10 +100,11 @@ func initLogging(c *cli.Context) {
 
 func main() {
 	app := &cli.App{
-		Name:     "ma",
-		HelpName: "ma",
-		Usage:    "CLI for managing photos locally and at SmugMug",
-		Flags:    flags(),
+		Name:        "ma",
+		HelpName:    "ma",
+		Usage:       "CLI for managing photos locally and at SmugMug",
+		Description: "CLI for managing photos locally and at SmugMug",
+		Flags:       flags(),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
 				return
@@ -167,15 +169,18 @@ func main() {
 		},
 		After: ma.Stats,
 		Commands: []*cli.Command{
-			ma.CommandUser(),
+			ma.CommandCopy(),
+			ma.CommandExport(),
 			ma.CommandFind(),
 			ma.CommandList(),
 			ma.CommandNew(),
 			ma.CommandPatch(),
 			ma.CommandUpload(),
-			ma.CommandCopy(),
-			ma.CommandExport(),
+			ma.CommandUser(),
 			ma.CommandVersion(),
+			manual.Commands(),
+			manual.Manual(),
+			manual.EnvVars(),
 		},
 	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {

@@ -52,7 +52,7 @@ func TestUpload(t *testing.T) { //nolint
 			name: "upload no valid files",
 			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
 			},
 		},
 		{

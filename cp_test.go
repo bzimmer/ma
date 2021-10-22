@@ -16,7 +16,7 @@ import (
 )
 
 func createTestFile(t *testing.T, fs afero.Fs) afero.File {
-	if err := fs.MkdirAll("/foo/bar", 0777); err != nil {
+	if err := fs.MkdirAll("/foo/bar", 0755); err != nil {
 		t.Error(err)
 	}
 	fp, err := fs.Create("/foo/bar/Nikon_D70.jpg")
@@ -45,7 +45,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 			},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
 			},
 		},
 		{
@@ -56,7 +56,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.skip.hidden":         2,
 			},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
 				fp, err := runtime(app).Fs.Create("/foo/bar/.something")
 				a.NoError(err)
 				a.NoError(fp.Close())
@@ -73,7 +73,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.skip.unsupported.<none>": 1,
 			},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
 				fp, err := runtime(app).Fs.Create("/foo/bar/something")
 				a.NoError(err)
 				a.NoError(fp.Close())
@@ -88,7 +88,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.skip.unsupported.txt": 1,
 			},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0755))
 				fp, err := runtime(app).Fs.Create("/foo/bar/DSC18920.UKN")
 				a.NoError(err)
 				a.NoError(fp.Close())
@@ -151,7 +151,7 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.skip.exists":         1,
 			},
 			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
 				for _, filename := range []string{"/foo/bar/Nikon_D70.xmp", "/foo/baz/2008/2008-03/15/Nikon_D70.jpg"} {
 					fp, err := runtime(app).Fs.Create(filename)
 					a.NoError(err)
@@ -224,7 +224,7 @@ func TestCopy(t *testing.T) { //nolint
 			before: func(app *cli.App) {
 				fp := createTestFile(t, runtime(app).Fs)
 				a.NoError(fp.Close())
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0777))
+				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0755))
 				fp, err := runtime(app).Fs.Create("/foo/bar/boo/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())

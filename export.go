@@ -220,7 +220,7 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			return false, nil
 		}
 
-		if err = x.fs.MkdirAll(out, 0777); err != nil {
+		if err = x.fs.MkdirAll(out, 0755); err != nil {
 			return false, err
 		}
 

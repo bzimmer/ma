@@ -133,7 +133,7 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 
 func copy(fs afero.Fs, src, dst string) error {
 	dirname, _ := filepath.Split(dst)
-	if err := fs.MkdirAll(dirname, 0777); err != nil {
+	if err := fs.MkdirAll(dirname, 0755); err != nil {
 		return err
 	}
 	out, err := fs.Create(dst)

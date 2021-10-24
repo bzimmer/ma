@@ -1,6 +1,9 @@
 package ma
 
 import (
+	"errors"
+	"unicode"
+
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
@@ -67,7 +70,7 @@ func albumOrNode(c *cli.Context) error {
 	return nil
 }
 
-// Stats logs and encodes (if requested) the stats
+// Stats logs and encodes (if enabled) the stats
 func Stats(c *cli.Context) error {
 	data := sink(c).Data()
 	for i := range data {
@@ -90,4 +93,17 @@ func Stats(c *cli.Context) error {
 		}
 	}
 	return encoder(c).Encode(data)
+}
+
+var ErrInvalidURLName = errors.New("node url name must start with a number or capital letter")
+
+func validateURLName(urlName string) error {
+	v := rune(urlName[0])
+	if unicode.IsNumber(v) {
+		return nil
+	}
+	if !unicode.IsUpper(rune(urlName[0])) {
+		return ErrInvalidURLName
+	}
+	return nil
 }

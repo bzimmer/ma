@@ -37,8 +37,8 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func runtime(app *cli.App) *Runtime {
-	return app.Metadata[RuntimeKey].(*Runtime)
+func runtime(c *cli.Context) *Runtime {
+	return c.App.Metadata[RuntimeKey].(*Runtime)
 }
 
 func copyFile(w io.Writer, filename string) error {
@@ -57,7 +57,7 @@ func (e *encoderBlackhole) Encode(_ interface{}) error {
 	return nil
 }
 
-func NewTestApp(t *testing.T, name string, cmd *cli.Command, url string, opts ...smugmug.Option) *cli.App {
+func NewTestApp(t *testing.T, tt harness, cmd *cli.Command, url string) *cli.App {
 	cfg := metrics.DefaultConfig("ma")
 	cfg.EnableRuntimeMetrics = false
 	cfg.TimerGranularity = time.Second
@@ -67,7 +67,9 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, url string, opts ..
 		t.Error(err)
 	}
 
-	client, err := smugmug.NewClient(append(opts, smugmug.WithBaseURL(url))...)
+	client, err := smugmug.NewClient(
+		smugmug.WithBaseURL(url),
+		smugmug.WithHTTPTracing(zerolog.GlobalLevel() == zerolog.DebugLevel))
 	if err != nil {
 		t.Error(err)
 	}
@@ -82,16 +84,19 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, url string, opts ..
 	}
 
 	return &cli.App{
-		Name:     name,
-		HelpName: name,
+		Name:     tt.name,
+		HelpName: tt.name,
 		After: func(c *cli.Context) error {
-			t.Log(name)
-			switch v := runtime(c.App).Fs.(type) {
+			t.Logf("***** %s *****\n", tt.name)
+			switch v := runtime(c).Fs.(type) {
 			case *afero.MemMapFs:
 				v.List()
 			default:
 			}
-			return ma.Stats(c)
+			if err := ma.Stats(c); err != nil {
+				return err
+			}
+			return counters(t, tt.counters)(c)
 		},
 		Commands: []*cli.Command{cmd},
 		Metadata: map[string]interface{}{
@@ -104,52 +109,77 @@ func NewTestApp(t *testing.T, name string, cmd *cli.Command, url string, opts ..
 	}
 }
 
-func findCounter(app *cli.App, name string) (metrics.SampledValue, error) {
-	sink := runtime(app).Sink
-	for i := range sink.Data() {
-		im := sink.Data()[i]
-		if sample, ok := im.Counters[name]; ok {
-			return sample, nil
+func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
+	a := assert.New(t)
+	return func(c *cli.Context) error {
+		data := runtime(c).Sink.Data()
+		for key, value := range expected {
+			var found bool
+		Loop:
+			for i := range data {
+				if counter, ok := data[i].Counters[key]; ok {
+					found = true
+					a.Equalf(value, counter.Count, key)
+					break Loop
+				}
+			}
+			if !found {
+				return fmt.Errorf("cannot find sample value for {%s}", key)
+			}
 		}
+		return nil
 	}
-	return metrics.SampledValue{}, fmt.Errorf("cannot find sample value for {%s}", name)
 }
 
 type harness struct {
-	name, err     string
-	args          []string
-	counters      map[string]int
-	before, after func(app *cli.App)
+	name, err string
+	args      []string
+	counters  map[string]int
+	before    cli.BeforeFunc
+	after     cli.AfterFunc
 }
 
-func harnessFunc(t *testing.T, tt harness, mux *http.ServeMux, cmd func() *cli.Command) {
+func run(t *testing.T, tt harness, mux *http.ServeMux, cmd func() *cli.Command) {
 	a := assert.New(t)
 
 	svr := httptest.NewServer(mux)
 	defer svr.Close()
 
-	app := NewTestApp(t, tt.name, cmd(), svr.URL, smugmug.WithHTTPTracing(false))
+	app := NewTestApp(t, tt, cmd(), svr.URL)
 
 	if tt.before != nil {
-		tt.before(app)
+		f := app.Before
+		app.Before = func(c *cli.Context) error {
+			for _, f := range []cli.BeforeFunc{f, tt.before} {
+				if f != nil {
+					if err := f(c); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		}
+	}
+	if tt.after != nil {
+		f := app.After
+		app.After = func(c *cli.Context) error {
+			for _, f := range []cli.AfterFunc{f, tt.after} {
+				if f != nil {
+					if err := f(c); err != nil {
+						return err
+					}
+				}
+			}
+			return nil
+		}
 	}
 
-	err := app.RunContext(context.TODO(), tt.args)
+	err := app.RunContext(context.Background(), tt.args)
 	switch tt.err == "" {
 	case true:
 		a.NoError(err)
 	case false:
 		a.Error(err)
 		a.Contains(err.Error(), tt.err)
-	}
-
-	for key, value := range tt.counters {
-		counter, err := findCounter(app, key)
-		a.NoError(err)
-		a.Equalf(value, counter.Count, key)
-	}
-
-	if tt.after != nil {
-		tt.after(app)
 	}
 }

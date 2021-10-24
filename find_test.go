@@ -33,7 +33,7 @@ func TestFind(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, mux, ma.CommandFind)
+			run(t, tt, mux, ma.CommandFind)
 		})
 	}
 }

@@ -3,7 +3,6 @@ package ma
 import (
 	"fmt"
 	"strings"
-	"unicode"
 
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
@@ -18,8 +17,8 @@ func knew(c *cli.Context) error {
 		url = smugmug.URLName(name)
 	case 2:
 		url = c.Args().Get(1)
-		if !unicode.IsUpper(rune(url[0])) {
-			return fmt.Errorf("node url name must start with a capital letter")
+		if err := validateURLName(url); err != nil {
+			return err
 		}
 	}
 

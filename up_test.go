@@ -51,8 +51,9 @@ func TestUpload(t *testing.T) { //nolint
 		{
 			name: "upload no valid files",
 			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
+				return nil
 			},
 		},
 		{
@@ -63,12 +64,13 @@ func TestUpload(t *testing.T) { //nolint
 				"ma.fsUploadable.open":     1,
 				"ma.fsUploadable.skip.md5": 1,
 			},
-			before: func(app *cli.App) {
-				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -78,11 +80,12 @@ func TestUpload(t *testing.T) { //nolint
 				"ma.fsUploadable.visit":            1,
 				"ma.fsUploadable.skip.unsupported": 1,
 			},
-			before: func(app *cli.App) {
-				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.xmp")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -94,14 +97,15 @@ func TestUpload(t *testing.T) { //nolint
 				"ma.fsUploadable.replace": 1,
 				"ma.upload.dryrun":        1,
 			},
-			before: func(app *cli.App) {
+			before: func(c *cli.Context) error {
 				// create a file of the same name as a previously uploaded file but copy the
 				//  contents of a different file to force the md5s to be different
-				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -113,12 +117,13 @@ func TestUpload(t *testing.T) { //nolint
 				"ma.fsUploadable.open":  1,
 				"ma.upload.success":     1,
 			},
-			before: func(app *cli.App) {
-				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -129,18 +134,19 @@ func TestUpload(t *testing.T) { //nolint
 				"ma.upload.dryrun":      1,
 				"ma.fsUploadable.open":  1,
 			},
-			before: func(app *cli.App) {
-				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, mux, ma.CommandUpload)
+			run(t, tt, mux, ma.CommandUpload)
 		})
 	}
 }

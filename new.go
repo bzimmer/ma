@@ -29,11 +29,11 @@ func knew(c *cli.Context) error {
 		Privacy: c.String("privacy"),
 	}
 
-	node, err := client(c).Node.Create(c.Context, c.String("parent"), nodelet)
+	node, err := runtime(c).Client.Node.Create(c.Context, c.String("parent"), nodelet)
 	if err != nil {
 		return err
 	}
-	metric(c).IncrCounter([]string{"album", "new"}, 1)
+	runtime(c).Metrics.IncrCounter([]string{"album", "new"}, 1)
 	msg := log.Info()
 	msg = msg.Str("name", node.Name)
 	msg = msg.Str("nodeID", node.NodeID)
@@ -41,14 +41,14 @@ func knew(c *cli.Context) error {
 	msg = msg.Str("urlName", node.URLName)
 	msg = msg.Str("webURI", node.WebURI)
 	if nodelet.Type == smugmug.TypeAlbum {
-		node, err = client(c).Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
+		node, err = runtime(c).Client.Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
 		if err != nil {
 			return err
 		}
 		msg = msg.Str("albumKey", node.Album.AlbumKey)
 	}
 	msg.Msg("new")
-	return encoder(c).Encode(node)
+	return runtime(c).Encoder.Encode(node)
 }
 
 func CommandNew() *cli.Command {

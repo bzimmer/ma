@@ -22,10 +22,10 @@ type Runtime struct {
 	Client *smugmug.Client
 	// Sink for metrics
 	Sink *metrics.InmemSink
-	// Fs for file access
-	Fs afero.Fs
 	// Metrics for capturing metrics
 	Metrics *metrics.Metrics
+	// Fs for file access
+	Fs afero.Fs
 	// Grab for bulk querying images
 	Grab Grab
 }
@@ -38,22 +38,6 @@ type Encoder interface {
 
 func runtime(c *cli.Context) *Runtime {
 	return c.App.Metadata[RuntimeKey].(*Runtime)
-}
-
-func encoder(c *cli.Context) Encoder {
-	return runtime(c).Encoder
-}
-
-func client(c *cli.Context) *smugmug.Client {
-	return runtime(c).Client
-}
-
-func sink(c *cli.Context) *metrics.InmemSink {
-	return runtime(c).Sink
-}
-
-func metric(c *cli.Context) *metrics.Metrics {
-	return runtime(c).Metrics
 }
 
 func albumOrNode(c *cli.Context) error {
@@ -72,7 +56,7 @@ func albumOrNode(c *cli.Context) error {
 
 // Stats logs and encodes (if enabled) the stats
 func Stats(c *cli.Context) error {
-	data := sink(c).Data()
+	data := runtime(c).Sink.Data()
 	for i := range data {
 		for key, val := range data[i].Counters {
 			log.Info().
@@ -92,18 +76,17 @@ func Stats(c *cli.Context) error {
 				Msg("samples")
 		}
 	}
-	return encoder(c).Encode(data)
+	return runtime(c).Encoder.Encode(data)
 }
 
 var ErrInvalidURLName = errors.New("node url name must start with a number or capital letter")
 
 func validateURLName(urlName string) error {
 	v := rune(urlName[0])
-	if unicode.IsNumber(v) {
+	switch {
+	case unicode.IsNumber(v), unicode.IsUpper(v):
 		return nil
-	}
-	if !unicode.IsUpper(rune(urlName[0])) {
+	default:
 		return ErrInvalidURLName
 	}
-	return nil
 }

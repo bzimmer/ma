@@ -303,10 +303,10 @@ func cp(c *cli.Context) error {
 	if c.NArg() < 2 {
 		return fmt.Errorf("expected 2+ arguments, not {%d}", c.NArg())
 	}
-	defer metric(c).MeasureSince([]string{"cp", "elapsed"}, time.Now())
+	defer runtime(c).Metrics.MeasureSince([]string{"cp", "elapsed"}, time.Now())
 	en := &entangler{
 		fs:          runtime(c).Fs,
-		metrics:     metric(c),
+		metrics:     runtime(c).Metrics,
 		concurrency: c.Int("concurrency"),
 		dryrun:      c.Bool("dryrun"),
 		dateFormat:  c.String("format"),

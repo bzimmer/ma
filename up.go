@@ -13,7 +13,7 @@ import (
 
 func visit(c *cli.Context) filesystem.PreFunc {
 	return func(fs afero.Fs, filename string) (bool, error) {
-		metric(c).IncrCounter([]string{"fsUploadable", "visit"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "visit"}, 1)
 		return true, nil
 	}
 }
@@ -26,7 +26,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 			return false, err
 		}
 		if !ok {
-			metric(c).IncrCounter([]string{"fsUploadable", "skip", "unsupported"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "skip", "unsupported"}, 1)
 			log.Info().Str("reason", "unsupported").Str("path", filename).Msg("skipping")
 		}
 		return ok, err
@@ -35,7 +35,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 
 func open(c *cli.Context) filesystem.UseFunc {
 	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		metric(c).IncrCounter([]string{"fsUploadable", "open"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "open"}, 1)
 		return up, nil
 	}
 }
@@ -48,7 +48,7 @@ func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 			return nil, err
 		}
 		if sup == nil {
-			metric(c).IncrCounter([]string{"fsUploadable", "skip", "md5"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "skip", "md5"}, 1)
 			log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
 			return nil, err
 		}
@@ -67,7 +67,7 @@ func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFun
 			return nil, nil
 		}
 		if up.Replaces != "" {
-			metric(c).IncrCounter([]string{"fsUploadable", "replace"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "replace"}, 1)
 		}
 		return up, err
 	}
@@ -81,11 +81,11 @@ func upload(c *cli.Context) filesystem.UseFunc {
 			Str("replaces", up.Replaces)
 		if c.Bool("dryrun") {
 			info.Str("status", "dryrun").Msg("upload")
-			metric(c).IncrCounter([]string{"upload", "dryrun"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"upload", "dryrun"}, 1)
 			return nil, nil
 		}
 		info.Str("status", "attempt").Msg("upload")
-		metric(c).IncrCounter([]string{"upload", "attempt"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"upload", "attempt"}, 1)
 		return up, nil
 	}
 }
@@ -118,7 +118,7 @@ func existing(ctx context.Context, mg *smugmug.Client, albumKey string) (*smugmu
 }
 
 func up(c *cli.Context) error {
-	mg := client(c)
+	mg := runtime(c).Client
 	album, images, err := existing(c.Context, mg, c.String("album"))
 	if err != nil {
 		return err
@@ -144,8 +144,8 @@ func up(c *cli.Context) error {
 	})
 	grp.Go(func() error {
 		for up := range uploadc {
-			metric(c).IncrCounter([]string{"upload", "success"}, 1)
-			metric(c).AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
+			runtime(c).Metrics.IncrCounter([]string{"upload", "success"}, 1)
+			runtime(c).Metrics.AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
 			log.Info().
 				Str("name", up.Uploadable.Name).
 				Str("album", up.Uploadable.AlbumKey).

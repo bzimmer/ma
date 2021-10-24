@@ -38,13 +38,13 @@ func TestPatch(t *testing.T) {
 		a.Empty(data["KeywordArray"])
 		a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
 	})
-	mux.HandleFunc("/album/RM4bL2", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
 		data := make(map[string]interface{})
 		dec := json.NewDecoder(r.Body)
 		a.NoError(dec.Decode(&data))
 		a.Contains(data, "Name")
 		a.Contains(data, "UrlName")
-		a.NoError(copyFile(w, "testdata/album_RM4bL2.json"))
+		a.NoError(copyFile(w, "testdata/album_RM4BL2.json"))
 	})
 
 	for _, tt := range []harness{
@@ -75,17 +75,17 @@ func TestPatch(t *testing.T) {
 		{
 			name: "album",
 			args: []string{"ma", "patch", "album", "--force",
-				"--name", "2021-07-04 Fourth of July", "--urlname", "2021-07-04-Fourth-of-July", "RM4bL2"},
+				"--name", "2021-07-04 Fourth of July", "--urlname", "2021-07-04-Fourth-of-July", "RM4BL2"},
 			counters: map[string]int{"ma.patch.album": 1},
 		},
 		{
 			name: "invalid url name",
-			args: []string{"ma", "patch", "album", "--force", "--urlname", "this-is-invalid", "RM4bL2"},
+			args: []string{"ma", "patch", "album", "--force", "--urlname", "this-is-invalid", "RM4BL2"},
 			err:  ma.ErrInvalidURLName.Error(),
 		},
 		{
 			name: "more than one album key",
-			args: []string{"ma", "patch", "album", "RM4bL2", "XM4bL2"},
+			args: []string{"ma", "patch", "album", "RM4BL2", "XM4BL2"},
 			err:  "expected only one albumKey argument",
 		},
 	} {

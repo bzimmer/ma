@@ -24,7 +24,7 @@ func TestUser(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, mux, ma.CommandUser)
+			run(t, tt, mux, ma.CommandUser)
 		})
 	}
 }

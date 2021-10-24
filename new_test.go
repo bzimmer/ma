@@ -76,7 +76,7 @@ func TestNew(t *testing.T) {
 		{
 			name: "new with invalid url name",
 			args: []string{"ma", "new", "--parent", "QWERTY0", "album", "0YTREWQ", "lower-case"},
-			err:  "node url name must start with a capital letter",
+			err:  ma.ErrInvalidURLName.Error(),
 		},
 		{
 			name: "new album",
@@ -85,7 +85,7 @@ func TestNew(t *testing.T) {
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, mux, ma.CommandNew)
+			run(t, tt, mux, ma.CommandNew)
 		})
 	}
 }

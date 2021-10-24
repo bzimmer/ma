@@ -29,6 +29,8 @@ All your media archiving needs!
 * [new album](#new-album)
 * [new folder](#new-folder)
 * [patch](#patch)
+* [patch album](#patch-album)
+* [patch image](#patch-image)
 * [up](#up)
 * [user](#user)
 * [version](#version)
@@ -279,13 +281,22 @@ $ ma new folder [flags]
 
 **Description**
 
-patch an image (or images)
+patch the metadata for albums and images
+
+
+
+
+## *patch album*
+
+**Description**
+
+patch an album (or albums)
 
 
 **Syntax**
 
 ```sh
-$ ma patch [flags] <image key> [<image key>, ...]
+$ ma patch album [flags] <album key> [<album key>, ...]
 ```
 
 
@@ -293,7 +304,31 @@ $ ma patch [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```force```|||force must be specified to apply the patch|
+|```force```|```f```||force must be specified to apply the patch|
+|```keyword```||||
+|```name```||||
+|```urlname```||||
+
+
+## *patch image*
+
+**Description**
+
+patch an image (or images)
+
+
+**Syntax**
+
+```sh
+$ ma patch image [flags] <image key> [<image key>, ...]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```force```|```f```||force must be specified to apply the patch|
 |```keyword```||||
 |```caption```||||
 |```title```||||

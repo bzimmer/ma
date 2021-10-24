@@ -67,13 +67,15 @@ func TestExport(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.export.download.ok": 1,
 			},
-			before: func(app *cli.App) {
-				runtime(app).Grab = &grab{url: runtime(app).URL}
+			before: func(c *cli.Context) error {
+				runtime(c).Grab = &grab{url: runtime(c).URL}
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
+				return nil
 			},
 		},
 		{
@@ -82,17 +84,19 @@ func TestExport(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.export.download.failed.not_found": 1,
 			},
-			before: func(app *cli.App) {
-				runtime(app).Grab = &grab{
-					url:    runtime(app).URL,
+			before: func(c *cli.Context) error {
+				runtime(c).Grab = &grab{
+					url:    runtime(c).URL,
 					status: http.StatusNotFound,
 				}
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.Nil(stat)
 				a.Error(err)
 				a.True(os.IsNotExist(err))
+				return nil
 			},
 		},
 		{
@@ -102,17 +106,19 @@ func TestExport(t *testing.T) { //nolint
 				"ma.export.download.failed.internal_server_error": 1,
 			},
 			err: "download failed",
-			before: func(app *cli.App) {
-				runtime(app).Grab = &grab{
-					url:    runtime(app).URL,
+			before: func(c *cli.Context) error {
+				runtime(c).Grab = &grab{
+					url:    runtime(c).URL,
 					status: http.StatusInternalServerError,
 				}
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.Nil(stat)
 				a.Error(err)
 				a.True(os.IsNotExist(err))
+				return nil
 			},
 		},
 		{
@@ -121,18 +127,20 @@ func TestExport(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.export.download.skipping.exists": 1,
 			},
-			before: func(app *cli.App) {
-				runtime(app).Grab = &grab{url: runtime(app).URL}
-				fp, err := runtime(app).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			before: func(c *cli.Context) error {
+				runtime(c).Grab = &grab{url: runtime(c).URL}
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
 				a.NoError(fp.Close())
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
+				return nil
 			},
 		},
 	}
@@ -140,7 +148,7 @@ func TestExport(t *testing.T) { //nolint
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, mux, ma.CommandExport)
+			run(t, tt, mux, ma.CommandExport)
 		})
 	}
 }

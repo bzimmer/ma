@@ -44,8 +44,9 @@ func TestCopy(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.cp.visited.directories": 1,
 			},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
+				return nil
 			},
 		},
 		{
@@ -55,14 +56,15 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 				"ma.cp.skip.hidden":         2,
 			},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
-				fp, err := runtime(app).Fs.Create("/foo/bar/.something")
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
+				fp, err := runtime(c).Fs.Create("/foo/bar/.something")
 				a.NoError(err)
 				a.NoError(fp.Close())
-				fp, err = runtime(app).Fs.Create("/foo/bar/.else")
+				fp, err = runtime(c).Fs.Create("/foo/bar/.else")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -72,11 +74,12 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories":     1,
 				"ma.cp.skip.unsupported.<none>": 1,
 			},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
-				fp, err := runtime(app).Fs.Create("/foo/bar/something")
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
+				fp, err := runtime(c).Fs.Create("/foo/bar/something")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -87,14 +90,15 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.skip.unsupported.UKN": 1,
 				"ma.cp.skip.unsupported.txt": 1,
 			},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0755))
-				fp, err := runtime(app).Fs.Create("/foo/bar/DSC18920.UKN")
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo", 0755))
+				fp, err := runtime(c).Fs.Create("/foo/bar/DSC18920.UKN")
 				a.NoError(err)
 				a.NoError(fp.Close())
-				fp, err = runtime(app).Fs.Create("/foo/bar/schedule.txt")
+				fp, err = runtime(c).Fs.Create("/foo/bar/schedule.txt")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -103,14 +107,15 @@ func TestCopy(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.cp.visited.directories": 1,
 			},
-			before: func(app *cli.App) {
-				image := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				image := createTestFile(t, runtime(c).Fs)
 				a.NoError(image.Close())
 				// a bit of hack to test reading the entire contents of a .dng file
 				// the exif parser doesn't care about file extensions, it sees only bytes
 				name := image.Name()
 				name = strings.Replace(name, ".jpg", ".dng", 1)
-				a.NoError(runtime(app).Fs.Rename(image.Name(), name))
+				a.NoError(runtime(c).Fs.Rename(image.Name(), name))
+				return nil
 			},
 		},
 		{
@@ -119,20 +124,21 @@ func TestCopy(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.cp.visited.directories": 1,
 			},
-			before: func(app *cli.App) {
-				image := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				image := createTestFile(t, runtime(c).Fs)
 				a.NoError(image.Close())
 
 				tm := time.Date(2008, time.March, 15, 11, 22, 0, 0, time.Local)
-				a.NoError(runtime(app).Fs.Chtimes(image.Name(), tm, tm))
+				a.NoError(runtime(c).Fs.Chtimes(image.Name(), tm, tm))
 
-				dst, err := runtime(app).Fs.Stat(image.Name())
+				dst, err := runtime(c).Fs.Stat(image.Name())
 				a.NoError(err)
 				a.NotNil(dst)
 				log.Info().Str("src", image.Name()).Time("dst", dst.ModTime()).Msg("set test modification times")
+				return nil
 			},
-			after: func(app *cli.App) {
-				dst, err := runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				dst, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(dst)
 				if false {
@@ -141,6 +147,7 @@ func TestCopy(t *testing.T) { //nolint
 					log.Info().Time("src", t).Time("dst", dst.ModTime()).Msg("asserting modification times")
 					a.Equalf(t, dst.ModTime(), "expected identical modification times")
 				}
+				return nil
 			},
 		},
 		{
@@ -150,13 +157,13 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 				"ma.cp.skip.exists":         1,
 			},
-			before: func(app *cli.App) {
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar", 0755))
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
 				for _, filename := range []string{"/foo/bar/Nikon_D70.xmp", "/foo/baz/2008/2008-03/15/Nikon_D70.jpg"} {
-					fp, err := runtime(app).Fs.Create(filename)
+					fp, err := runtime(c).Fs.Create(filename)
 					a.NoError(err)
 					a.NoError(fp.Close())
-					image, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.jpg")
+					image, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.jpg")
 					a.NoError(err)
 					fp, err = os.Open("testdata/Nikon_D70.jpg")
 					a.NoError(err)
@@ -166,6 +173,7 @@ func TestCopy(t *testing.T) { //nolint
 					a.NoError(image.Close())
 					a.NoError(fp.Close())
 				}
+				return nil
 			},
 		},
 		{
@@ -174,20 +182,22 @@ func TestCopy(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.cp.visited.directories": 1,
 			},
-			before: func(app *cli.App) {
-				fp := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
 				a.NoError(fp.Close())
-				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
-				stat, err = runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
+				stat, err = runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NotNil(stat)
+				return nil
 			},
 		},
 		{
@@ -197,20 +207,22 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories": 1,
 				"ma.cp.file.dryrun":         2,
 			},
-			before: func(app *cli.App) {
-				fp := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
 				a.NoError(fp.Close())
-				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.xmp")
+				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
-			after: func(app *cli.App) {
-				_, err := runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				_, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
 				a.Error(err)
 				a.True(os.IsNotExist(err))
-				_, err = runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
+				_, err = runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
 				a.Error(err)
 				a.True(os.IsNotExist(err))
+				return nil
 			},
 		},
 		{
@@ -221,21 +233,23 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.directories":      2,
 				"ma.cp.fileset.skip.unsupported": 1,
 			},
-			before: func(app *cli.App) {
-				fp := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
 				a.NoError(fp.Close())
-				a.NoError(runtime(app).Fs.MkdirAll("/foo/bar/boo", 0755))
-				fp, err := runtime(app).Fs.Create("/foo/bar/boo/Nikon_D70.xmp")
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo", 0755))
+				fp, err := runtime(c).Fs.Create("/foo/bar/boo/Nikon_D70.xmp")
 				a.NoError(err)
 				a.NoError(fp.Close())
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NotNil(stat)
-				_, err = runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
+				_, err = runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.xmp")
 				a.Error(err)
 				a.True(os.IsNotExist(err))
+				return nil
 			},
 		},
 		{
@@ -248,11 +262,12 @@ func TestCopy(t *testing.T) { //nolint
 				"ma.cp.visited.files":       1,
 				"ma.cp.fileset.failed.exif": 1,
 			},
-			before: func(app *cli.App) {
-				fp, err := runtime(app).Fs.Create("/foo/bar/Nikon_D70.jpg")
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.jpg")
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/user_cmac.json"))
 				a.NoError(fp.Close())
+				return nil
 			},
 		},
 		{
@@ -262,15 +277,17 @@ func TestCopy(t *testing.T) { //nolint
 			counters: map[string]int{
 				"ma.cp.visited.directories": 1,
 			},
-			before: func(app *cli.App) {
-				fp := createTestFile(t, runtime(app).Fs)
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
 				a.NoError(fp.Close())
-				runtime(app).Fs = afero.NewReadOnlyFs(runtime(app).Fs)
+				runtime(c).Fs = afero.NewReadOnlyFs(runtime(c).Fs)
+				return nil
 			},
-			after: func(app *cli.App) {
-				stat, err := runtime(app).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
 				a.True(os.IsNotExist(err))
 				a.Nil(stat)
+				return nil
 			},
 		},
 	}
@@ -278,7 +295,7 @@ func TestCopy(t *testing.T) { //nolint
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			harnessFunc(t, tt, nil, ma.CommandCopy)
+			run(t, tt, nil, ma.CommandCopy)
 		})
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -33,7 +32,7 @@ func patchFuncs() []patchFunc {
 		float("altitude"),
 		float("latitude"),
 		float("longitude"),
-		urlname("urlname"),
+		url("urlname"),
 	}
 }
 
@@ -65,7 +64,7 @@ func str(key string) patchFunc {
 	}
 }
 
-func urlname(key string) patchFunc {
+func url(key string) patchFunc {
 	return func(c *cli.Context) (bool, string, interface{}, error) {
 		if !c.IsSet(key) {
 			return false, key, nil, nil
@@ -115,10 +114,7 @@ func (p *albumPatcher) finalize(c *cli.Context, patches patches) error {
 	}
 	if name, ok := patches[patchName]; ok {
 		if v, ok := name.(string); ok {
-			for _, x := range []string{"'s", "-", "'"} {
-				v = strings.ReplaceAll(v, x, " ")
-			}
-			patches[patchURLName] = smugmug.URLName(v)
+			patches[patchURLName] = urlname(v)
 		}
 	}
 	return nil

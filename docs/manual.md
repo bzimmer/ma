@@ -32,6 +32,7 @@ All your media archiving needs!
 * [patch album](#patch-album)
 * [patch image](#patch-image)
 * [up](#up)
+* [urlname](#urlname)
 * [user](#user)
 * [version](#version)
 
@@ -359,6 +360,21 @@ $ ma up [flags]
 |```album```|```a```|||
 |```ext```|```x```|||
 |```dryrun```|```n```|||
+
+
+## *urlname*
+
+**Description**
+
+Create a clean url for the argument by removing "unpleasant" values such as `'s` and `-`
+
+
+**Syntax**
+
+```sh
+$ ma urlname [flags]
+```
+
 
 
 ## *user*

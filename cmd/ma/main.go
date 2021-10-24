@@ -20,20 +20,6 @@ import (
 	"github.com/bzimmer/ma"
 )
 
-type encoderBlackhole struct{}
-
-func (e *encoderBlackhole) Encode(_ interface{}) error {
-	return nil
-}
-
-type encoderJSON struct {
-	encoder *json.Encoder
-}
-
-func (e *encoderJSON) Encode(v interface{}) error {
-	return e.encoder.Encode(v)
-}
-
 func flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
@@ -149,9 +135,9 @@ func main() {
 			var enc ma.Encoder
 			switch {
 			case c.Bool("json"):
-				enc = &encoderJSON{encoder: json.NewEncoder(c.App.Writer)}
+				enc = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
 			default:
-				enc = &encoderBlackhole{}
+				enc = ma.NewBlackholeEncoder()
 			}
 
 			c.App.Metadata = map[string]interface{}{
@@ -176,6 +162,7 @@ func main() {
 			ma.CommandNew(),
 			ma.CommandPatch(),
 			ma.CommandUpload(),
+			ma.CommandURLName(),
 			ma.CommandUser(),
 			ma.CommandVersion(),
 			manual.Commands(),

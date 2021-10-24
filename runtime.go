@@ -1,8 +1,7 @@
 package ma
 
 import (
-	"errors"
-	"unicode"
+	"encoding/json"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
@@ -34,6 +33,28 @@ type Runtime struct {
 type Encoder interface {
 	// Encode writes the encoding of v
 	Encode(v interface{}) error
+}
+
+type encoderBlackhole struct{}
+
+func (e *encoderBlackhole) Encode(_ interface{}) error {
+	return nil
+}
+
+func NewBlackholeEncoder() Encoder {
+	return &encoderBlackhole{}
+}
+
+type encoderJSON struct {
+	encoder *json.Encoder
+}
+
+func (e *encoderJSON) Encode(v interface{}) error {
+	return e.encoder.Encode(v)
+}
+
+func NewJSONEncoder(enc *json.Encoder) Encoder {
+	return &encoderJSON{encoder: enc}
 }
 
 func runtime(c *cli.Context) *Runtime {
@@ -77,16 +98,4 @@ func Stats(c *cli.Context) error {
 		}
 	}
 	return runtime(c).Encoder.Encode(data)
-}
-
-var ErrInvalidURLName = errors.New("node url name must start with a number or capital letter")
-
-func validateURLName(urlName string) error {
-	v := rune(urlName[0])
-	switch {
-	case unicode.IsNumber(v), unicode.IsUpper(v):
-		return nil
-	default:
-		return ErrInvalidURLName
-	}
 }

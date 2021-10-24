@@ -2,6 +2,7 @@ package ma_test
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -51,41 +52,60 @@ func copyFile(w io.Writer, filename string) error {
 	return err
 }
 
-type encoderBlackhole struct{}
-
-func (e *encoderBlackhole) Encode(_ interface{}) error {
-	return nil
-}
-
 func NewTestApp(t *testing.T, tt harness, cmd *cli.Command, url string) *cli.App {
-	cfg := metrics.DefaultConfig("ma")
-	cfg.EnableRuntimeMetrics = false
-	cfg.TimerGranularity = time.Second
-	sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
-	metric, err := metrics.New(cfg, sink)
-	if err != nil {
-		t.Error(err)
-	}
-
-	client, err := smugmug.NewClient(
-		smugmug.WithBaseURL(url),
-		smugmug.WithHTTPTracing(zerolog.GlobalLevel() == zerolog.DebugLevel))
-	if err != nil {
-		t.Error(err)
-	}
-
-	rt := &ma.Runtime{
-		Client:  client,
-		Metrics: metric,
-		Sink:    sink,
-		Grab:    new(http.Client),
-		Encoder: new(encoderBlackhole),
-		Fs:      afero.NewMemMapFs(),
-	}
-
 	return &cli.App{
 		Name:     tt.name,
 		HelpName: tt.name,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:     "json",
+				Aliases:  []string{"j"},
+				Value:    false,
+				Required: false,
+			},
+		},
+		Before: func(c *cli.Context) error {
+			cfg := metrics.DefaultConfig("ma")
+			cfg.EnableRuntimeMetrics = false
+			cfg.TimerGranularity = time.Second
+			sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
+			metric, err := metrics.New(cfg, sink)
+			if err != nil {
+				t.Error(err)
+			}
+
+			client, err := smugmug.NewClient(
+				smugmug.WithBaseURL(url),
+				smugmug.WithHTTPTracing(zerolog.GlobalLevel() == zerolog.DebugLevel))
+			if err != nil {
+				t.Error(err)
+			}
+
+			var enc ma.Encoder
+			switch {
+			case c.Bool("json"):
+				enc = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
+			default:
+				enc = ma.NewBlackholeEncoder()
+			}
+
+			rt := &ma.Runtime{
+				Client:  client,
+				Metrics: metric,
+				Sink:    sink,
+				Encoder: enc,
+				Grab:    new(http.Client),
+				Fs:      afero.NewMemMapFs(),
+			}
+			c.App.Metadata = map[string]interface{}{
+				ma.RuntimeKey: rt,
+				RuntimeKey: &Runtime{
+					Runtime: rt,
+					URL:     url,
+				},
+			}
+			return nil
+		},
 		After: func(c *cli.Context) error {
 			t.Logf("***** %s *****\n", tt.name)
 			switch v := runtime(c).Fs.(type) {
@@ -99,13 +119,6 @@ func NewTestApp(t *testing.T, tt harness, cmd *cli.Command, url string) *cli.App
 			return counters(t, tt.counters)(c)
 		},
 		Commands: []*cli.Command{cmd},
-		Metadata: map[string]interface{}{
-			ma.RuntimeKey: rt,
-			RuntimeKey: &Runtime{
-				Runtime: rt,
-				URL:     url,
-			},
-		},
 	}
 }
 

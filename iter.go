@@ -7,13 +7,13 @@ import (
 )
 
 func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.ImageIterFunc {
-	enc := encoder(c)
+	enc := runtime(c).Encoder
 	var albumKey string
 	if album != nil {
 		albumKey = album.AlbumKey
 	}
 	return func(image *smugmug.Image) (bool, error) {
-		metric(c).IncrCounter([]string{op, "image"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{op, "image"}, 1)
 		if album != nil && image.Album == nil {
 			image.Album = album
 		}
@@ -33,11 +33,11 @@ func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.Imag
 }
 
 func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
-	mg := client(c)
-	enc := encoder(c)
+	mg := runtime(c).Client
+	enc := runtime(c).Encoder
 	imageq := c.Bool("image")
 	return func(album *smugmug.Album) (bool, error) {
-		metric(c).IncrCounter([]string{op, "album"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{op, "album"}, 1)
 		log.Info().
 			Str("type", smugmug.TypeAlbum).
 			Str("name", album.Name).
@@ -60,12 +60,12 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 }
 
 func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc {
-	enc := encoder(c)
+	enc := runtime(c).Encoder
 	nodeq := c.Bool("node")
 	albumq := c.Bool("album")
 	imageq := c.Bool("image")
 	return func(node *smugmug.Node) (bool, error) {
-		metric(c).IncrCounter([]string{op, "node"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{op, "node"}, 1)
 		msg := log.Info()
 		msg = msg.Str("type", node.Type)
 		msg = msg.Str("name", node.Name)
@@ -96,7 +96,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 		if imageq && node.Album != nil {
 			albumKey := node.Album.AlbumKey
 			f := imageIterFunc(c, node.Album, op)
-			if err := client(c).Image.ImagesIter(c.Context, albumKey, f); err != nil {
+			if err := runtime(c).Client.Image.ImagesIter(c.Context, albumKey, f); err != nil {
 				return false, err
 			}
 		}

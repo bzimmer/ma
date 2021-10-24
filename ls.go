@@ -11,7 +11,7 @@ import (
 var imageRE = regexp.MustCompile("[a-zA-Z0-9]+-[0-9]+")
 
 func image(c *cli.Context) error {
-	mg := client(c)
+	mg := runtime(c).Client
 	zv := c.Bool("zero-version")
 	for _, id := range c.Args().Slice() {
 		// preempt a common mistake
@@ -35,7 +35,7 @@ func image(c *cli.Context) error {
 }
 
 func album(c *cli.Context) error {
-	mg := client(c)
+	mg := runtime(c).Client
 	f := albumIterFunc(c, "ls")
 	for _, id := range c.Args().Slice() {
 		album, err := mg.Album.Album(c.Context, id)
@@ -50,7 +50,7 @@ func album(c *cli.Context) error {
 }
 
 func node(c *cli.Context) error {
-	mg := client(c)
+	mg := runtime(c).Client
 	nodeIDs := c.Args().Slice()
 	if len(nodeIDs) == 0 {
 		user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))

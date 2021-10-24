@@ -139,10 +139,10 @@ type harness struct {
 	after     cli.AfterFunc
 }
 
-func run(t *testing.T, tt harness, mux *http.ServeMux, cmd func() *cli.Command) {
+func run(t *testing.T, tt harness, handler http.Handler, cmd func() *cli.Command) {
 	a := assert.New(t)
 
-	svr := httptest.NewServer(mux)
+	svr := httptest.NewServer(handler)
 	defer svr.Close()
 
 	app := NewTestApp(t, tt, cmd(), svr.URL)

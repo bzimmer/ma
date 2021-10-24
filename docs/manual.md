@@ -305,6 +305,7 @@ $ ma patch album [flags] <album key> [<album key>, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |```force```|```f```||force must be specified to apply the patch|
+|```auto-urlname```|||if enabled, and an album name provided as a flag, the urlname will be auto-generated from the name|
 |```keyword```||||
 |```name```||||
 |```urlname```||||

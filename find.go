@@ -9,7 +9,7 @@ import (
 )
 
 func find(c *cli.Context) error {
-	mg := client(c)
+	mg := runtime(c).Client
 	scope := c.String("scope")
 	if scope == "" {
 		user, err := mg.User.AuthUser(c.Context)

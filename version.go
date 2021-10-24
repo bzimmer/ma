@@ -23,7 +23,7 @@ func version(c *cli.Context) error {
 		Str("builder", buildBuilder).
 		Str("commit", buildCommit).
 		Msg("version")
-	return encoder(c).Encode(map[string]string{
+	return runtime(c).Encoder.Encode(map[string]string{
 		"version":  buildVersion,
 		"datetime": buildTime,
 		"commit":   buildCommit,

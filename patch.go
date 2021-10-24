@@ -4,17 +4,29 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	patchName     = "Name"
+	patchURLName  = "UrlName"
+	patchKeywords = "KeywordArray"
+)
+
+type patches map[string]interface{}
+
 type patchFunc func(c *cli.Context) (bool, string, interface{}, error)
 
-type patcherFunc func(*cli.Context, string, map[string]interface{}) error
+type patcher interface {
+	finalize(c *cli.Context, patches patches) error
+	patch(c *cli.Context, keyName string, patches patches) error
+}
 
 func patchFuncs() []patchFunc {
 	return []patchFunc{
-		keywords,
+		keywords("keyword"),
 		str("name"),
 		str("title"),
 		str("caption"),
@@ -25,21 +37,22 @@ func patchFuncs() []patchFunc {
 	}
 }
 
-func keywords(c *cli.Context) (bool, string, interface{}, error) {
-	if !c.IsSet("keyword") {
-		return false, "keywords", nil, nil
-	}
-	var kws []string
-	keyword := "KeywordArray"
-	for _, kw := range c.StringSlice("keyword") {
-		switch kw {
-		case "":
-			return true, keyword, []string{}, nil
-		default:
-			kws = append(kws, kw)
+func keywords(key string) patchFunc {
+	return func(c *cli.Context) (bool, string, interface{}, error) {
+		if !c.IsSet(key) {
+			return false, key, nil, nil
 		}
+		var kws []string
+		for _, kw := range c.StringSlice(key) {
+			switch kw {
+			case "":
+				return true, patchKeywords, []string{}, nil
+			default:
+				kws = append(kws, kw)
+			}
+		}
+		return true, patchKeywords, kws, nil
 	}
-	return true, keyword, kws, nil
 }
 
 func str(key string) patchFunc {
@@ -53,7 +66,6 @@ func str(key string) patchFunc {
 }
 
 func urlname(key string) patchFunc {
-	title := "UrlName"
 	return func(c *cli.Context) (bool, string, interface{}, error) {
 		if !c.IsSet(key) {
 			return false, key, nil, nil
@@ -63,7 +75,7 @@ func urlname(key string) patchFunc {
 			log.Error().Err(err).Str("urlname", url).Msg("invalid")
 			return false, key, nil, err
 		}
-		return true, title, url, nil
+		return true, patchURLName, url, nil
 	}
 }
 
@@ -77,8 +89,14 @@ func float(key string) patchFunc {
 	}
 }
 
-func imagePatcher(c *cli.Context, imageKey string, patches map[string]interface{}) error {
-	img, err := client(c).Image.Patch(c.Context, imageKey, patches)
+type imagePatcher struct{}
+
+func (p *imagePatcher) finalize(c *cli.Context, patches patches) error {
+	return nil
+}
+
+func (p *imagePatcher) patch(c *cli.Context, imageKey string, patches patches) error {
+	img, err := runtime(c).Client.Image.Patch(c.Context, imageKey, patches)
 	if err != nil {
 		return err
 	}
@@ -89,8 +107,25 @@ func imagePatcher(c *cli.Context, imageKey string, patches map[string]interface{
 	return nil
 }
 
-func albumPatcher(c *cli.Context, albumKey string, patches map[string]interface{}) error {
-	album, err := client(c).Album.Patch(c.Context, albumKey, patches)
+type albumPatcher struct{}
+
+func (p *albumPatcher) finalize(c *cli.Context, patches patches) error {
+	if !c.Bool("auto-urlname") {
+		return nil
+	}
+	if name, ok := patches[patchName]; ok {
+		if v, ok := name.(string); ok {
+			for _, x := range []string{"'s", "-", "'"} {
+				v = strings.ReplaceAll(v, x, " ")
+			}
+			patches[patchURLName] = smugmug.URLName(v)
+		}
+	}
+	return nil
+}
+
+func (p *albumPatcher) patch(c *cli.Context, albumKey string, patches patches) error {
+	album, err := runtime(c).Client.Album.Patch(c.Context, albumKey, patches)
 	if err != nil {
 		return err
 	}
@@ -101,28 +136,31 @@ func albumPatcher(c *cli.Context, albumKey string, patches map[string]interface{
 	return nil
 }
 
-func patch(keyName string, patcher patcherFunc) cli.ActionFunc {
+func patch(keyName string, p patcher) cli.ActionFunc {
 	return func(c *cli.Context) error {
-		patches := make(map[string]interface{})
+		ps := make(patches)
 		for _, f := range patchFuncs() {
 			ok, key, value, err := f(c)
 			if err != nil {
 				return err
 			}
 			if ok {
-				patches[key] = value
+				ps[key] = value
 			}
+		}
+		if err := p.finalize(c, ps); err != nil {
+			return err
 		}
 		for _, x := range c.Args().Slice() {
 			switch {
-			case len(patches) == 0:
+			case len(ps) == 0:
 				log.Warn().Str(keyName, x).Msg("no patches to apply")
 			case !c.Bool("force"):
-				metric(c).IncrCounter([]string{"patch", c.Command.Name, "dryrun"}, 1)
-				log.Info().Str(keyName, x).Interface("patches", patches).Msg("dryrun")
+				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "dryrun"}, 1)
+				log.Info().Str(keyName, x).Interface("patches", ps).Msg("dryrun")
 			default:
-				log.Info().Str(keyName, x).Interface("patches", patches).Msg("applying")
-				if err := patcher(c, x, patches); err != nil {
+				log.Info().Str(keyName, x).Interface("patches", ps).Msg("applying")
+				if err := p.patch(c, x, ps); err != nil {
 					return err
 				}
 			}
@@ -148,6 +186,10 @@ func albumPatch() *cli.Command {
 		ArgsUsage: "<album key> [<album key>, ...]",
 		Flags: []cli.Flag{
 			forceFlag(),
+			&cli.BoolFlag{
+				Name:  "auto-urlname",
+				Usage: "if enabled, and an album name provided as a flag, the urlname will be auto-generated from the name",
+			},
 			&cli.StringSliceFlag{
 				Name: "keyword",
 			},
@@ -159,6 +201,12 @@ func albumPatch() *cli.Command {
 			},
 		},
 		Before: func(c *cli.Context) error {
+			switch {
+			case c.IsSet("auto-urlname") && c.IsSet("urlname"):
+				return errors.New("only one of `auto-urlname` or `urlname` may be specified")
+			case c.IsSet("auto-urlname") && !c.IsSet("name"):
+				return errors.New("cannot specify `auto-urlname` without `name`")
+			}
 			switch c.NArg() {
 			case 0:
 				return errors.New("expected one albumKey argument")
@@ -168,7 +216,7 @@ func albumPatch() *cli.Command {
 				return errors.New("expected only one albumKey argument")
 			}
 		},
-		Action: patch("albumKey", albumPatcher),
+		Action: patch("albumKey", &albumPatcher{}),
 	}
 }
 
@@ -199,7 +247,7 @@ func imagePatch() *cli.Command {
 				Name: "altitude",
 			},
 		},
-		Action: patch("imageKey", imagePatcher),
+		Action: patch("imageKey", &imagePatcher{}),
 	}
 }
 

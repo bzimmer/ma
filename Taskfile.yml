@@ -57,14 +57,6 @@ tasks:
     cmds:
       - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
 
-  install:
-    desc: Install {{.APP}}
-    cmds:
-      - task: build
-        vars:
-          DIST:
-            sh: echo $GOPATH/bin
-
   lint:
     desc: Runs golint
     cmds:
@@ -81,3 +73,9 @@ tasks:
     cmds:
       - mkdir -p docs/
       - dist/{{.APP}} manual docs/templates > docs/manual.md
+
+  install:
+    desc: Install binary
+    deps: [snapshot]
+    cmds:
+      - cp {{.DIST}}/{{.APP}}_{{OS}}_{{ARCH}}/{{.APP}} $GOPATH/bin

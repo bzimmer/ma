@@ -7,13 +7,13 @@ import (
 )
 
 func user(c *cli.Context) error {
-	user, err := client(c).User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
+	user, err := runtime(c).Client.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
 	if err != nil {
 		return err
 	}
-	metric(c).IncrCounter([]string{"user", "user"}, 1)
+	runtime(c).Metrics.IncrCounter([]string{"user", "user"}, 1)
 	log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Str("nodeID", user.Node.NodeID).Msg("user")
-	return encoder(c).Encode(user)
+	return runtime(c).Encoder.Encode(user)
 }
 
 func CommandUser() *cli.Command {

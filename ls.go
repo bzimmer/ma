@@ -86,6 +86,7 @@ func CommandList() *cli.Command {
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i", "R"},
+						Usage:   "include images in the query",
 					},
 				},
 				Action: album,
@@ -99,22 +100,27 @@ func CommandList() *cli.Command {
 					&cli.BoolFlag{
 						Name:    "album",
 						Aliases: []string{"a"},
+						Usage:   "include albums in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "node",
 						Aliases: []string{"n", "f"},
+						Usage:   "include nodes in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i"},
+						Usage:   "include images in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "recurse",
 						Aliases: []string{"R"},
+						Usage:   "walk the node tree",
 					},
 					&cli.IntFlag{
 						Name:  "depth",
 						Value: -1,
+						Usage: "walk the node tree to the specified depth",
 					},
 				},
 				Before: albumOrNode,
@@ -129,6 +135,7 @@ func CommandList() *cli.Command {
 					&cli.BoolFlag{
 						Name:     "zero-version",
 						Aliases:  []string{"z"},
+						Usage:    "if no version is specified, append `-0`",
 						Value:    false,
 						Required: false,
 					},

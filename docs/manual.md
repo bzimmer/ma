@@ -9,9 +9,8 @@ All your media archiving needs!
 |```smugmug-client-secret```||smugmug client secret|
 |```smugmug-access-token```||smugmug access token|
 |```smugmug-token-secret```||smugmug token secret|
-|```concurrency```|||
-|```json```|```j```||
-|```debug```||enable debugging|
+|```json```|```j```|encode all results as JSON and print to stdout|
+|```debug```||enable debugging of http requests|
 |```help```|```h```|show help|
 
 ## Commands
@@ -114,7 +113,7 @@ $ ma export [flags] <node id> <directory>
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```concurrency```|||the number of concurrent downloads|
+|```concurrency```|```c```||the number of concurrent downloads|
 |```force```|||overwrite existing files|
 
 
@@ -301,7 +300,7 @@ $ ma ls image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```zero-version```|```z```|||
+|```zero-version```|```z```||if no version is specified, append `-0`|
 
 
 ## *ls node*
@@ -322,11 +321,11 @@ $ ma ls node [flags] <node id> [<node id>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```album```|```a```|||
-|```node```|```n, f```|||
-|```image```|```i```|||
-|```recurse```|```R```|||
-|```depth```||||
+|```album```|```a```||include albums in the query|
+|```node```|```n, f```||include nodes in the query|
+|```image```|```i```||include images in the query|
+|```recurse```|```R```||walk the node tree|
+|```depth```|||walk the node tree to the specified depth|
 
 
 ## *new*

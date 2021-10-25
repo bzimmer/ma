@@ -259,9 +259,10 @@ func CommandExport() *cli.Command {
 		ArgsUsage:   "<node id> <directory>",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
-				Name:  "concurrency",
-				Usage: "the number of concurrent downloads",
-				Value: 3,
+				Name:    "concurrency",
+				Aliases: []string{"c"},
+				Usage:   "the number of concurrent downloads",
+				Value:   3,
 			},
 			&cli.BoolFlag{
 				Name:  "force",

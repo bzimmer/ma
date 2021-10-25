@@ -162,23 +162,27 @@ func up(c *cli.Context) error {
 
 func CommandUpload() *cli.Command {
 	return &cli.Command{
-		Name:    "up",
-		Aliases: []string{"upload"},
-		Usage:   "upload images to SmugMug",
+		Name:        "up",
+		Aliases:     []string{"upload"},
+		Usage:       "upload images to SmugMug",
+		Description: "upload image files to the specified album, selectively including specific file extensions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "album",
+				Usage:    "the album to which image files will be uploaded",
 				Aliases:  []string{"a"},
 				Required: true,
 			},
 			&cli.StringSliceFlag{
 				Name:     "ext",
+				Usage:    "the set of file extensions suitable for uploading",
 				Aliases:  []string{"x"},
 				Required: false,
 				Value:    cli.NewStringSlice(".jpg", ".jpeg"),
 			},
 			&cli.BoolFlag{
 				Name:     "dryrun",
+				Usage:    "prepare to upload but don't actually do it",
 				Aliases:  []string{"n"},
 				Value:    false,
 				Required: false,

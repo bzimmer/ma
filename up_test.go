@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/bzimmer/ma"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
 )
 
 func TestUpload(t *testing.T) { //nolint
@@ -146,7 +147,7 @@ func TestUpload(t *testing.T) { //nolint
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			run(t, tt, mux, ma.CommandUpload)
+			run(t, &tt, mux, ma.CommandUpload)
 		})
 	}
 }

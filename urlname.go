@@ -37,8 +37,8 @@ func CommandURLName() *cli.Command {
 	return &cli.Command{
 		Name:        "urlname",
 		HelpName:    "urlname",
-		Usage:       "Create a clean url name for the argument",
-		Description: "Create a clean url for the argument by removing \"unpleasant\" values such as `'s` and `-`",
+		Usage:       "create a clean url name for the argument",
+		Description: "create a clean url for the argument by removing \"unpleasant\" values such as `'s` and `-`",
 		Action: func(c *cli.Context) error {
 			enc := runtime(c).Encoder
 			for i := 0; i < c.NArg(); i++ {

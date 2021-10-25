@@ -46,21 +46,17 @@ func flags() []cli.Flag {
 			Usage:    "smugmug token secret",
 			EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
 		},
-		&cli.IntFlag{
-			Name:     "concurrency",
-			Value:    2,
-			Required: false,
-		},
 		&cli.BoolFlag{
 			Name:     "json",
 			Aliases:  []string{"j"},
+			Usage:    "encode all results as JSON and print to stdout",
 			Value:    false,
 			Required: false,
 		},
 		&cli.BoolFlag{
 			Name:     "debug",
 			Required: false,
-			Usage:    "enable debugging",
+			Usage:    "enable debugging of http requests",
 			Value:    false,
 		},
 	}

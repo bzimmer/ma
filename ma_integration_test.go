@@ -4,7 +4,6 @@ package ma_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"os"
 	"os/exec"
@@ -61,14 +60,12 @@ type harnessIntegration struct {
 	after func(map[string]interface{})
 }
 
-func harnessIntegrationFunc(t *testing.T, tt harnessIntegration) {
+func runIntegration(t *testing.T, tt harnessIntegration) {
 	a := assert.New(t)
 	ma := command(t, tt.args...)
 	out, err := ma.Output()
 	a.NoError(err)
-	res := make(map[string]interface{})
-	dec := json.NewDecoder(bytes.NewBuffer(out))
-	a.NoError(dec.Decode(&res))
+	res := decode(a, bytes.NewBuffer(out))
 	if tt.after != nil {
 		tt.after(res)
 	}

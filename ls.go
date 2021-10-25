@@ -8,7 +8,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var imageRE = regexp.MustCompile("[a-zA-Z0-9]+-[0-9]+")
+var imageRE = regexp.MustCompile(`[a-zA-Z0-9]+-\d+`)
 
 func image(c *cli.Context) error {
 	mg := runtime(c).Client
@@ -71,60 +71,71 @@ func node(c *cli.Context) error {
 
 func CommandList() *cli.Command {
 	return &cli.Command{
-		Name:     "ls",
-		HelpName: "ls",
-		Aliases:  []string{"list"},
-		Usage:    "list nodes, albums, and/or images",
+		Name:        "ls",
+		HelpName:    "ls",
+		Aliases:     []string{"list"},
+		Usage:       "list nodes, albums, and/or images",
+		Description: "list the deails of albums, nodes, and/or images",
 		Subcommands: []*cli.Command{
 			{
-				Name:      "album",
-				Usage:     "list albums",
-				ArgsUsage: "<album key> [<album key>, ...]",
+				Name:        "album",
+				Usage:       "list albums",
+				Description: "list the contents of an album(s)",
+				ArgsUsage:   "<album key> [<album key>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i", "R"},
+						Usage:   "include images in the query",
 					},
 				},
 				Action: album,
 			},
 			{
-				Name:      "node",
-				Usage:     "list nodes",
-				ArgsUsage: "<node id> [<node id>, ...]",
+				Name:        "node",
+				Usage:       "list nodes",
+				Description: "list the contents of a node(s)",
+				ArgsUsage:   "<node id> [<node id>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "album",
 						Aliases: []string{"a"},
+						Usage:   "include albums in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "node",
 						Aliases: []string{"n", "f"},
+						Usage:   "include nodes in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i"},
+						Usage:   "include images in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "recurse",
 						Aliases: []string{"R"},
+						Usage:   "walk the node tree",
 					},
 					&cli.IntFlag{
 						Name:  "depth",
 						Value: -1,
+						Usage: "walk the node tree to the specified depth",
 					},
 				},
 				Before: albumOrNode,
 				Action: node,
 			},
 			{
-				Name:      "image",
-				Usage:     "list images",
-				ArgsUsage: "<image key> [<image key>, ...]",
+				Name:        "image",
+				Usage:       "list images",
+				Description: "list the details of an image(s)",
+				ArgsUsage:   "<image key> [<image key>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:     "zero-version",
 						Aliases:  []string{"z"},
+						Usage:    "if no version is specified, append `-0`",
 						Value:    false,
 						Required: false,
 					},

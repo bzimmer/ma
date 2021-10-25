@@ -52,7 +52,7 @@ func copyFile(w io.Writer, filename string) error {
 	return err
 }
 
-func NewTestApp(t *testing.T, tt harness, cmd *cli.Command, url string) *cli.App {
+func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.App {
 	return &cli.App{
 		Name:     tt.name,
 		HelpName: tt.name,
@@ -128,12 +128,11 @@ func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
 		data := runtime(c).Sink.Data()
 		for key, value := range expected {
 			var found bool
-		Loop:
 			for i := range data {
 				if counter, ok := data[i].Counters[key]; ok {
 					found = true
 					a.Equalf(value, counter.Count, key)
-					break Loop
+					break
 				}
 			}
 			if !found {
@@ -152,7 +151,7 @@ type harness struct {
 	after     cli.AfterFunc
 }
 
-func run(t *testing.T, tt harness, handler http.Handler, cmd func() *cli.Command) {
+func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Command) {
 	a := assert.New(t)
 
 	svr := httptest.NewServer(handler)

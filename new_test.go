@@ -43,15 +43,13 @@ func TestNew(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/node/FGHRYD", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodGet:
+		if r.Method == http.MethodGet {
 			enc := json.NewEncoder(w)
 			a.NoError(enc.Encode(newResponse()))
 		}
 	})
 	mux.HandleFunc("/node/QWERTY0!children", func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
+		if r.Method == http.MethodPost {
 			enc := json.NewEncoder(w)
 			a.NoError(enc.Encode(newResponse()))
 		}
@@ -85,7 +83,7 @@ func TestNew(t *testing.T) {
 	} {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			run(t, tt, mux, ma.CommandNew)
+			run(t, &tt, mux, ma.CommandNew)
 		})
 	}
 }

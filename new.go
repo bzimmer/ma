@@ -33,7 +33,7 @@ func knew(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	runtime(c).Metrics.IncrCounter([]string{"album", "new"}, 1)
+	runtime(c).Metrics.IncrCounter([]string{"album", c.Command.Name}, 1)
 	msg := log.Info()
 	msg = msg.Str("name", node.Name)
 	msg = msg.Str("nodeID", node.NodeID)
@@ -47,7 +47,7 @@ func knew(c *cli.Context) error {
 		}
 		msg = msg.Str("albumKey", node.Album.AlbumKey)
 	}
-	msg.Msg("new")
+	msg.Msg(c.Command.Name)
 	return runtime(c).Encoder.Encode(node)
 }
 
@@ -67,30 +67,37 @@ func CommandNew() *cli.Command {
 		return nil
 	}
 	return &cli.Command{
-		Name:      "new",
-		HelpName:  "new",
-		Usage:     "create a new node",
-		ArgsUsage: "<node name> [<node url>]",
+		Name:        "new",
+		HelpName:    "new",
+		Usage:       "create a new node",
+		Description: "create a new album or folder",
+		ArgsUsage:   "<node name> [<node url>]",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "parent",
 				Required: true,
+				Usage:    "the parent node at which the new node will be rooted",
 			},
 			&cli.StringFlag{
 				Name:  "privacy",
 				Value: "",
+				Usage: "the privacy settings for the new album",
 			},
 		},
 		Subcommands: []*cli.Command{
 			{
-				Name:   "album",
-				Before: before,
-				Action: knew,
+				Name:        "album",
+				Usage:       "create a new album",
+				Description: "create a new album for images",
+				Before:      before,
+				Action:      knew,
 			},
 			{
-				Name:   "folder",
-				Before: before,
-				Action: knew,
+				Name:        "folder",
+				Usage:       "create a new folder",
+				Description: "create a new folder for albums",
+				Before:      before,
+				Action:      knew,
 			},
 		},
 	}

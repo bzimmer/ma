@@ -220,7 +220,8 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			return false, nil
 		}
 
-		if err = x.fs.MkdirAll(out, 0755); err != nil {
+		err = x.fs.MkdirAll(out, 0755)
+		if err != nil {
 			return false, err
 		}
 
@@ -251,10 +252,11 @@ func export(c *cli.Context) error {
 
 func CommandExport() *cli.Command {
 	return &cli.Command{
-		Name:      "export",
-		HelpName:  "export",
-		Usage:     "export images from albums",
-		ArgsUsage: "<node id> <directory>",
+		Name:        "export",
+		HelpName:    "export",
+		Usage:       "export images from albums",
+		Description: "export images from albums to local disk",
+		ArgsUsage:   "<node id> <directory>",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:  "concurrency",

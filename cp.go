@@ -96,7 +96,7 @@ func (f *fileSet) add(info fs.FileInfo) {
 	f.files = append(f.files, info)
 }
 
-func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
+func (f *fileSet) dateTime(filesystem afero.Fs, dirname string) (time.Time, error) {
 	// for every file in the fileset attempt to create a time.Time
 	times := make(map[string]time.Time)
 	for i := range f.files {
@@ -104,7 +104,7 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 		ext := strings.ToLower(filepath.Ext(info.Name()))
 		switch ext {
 		case jpg, jpeg, raf, dng, nef:
-			dt := &dateTimeExif{fs: fs, src: dirname, ext: ext, info: info}
+			dt := &dateTimeExif{fs: filesystem, src: dirname, ext: ext, info: info}
 			t, err := dt.dateTime()
 			if err != nil {
 				return time.Time{}, err
@@ -129,36 +129,6 @@ func (f *fileSet) dateTime(fs afero.Fs, dirname string) (time.Time, error) {
 
 	// found no time
 	return time.Time{}, nil
-}
-
-func copy(fs afero.Fs, src, dst string) error {
-	dirname, _ := filepath.Split(dst)
-	if err := fs.MkdirAll(dirname, 0755); err != nil {
-		return err
-	}
-	out, err := fs.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	in, err := fs.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return err
-	}
-	if err = out.Sync(); err != nil {
-		return err
-	}
-	info, err := in.Stat()
-	if err != nil {
-		return err
-	}
-	mtime := info.ModTime()
-	return fs.Chtimes(dst, mtime, mtime)
 }
 
 type entangle struct {
@@ -239,6 +209,37 @@ func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() e
 	}
 }
 
+func (c *entangler) copy(src, dst string) error {
+	dirname, _ := filepath.Split(dst)
+	if err := c.fs.MkdirAll(dirname, 0755); err != nil {
+		return err
+	}
+	out, err := c.fs.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	in, err := c.fs.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return err
+	}
+	err = out.Sync()
+	if err != nil {
+		return err
+	}
+	info, err := in.Stat()
+	if err != nil {
+		return err
+	}
+	mtime := info.ModTime()
+	return c.fs.Chtimes(dst, mtime, mtime)
+}
+
 func (c *entangler) copyFile(source, destination string) error {
 	defer c.metrics.MeasureSince([]string{"cp", "elapsed", "file"}, time.Now())
 	c.metrics.IncrCounter([]string{"cp", "file", "attempt"}, 1)
@@ -258,7 +259,7 @@ func (c *entangler) copyFile(source, destination string) error {
 		c.metrics.IncrCounter([]string{"cp", "file", "dryrun"}, 1)
 		return nil
 	}
-	if err := copy(c.fs, source, destination); err != nil {
+	if err := c.copy(source, destination); err != nil {
 		c.metrics.IncrCounter([]string{"cp", "file", "failed"}, 1)
 		return err
 	}
@@ -288,12 +289,12 @@ func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkF
 			dirs = make(map[string]*fileSet)
 			sets[dirname] = dirs
 		}
-		fs, ok := dirs[basename]
+		filesystem, ok := dirs[basename]
 		if !ok {
-			fs = new(fileSet)
-			dirs[basename] = fs
+			filesystem = new(fileSet)
+			dirs[basename] = filesystem
 		}
-		fs.add(info)
+		filesystem.add(info)
 
 		return nil
 	}
@@ -321,19 +322,22 @@ func cp(c *cli.Context) error {
 
 func CommandCopy() *cli.Command {
 	return &cli.Command{
-		Name:      "cp",
-		HelpName:  "cp",
-		Usage:     "copy files to a pre-determined directory structure",
-		ArgsUsage: "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
+		Name:        "cp",
+		HelpName:    "cp",
+		Usage:       "copy files to a the directory structure of `--format`",
+		Description: "copy files from a source(s) to a destination using the Exif format to create the directory structure",
+		ArgsUsage:   "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:     "dryrun",
 				Aliases:  []string{"n"},
+				Usage:    "prepare to copy but don't actually do it",
 				Value:    false,
 				Required: false,
 			},
 			&cli.StringFlag{
 				Name:     "format",
+				Usage:    "the date format used for the destination directory",
 				Value:    defaultDateFormat,
 				Required: false,
 			},

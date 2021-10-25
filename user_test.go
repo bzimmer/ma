@@ -17,14 +17,16 @@ func TestUser(t *testing.T) {
 		a.NoError(copyFile(w, "testdata/user_cmac.json"))
 	})
 
-	for _, tt := range []harness{
+	tests := []harness{
 		{
 			name: "authuser",
 			args: []string{"ma", "user"},
 		},
-	} {
+	}
+	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			run(t, tt, mux, ma.CommandUser)
+			run(t, &tt, mux, ma.CommandUser)
 		})
 	}
 }

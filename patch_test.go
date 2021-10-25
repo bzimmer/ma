@@ -124,7 +124,7 @@ func TestPatch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 			mux := newPatchTestMux(a)
-			run(t, tt, mux, ma.CommandPatch)
+			run(t, &tt, mux, ma.CommandPatch)
 		})
 	}
 }

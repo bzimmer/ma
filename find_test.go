@@ -32,8 +32,9 @@ func TestFind(t *testing.T) {
 			},
 		},
 	} {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			run(t, tt, mux, ma.CommandFind)
+			run(t, &tt, mux, ma.CommandFind)
 		})
 	}
 }

@@ -12,6 +12,6 @@ import (
 func TestVersion(t *testing.T) {
 	a := assert.New(t)
 
-	app := NewTestApp(t, harness{name: "version"}, ma.CommandVersion(), "")
+	app := NewTestApp(t, &harness{name: "version"}, ma.CommandVersion(), "")
 	a.NoError(app.RunContext(context.TODO(), []string{"ma", "version"}))
 }

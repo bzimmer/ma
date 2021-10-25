@@ -176,10 +176,11 @@ func forceFlag() cli.Flag {
 
 func albumPatch() *cli.Command {
 	return &cli.Command{
-		Name:      "album",
-		HelpName:  "album",
-		Usage:     "patch an album (or albums)",
-		ArgsUsage: "<album key> [<album key>, ...]",
+		Name:        "album",
+		HelpName:    "album",
+		Usage:       "patch an album ",
+		Description: "patch the metadata of a single album",
+		ArgsUsage:   "<album key> [<album key>, ...]",
 		Flags: []cli.Flag{
 			forceFlag(),
 			&cli.BoolFlag{
@@ -187,13 +188,16 @@ func albumPatch() *cli.Command {
 				Usage: "if enabled, and an album name provided as a flag, the urlname will be auto-generated from the name",
 			},
 			&cli.StringSliceFlag{
-				Name: "keyword",
+				Name:  "keyword",
+				Usage: "a set of keywords describing the album",
 			},
 			&cli.StringFlag{
-				Name: "name",
+				Name:  "name",
+				Usage: "the name of the album",
 			},
 			&cli.StringFlag{
-				Name: "urlname",
+				Name:  "urlname",
+				Usage: "the urlname of the album (see `--auto-urlname` to set this automatically based on the album name)",
 			},
 		},
 		Before: func(c *cli.Context) error {
@@ -218,29 +222,36 @@ func albumPatch() *cli.Command {
 
 func imagePatch() *cli.Command {
 	return &cli.Command{
-		Name:      "image",
-		HelpName:  "image",
-		Usage:     "patch an image (or images)",
-		ArgsUsage: "<image key> [<image key>, ...]",
+		Name:        "image",
+		HelpName:    "image",
+		Usage:       "patch an image (or images)",
+		Description: "patch the metadata of an image (not the image itself though)",
+		ArgsUsage:   "<image key> [<image key>, ...]",
 		Flags: []cli.Flag{
 			forceFlag(),
 			&cli.StringSliceFlag{
-				Name: "keyword",
+				Name:  "keyword",
+				Usage: "specifies keywords describing the image",
 			},
 			&cli.StringFlag{
-				Name: "caption",
+				Name:  "caption",
+				Usage: "the caption of the image",
 			},
 			&cli.StringFlag{
-				Name: "title",
+				Name:  "title",
+				Usage: "the title of the image",
 			},
 			&cli.Float64Flag{
-				Name: "latitude",
+				Name:  "latitude",
+				Usage: "the latitude of the image location",
 			},
 			&cli.Float64Flag{
-				Name: "longitude",
+				Name:  "longitude",
+				Usage: "the longitude of the image location",
 			},
 			&cli.Float64Flag{
-				Name: "altitude",
+				Name:  "altitude",
+				Usage: "the altitude of the image location",
 			},
 		},
 		Action: patch("imageKey", &imagePatcher{}),
@@ -249,9 +260,10 @@ func imagePatch() *cli.Command {
 
 func CommandPatch() *cli.Command {
 	return &cli.Command{
-		Name:     "patch",
-		HelpName: "patch",
-		Usage:    "patch the metadata for albums and images",
+		Name:        "patch",
+		HelpName:    "patch",
+		Usage:       "patch the metadata of albums and images",
+		Description: "patch enables updating the metadata of both albums and images",
 		Subcommands: []*cli.Command{
 			albumPatch(),
 			imagePatch(),

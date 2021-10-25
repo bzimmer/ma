@@ -11,7 +11,7 @@ import (
 
 func TestListIntegration(t *testing.T) {
 	a := assert.New(t)
-	for _, tt := range []harnessIntegration{
+	tests := []harnessIntegration{
 		{
 			name: "ls",
 			args: []string{"-j", "ls", "node"},
@@ -19,10 +19,11 @@ func TestListIntegration(t *testing.T) {
 				a.Equal(smugmug.TypeFolder, res["Type"])
 			},
 		},
-	} {
+	}
+	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			harnessIntegrationFunc(t, tt)
+			runIntegration(t, tt)
 		})
 	}
 }

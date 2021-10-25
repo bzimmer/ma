@@ -6,9 +6,10 @@ import (
 	"io"
 	"testing"
 
-	"github.com/bzimmer/ma"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
 )
 
 func TestURLName(t *testing.T) {
@@ -40,8 +41,9 @@ func TestURLName(t *testing.T) {
 			after:  after("Foos-The-Best"),
 		},
 	} {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			run(t, tt, nil, ma.CommandURLName)
+			run(t, &tt, nil, ma.CommandURLName)
 		})
 	}
 }

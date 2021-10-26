@@ -43,16 +43,16 @@ func TestExport(t *testing.T) { //nolint
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/node/VsQ7zr!parents", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/node_VsQ7zr_parents.json"))
+		http.ServeFile(w, r, "testdata/node_VsQ7zr_parents.json")
 	})
 	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/node_VsQ7zr.json"))
+		http.ServeFile(w, r, "testdata/node_VsQ7zr.json")
 	})
 	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+		http.ServeFile(w, r, "testdata/album_TDZWbg_images.json")
 	})
 	mux.HandleFunc("/photos/", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/Nikon_D70.jpg"))
+		http.ServeFile(w, r, "testdata/Nikon_D70.jpg")
 	})
 
 	tests := []harness{

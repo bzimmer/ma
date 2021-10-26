@@ -4,17 +4,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/bzimmer/ma"
 )
 
 func TestUser(t *testing.T) {
-	a := assert.New(t)
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/user_cmac.json"))
+		http.ServeFile(w, r, "testdata/user_cmac.json")
 	})
 
 	tests := []harness{

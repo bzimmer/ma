@@ -16,21 +16,21 @@ func TestUpload(t *testing.T) { //nolint
 	mux := http.NewServeMux()
 	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+		http.ServeFile(w, r, "testdata/album_qety_404.json")
 	})
 	mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		a.NoError(copyFile(w, "testdata/album_qety_404.json"))
+		http.ServeFile(w, r, "testdata/album_qety_404.json")
 	})
 	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/album_TDZWbg_images.json"))
+		http.ServeFile(w, r, "testdata/album_TDZWbg_images.json")
 	})
 	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/album_TDZWbg.json"))
+		http.ServeFile(w, r, "testdata/album_TDZWbg.json")
 	})
 	mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
-		a.NoError(copyFile(w, "testdata/album_vVjSft_upload.json"))
+		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
 	})
 
 	for _, tt := range []harness{

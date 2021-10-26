@@ -24,12 +24,12 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 		a.Fail("should not be called")
 	})
 	mux.HandleFunc("/image/B2fHSt7-0", func(w http.ResponseWriter, r *http.Request) {
-		a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
+		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
 	mux.HandleFunc("/image/B2fHSt7-1", func(w http.ResponseWriter, r *http.Request) {
 		data := decode(a, r.Body)
 		a.Contains(data, "Latitude")
-		a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
+		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
 	mux.HandleFunc("/image/B2fHSt7-2", func(w http.ResponseWriter, r *http.Request) {
 		a.Fail("should not be called")
@@ -38,20 +38,20 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 		data := decode(a, r.Body)
 		a.Contains(data, "KeywordArray")
 		a.Empty(data["KeywordArray"])
-		a.NoError(copyFile(w, "testdata/image_B2fHSt7-0.json"))
+		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
 	mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
 		data := decode(a, r.Body)
 		a.Contains(data, "Name")
 		a.Contains(data, "UrlName")
-		a.NoError(copyFile(w, "testdata/album_RM4BL2.json"))
+		http.ServeFile(w, r, "testdata/album_RM4BL2.json")
 	})
 	mux.HandleFunc("/album/RM4BLQ", func(w http.ResponseWriter, r *http.Request) {
 		data := decode(a, r.Body)
 		a.Contains(data, "Name")
 		a.Contains(data, "UrlName")
 		a.Equal("Foo-Bar", data["UrlName"])
-		a.NoError(copyFile(w, "testdata/album_RM4BL2.json"))
+		http.ServeFile(w, r, "testdata/album_RM4BL2.json")
 	})
 	return mux
 }

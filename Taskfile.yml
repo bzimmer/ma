@@ -65,7 +65,7 @@ tasks:
   snapshot:
     desc: Build a snapshot
     cmds:
-      - goreleaser release --snapshot --rm-dist
+      - goreleaser --debug release --snapshot --rm-dist
 
   manual:
     desc: Generate the user manual

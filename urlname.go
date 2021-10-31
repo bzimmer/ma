@@ -13,6 +13,9 @@ import (
 var ErrInvalidURLName = errors.New("node url name must start with a number or capital letter")
 
 func validateURLName(urlName string) error {
+	if urlName == "" {
+		return ErrInvalidURLName
+	}
 	v := rune(urlName[0])
 	switch {
 	case unicode.IsNumber(v), unicode.IsUpper(v):

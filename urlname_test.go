@@ -20,10 +20,11 @@ func TestURLName(t *testing.T) {
 		runtime(c).Encoder = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
 		return nil
 	}
-	after := func(u string) cli.AfterFunc {
+	after := func(u string, valid bool) cli.AfterFunc {
 		return func(c *cli.Context) error {
 			data := decode(a, c.App.Writer.(io.Reader))
 			a.Equal(u, data["UrlName"])
+			a.Equal(valid, data["Valid"])
 			return nil
 		}
 	}
@@ -32,13 +33,19 @@ func TestURLName(t *testing.T) {
 			name:   "valid",
 			args:   []string{"ma", "-j", "urlname", "foobar"},
 			before: before,
-			after:  after("Foobar"),
+			after:  after("Foobar", true),
 		},
 		{
 			name:   "remove `'s` and `-`",
 			args:   []string{"ma", "-j", "urlname", "Foo's - The Best"},
 			before: before,
-			after:  after("Foos-The-Best"),
+			after:  after("Foos-The-Best", true),
+		},
+		{
+			name:   "empty name",
+			args:   []string{"ma", "-j", "urlname", "-a", "\"\""},
+			before: before,
+			after:  after("", false),
 		},
 	} {
 		tt := tt

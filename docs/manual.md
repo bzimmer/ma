@@ -279,7 +279,7 @@ $ ma ls album [flags] <album key> [<album key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```image```|```i, R```|||
+|```image```|```i, R```||include images in the query|
 
 
 ## *ls image*
@@ -545,6 +545,12 @@ create a clean url for the argument by removing "unpleasant" values such as `'s`
 $ ma urlname [flags]
 ```
 
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```validate```|```a```||validate the url name|
 
 **Example**
 

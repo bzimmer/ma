@@ -8,156 +8,156 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+type keyPatch int
+
 const (
-	patchName     = "Name"
-	patchURLName  = "UrlName"
-	patchKeywords = "KeywordArray"
+	keyAlbum keyPatch = iota
+	keyImage
 )
 
-type patches map[string]interface{}
-
-type patchFunc func(c *cli.Context) (bool, string, interface{}, error)
-
-type patcher interface {
-	finalize(c *cli.Context, patches patches) error
-	patch(c *cli.Context, keyName string, patches patches) error
-}
-
-func patchFuncs() []patchFunc {
-	return []patchFunc{
-		keywords("keyword"),
-		str("name"),
-		str("title"),
-		str("caption"),
-		float("altitude"),
-		float("latitude"),
-		float("longitude"),
-		url("urlname"),
+func (p keyPatch) String() string {
+	var key string
+	switch p {
+	case keyAlbum:
+		key = "albumKey"
+	case keyImage:
+		key = "imageKey"
 	}
+	return key
 }
 
-func keywords(key string) patchFunc {
-	return func(c *cli.Context) (bool, string, interface{}, error) {
-		if !c.IsSet(key) {
-			return false, key, nil, nil
-		}
-		var kws []string
-		for _, kw := range c.StringSlice(key) {
-			switch kw {
-			case "":
-				return true, patchKeywords, []string{}, nil
-			default:
-				kws = append(kws, kw)
-			}
-		}
-		return true, patchKeywords, kws, nil
+type patcher struct {
+	c       *cli.Context
+	err     error
+	patches map[string]interface{}
+}
+
+func with(c *cli.Context) *patcher {
+	return &patcher{c: c, patches: make(map[string]interface{})}
+}
+
+func (p *patcher) album(albumKey string) error {
+	if p.err != nil {
+		return p.err
 	}
-}
-
-func str(key string) patchFunc {
-	title := strings.Title(key)
-	return func(c *cli.Context) (bool, string, interface{}, error) {
-		if !c.IsSet(key) {
-			return false, key, nil, nil
-		}
-		return true, title, c.String(key), nil
-	}
-}
-
-func url(key string) patchFunc {
-	return func(c *cli.Context) (bool, string, interface{}, error) {
-		if !c.IsSet(key) {
-			return false, key, nil, nil
-		}
-		url := c.String(key)
-		if err := validateURLName(url); err != nil {
-			log.Error().Err(err).Str("urlname", url).Msg("invalid")
-			return false, key, nil, err
-		}
-		return true, patchURLName, url, nil
-	}
-}
-
-func float(key string) patchFunc {
-	title := strings.Title(key)
-	return func(c *cli.Context) (bool, string, interface{}, error) {
-		if !c.IsSet(key) {
-			return false, key, nil, nil
-		}
-		return true, title, c.Float64(key), nil
-	}
-}
-
-type imagePatcher struct{}
-
-func (p *imagePatcher) finalize(c *cli.Context, patches patches) error {
-	return nil
-}
-
-func (p *imagePatcher) patch(c *cli.Context, imageKey string, patches patches) error {
-	img, err := runtime(c).Client.Image.Patch(c.Context, imageKey, patches)
-	if err != nil {
-		return err
-	}
-	f := imageIterFunc(c, nil, "patch")
-	if _, err := f(img); err != nil {
-		return err
-	}
-	return nil
-}
-
-type albumPatcher struct{}
-
-func (p *albumPatcher) finalize(c *cli.Context, patches patches) error {
-	if !c.Bool("auto-urlname") {
+	if len(p.patches) == 0 {
+		log.Warn().Str("albumKey", albumKey).Msg("no patches to apply")
 		return nil
 	}
-	if name, ok := patches[patchName]; ok {
-		if v, ok := name.(string); ok {
-			patches[patchURLName] = urlname(v)
-		}
-	}
-	return nil
-}
-
-func (p *albumPatcher) patch(c *cli.Context, albumKey string, patches patches) error {
-	album, err := runtime(c).Client.Album.Patch(c.Context, albumKey, patches)
+	album, err := runtime(p.c).Client.Album.Patch(p.c.Context, albumKey, p.patches)
 	if err != nil {
 		return err
 	}
-	f := albumIterFunc(c, "patch")
+	f := albumIterFunc(p.c, "patch")
 	if _, err := f(album); err != nil {
 		return err
 	}
 	return nil
 }
 
-func patch(keyName string, p patcher) cli.ActionFunc {
-	return func(c *cli.Context) error {
-		ps := make(patches)
-		for _, f := range patchFuncs() {
-			ok, key, value, err := f(c)
-			if err != nil {
-				return err
-			}
-			if ok {
-				ps[key] = value
-			}
+func (p *patcher) image(imageKey string) error {
+	if p.err != nil {
+		return p.err
+	}
+	if len(p.patches) == 0 {
+		log.Warn().Str("imageKey", imageKey).Msg("no patches to apply")
+		return nil
+	}
+	album, err := runtime(p.c).Client.Image.Patch(p.c.Context, imageKey, p.patches)
+	if err != nil {
+		return err
+	}
+	f := imageIterFunc(p.c, nil, "patch")
+	if _, err := f(album); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *patcher) str(key string) *patcher {
+	if p.err != nil || !p.c.IsSet(key) {
+		return p
+	}
+	p.patches[strings.Title(key)] = p.c.String(key)
+	return p
+}
+
+func (p *patcher) float(key string) *patcher {
+	if p.err != nil || !p.c.IsSet(key) {
+		return p
+	}
+	p.patches[strings.Title(key)] = p.c.Float64(key)
+	return p
+}
+
+func (p *patcher) urlname() *patcher {
+	if p.err != nil {
+		return p
+	}
+	var url string
+	switch {
+	case p.c.Bool("auto-urlname"):
+		url = urlname(p.c.String("name"))
+	default:
+		if !p.c.IsSet("urlname") {
+			return p
 		}
-		if err := p.finalize(c, ps); err != nil {
-			return err
+		url = p.c.String("urlname")
+	}
+	if err := validate(url); err != nil {
+		log.Error().Err(err).Str("urlname", url).Msg("invalid")
+		p.err = err
+		return p
+	}
+	p.patches["UrlName"] = url
+	return p
+}
+
+func (p *patcher) keywords(key string) *patcher {
+	if p.err != nil || !p.c.IsSet(key) {
+		return p
+	}
+	var kws []string
+	for _, kw := range p.c.StringSlice(key) {
+		switch kw {
+		case "":
+			kws = []string{}
+		default:
+			kws = append(kws, kw)
+		}
+	}
+	p.patches["KeywordArray"] = kws
+	return p
+}
+
+func patch(key keyPatch) cli.ActionFunc {
+	return func(c *cli.Context) error {
+		p := with(c).keywords("keyword").urlname()
+		for _, flag := range []string{"title", "name", "caption"} {
+			p = p.str(flag)
+		}
+		for _, flag := range []string{"latitude", "longitude", "altitude"} {
+			p = p.float(flag)
+		}
+		if p.err != nil {
+			return p.err
 		}
 		for _, x := range c.Args().Slice() {
 			switch {
-			case len(ps) == 0:
-				log.Warn().Str(keyName, x).Msg("no patches to apply")
 			case !c.Bool("force"):
 				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "dryrun"}, 1)
-				log.Info().Str(keyName, x).Interface("patches", ps).Msg("dryrun")
+				log.Info().Str(key.String(), x).Interface("patches", p.patches).Msg("dryrun")
 			default:
-				log.Info().Str(keyName, x).Interface("patches", ps).Msg("applying")
-				if err := p.patch(c, x, ps); err != nil {
-					return err
+				log.Info().Str(key.String(), x).Interface("patches", p.patches).Msg("applying")
+				switch key {
+				case keyAlbum:
+					if err := p.album(x); err != nil {
+						return err
+					}
+				case keyImage:
+					if err := p.image(x); err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -216,7 +216,7 @@ func albumPatch() *cli.Command {
 				return errors.New("expected only one albumKey argument")
 			}
 		},
-		Action: patch("albumKey", &albumPatcher{}),
+		Action: patch(keyAlbum),
 	}
 }
 
@@ -254,7 +254,7 @@ func imagePatch() *cli.Command {
 				Usage: "the altitude of the image location",
 			},
 		},
-		Action: patch("imageKey", &imagePatcher{}),
+		Action: patch(keyImage),
 	}
 }
 

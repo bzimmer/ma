@@ -40,6 +40,36 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 		a.Empty(data["KeywordArray"])
 		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
+	mux.HandleFunc("/image/B2fHSt7-4", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(map[string]interface{}{
+			"Response": map[string]interface{}{
+				"Uri":            "/api/v2/image/B2fHSt7-4?_pretty=true",
+				"Locator":        "Image",
+				"LocatorType":    "Object",
+				"UriDescription": "Image by key",
+				"EndpointType":   "Image",
+			},
+			"Code":    404,
+			"Message": "Not Found",
+		}))
+	})
+	mux.HandleFunc("/album/RM4BL3", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		enc := json.NewEncoder(w)
+		a.NoError(enc.Encode(map[string]interface{}{
+			"Response": map[string]interface{}{
+				"Uri":            "/api/v2/album/RM4BL3?_pretty=true",
+				"Locator":        "Album",
+				"LocatorType":    "Object",
+				"UriDescription": "Album by key",
+				"EndpointType":   "Album",
+			},
+			"Code":    404,
+			"Message": "Not Found",
+		}))
+	})
 	mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
 		data := decode(a, r.Body)
 		a.Contains(data, "Name")
@@ -74,8 +104,12 @@ func TestPatch(t *testing.T) {
 			counters: map[string]int{"ma.patch.image": 1},
 		},
 		{
-			name: "no patches",
-			args: []string{"ma", "patch", "image", "B2fHSt7-2"},
+			name: "no patches image",
+			args: []string{"ma", "patch", "image", "-f", "B2fHSt7-2"},
+		},
+		{
+			name: "no patches album",
+			args: []string{"ma", "patch", "album", "-f", "RM4BLQ"},
 		},
 		{
 			name:     "empty keywords",
@@ -115,9 +149,24 @@ func TestPatch(t *testing.T) {
 			err:  "only one of `auto-urlname` or `urlname` may be specified",
 		},
 		{
+			name: "invalid urlname",
+			args: []string{"ma", "patch", "album", "--name", "bar baz", "--urlname", "foo bar", "XM4BL2"},
+			err:  "node url name must start with a number or capital letter",
+		},
+		{
 			name: "auto-urlname without name",
 			args: []string{"ma", "patch", "album", "--auto-urlname", "XM4BL2"},
 			err:  "cannot specify `auto-urlname` without `name`",
+		},
+		{
+			name: "patch album 404",
+			args: []string{"ma", "patch", "album", "-f", "--name", "bar foo", "RM4BL3"},
+			err:  http.StatusText(http.StatusNotFound),
+		},
+		{
+			name: "patch image 404",
+			args: []string{"ma", "patch", "image", "-f", "--title", "something bar foo", "B2fHSt7-4"},
+			err:  http.StatusText(http.StatusNotFound),
 		},
 	} {
 		tt := tt

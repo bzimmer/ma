@@ -1,7 +1,9 @@
 package ma_test
 
 import (
+	"context"
 	"io"
+	"io/fs"
 	"os"
 	"strings"
 	"testing"
@@ -15,11 +17,11 @@ import (
 	"github.com/bzimmer/ma"
 )
 
-func createTestFile(t *testing.T, fs afero.Fs) afero.File {
-	if err := fs.MkdirAll("/foo/bar", 0755); err != nil {
+func createTestFile(t *testing.T, afs afero.Fs) afero.File {
+	if err := afs.MkdirAll("/foo/bar", 0755); err != nil {
 		t.Error(err)
 	}
-	fp, err := fs.Create("/foo/bar/Nikon_D70.jpg")
+	fp, err := afs.Create("/foo/bar/Nikon_D70.jpg")
 	if err != nil {
 		t.Error(err)
 	}
@@ -290,6 +292,49 @@ func TestCopy(t *testing.T) { //nolint
 				return nil
 			},
 		},
+		{
+			name: "directory without read/execute permissions",
+			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			counters: map[string]int{
+				"ma.cp.skip.denied":         1,
+				"ma.cp.visited.directories": 5,
+			},
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo0", 0755))
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo1", 0755))
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo2", 0600))
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo3", 0755))
+				runtime(c).Fs = &ErrFs{Fs: runtime(c).Fs, err: fs.ErrPermission, name: "/foo/bar/boo2"}
+				return nil
+			},
+		},
+		{
+			name: "directory walk error",
+			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			err:  "invalid argument",
+			before: func(c *cli.Context) error {
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo0", 0755))
+				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo3", 0755))
+				runtime(c).Fs = &ErrFs{Fs: runtime(c).Fs, err: fs.ErrInvalid, name: "/foo/bar/boo3"}
+				return nil
+			},
+		},
+		{
+			name: "canceled context",
+			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			err:  context.Canceled.Error(),
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
+				a.NoError(fp.Close())
+				return nil
+			},
+			context: func(ctx context.Context) context.Context {
+				ctx, cancel := context.WithCancel(ctx)
+				cancel()
+				<-ctx.Done()
+				return ctx
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -297,5 +342,20 @@ func TestCopy(t *testing.T) { //nolint
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, nil, ma.CommandCopy)
 		})
+	}
+}
+
+type ErrFs struct {
+	afero.Fs
+	name string
+	err  error
+}
+
+func (p *ErrFs) Open(name string) (afero.File, error) {
+	switch name {
+	case p.name:
+		return nil, p.err
+	default:
+		return p.Fs.Open(name)
 	}
 }

@@ -267,11 +267,11 @@ func (c *entangler) copyFile(source, destination string) error {
 
 // fileSets creates fileSets from a directory traversal
 func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
-	return func(fullname string, info fs.FileInfo, err error) error {
+	return func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
 				c.metrics.IncrCounter([]string{"cp", "skip", "denied"}, 1)
-				log.Warn().Str("fullname", fullname).Err(err).Msg("skip")
+				log.Warn().Str("path", path).Err(err).Msg("skip")
 				return filepath.SkipDir
 			}
 			return err
@@ -286,7 +286,7 @@ func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkF
 		}
 		c.metrics.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dirname, basename := split(fullname)
+		dirname, basename := split(path)
 		dirs, ok := sets[dirname]
 		if !ok {
 			dirs = make(map[string]*fileSet)

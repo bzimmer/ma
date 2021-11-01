@@ -16,13 +16,14 @@ const (
 )
 
 func (p keyPatch) String() string {
+	var key string
 	switch p {
 	case keyAlbum:
-		return "albumKey"
+		key = "albumKey"
 	case keyImage:
-		return "imageKey"
+		key = "imageKey"
 	}
-	return "undefined"
+	return key
 }
 
 type patcher struct {
@@ -98,10 +99,10 @@ func (p *patcher) urlname() *patcher {
 	case p.c.Bool("auto-urlname"):
 		url = urlname(p.c.String("name"))
 	default:
+		if !p.c.IsSet("urlname") {
+			return p
+		}
 		url = p.c.String("urlname")
-	}
-	if url == "" {
-		return p
 	}
 	if err := validateURLName(url); err != nil {
 		log.Error().Err(err).Str("urlname", url).Msg("invalid")

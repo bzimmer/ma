@@ -22,17 +22,10 @@ import (
 const (
 	defaultBufferSize = 1024 * 1024
 	defaultDateFormat = "2006/2006-01/02"
-	dng               = ".dng"
-	jpeg              = ".jpeg"
-	jpg               = ".jpg"
-	nef               = ".nef"
-	orf               = ".orf"
-	raf               = ".raf"
-	xmp               = ".xmp"
 )
 
 func defaultImages() []string {
-	return []string{raf, nef, dng, jpg, jpeg}
+	return []string{".raf", ".nef", ".dng", ".jpg", ".jpeg"}
 }
 
 func split(fullname string) (dirname, basename string) {
@@ -59,7 +52,7 @@ type dateTimeExif struct {
 
 func (b *dateTimeExif) bufferSize() int64 {
 	switch b.ext {
-	case orf, dng, nef:
+	case ".orf", ".dng", ".nef":
 		return b.info.Size()
 	default:
 		return defaultBufferSize
@@ -96,15 +89,15 @@ func (f *fileSet) add(info fs.FileInfo) {
 	f.files = append(f.files, info)
 }
 
-func (f *fileSet) dateTime(filesystem afero.Fs, dirname string) (time.Time, error) {
+func (f *fileSet) dateTime(afs afero.Fs, dirname string) (time.Time, error) {
 	// for every file in the fileset attempt to create a time.Time
 	times := make(map[string]time.Time)
 	for i := range f.files {
 		info := f.files[i]
 		ext := strings.ToLower(filepath.Ext(info.Name()))
 		switch ext {
-		case jpg, jpeg, raf, dng, nef:
-			dt := &dateTimeExif{fs: filesystem, src: dirname, ext: ext, info: info}
+		case ".jpg", ".jpeg", ".raf", ".dng", ".nef":
+			dt := &dateTimeExif{fs: afs, src: dirname, ext: ext, info: info}
 			t, err := dt.dateTime()
 			if err != nil {
 				return time.Time{}, err
@@ -112,9 +105,9 @@ func (f *fileSet) dateTime(filesystem afero.Fs, dirname string) (time.Time, erro
 			times[ext] = t
 		case ".mp4", ".mov", ".avi":
 			// @todo(movies)
-		case orf:
+		case ".orf":
 			// @todo(orf)
-		case "", xmp:
+		case "", ".xmp":
 			// not trustworthy for valid dates
 		}
 	}
@@ -151,8 +144,13 @@ func (c *entangler) cp(ctx context.Context, sources []string, destination string
 		defer close(q)
 		sets := make(map[string]map[string]*fileSet)
 		for i := range sources {
-			if err := afero.Walk(c.fs, sources[i], c.fileSets(sets)); err != nil {
-				return err
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				if err := afero.Walk(c.fs, sources[i], c.fileSets(sets)); err != nil {
+					return err
+				}
 			}
 		}
 		for dirname, filesets := range sets {
@@ -269,8 +267,13 @@ func (c *entangler) copyFile(source, destination string) error {
 
 // fileSets creates fileSets from a directory traversal
 func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
-	return func(fullname string, info fs.FileInfo, err error) error {
+	return func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
+			if errors.Is(err, fs.ErrPermission) {
+				c.metrics.IncrCounter([]string{"cp", "skip", "denied"}, 1)
+				log.Warn().Str("path", path).Err(err).Msg("skip")
+				return filepath.SkipDir
+			}
 			return err
 		}
 		if info.IsDir() {
@@ -283,18 +286,18 @@ func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkF
 		}
 		c.metrics.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dirname, basename := split(fullname)
+		dirname, basename := split(path)
 		dirs, ok := sets[dirname]
 		if !ok {
 			dirs = make(map[string]*fileSet)
 			sets[dirname] = dirs
 		}
-		filesystem, ok := dirs[basename]
+		fileset, ok := dirs[basename]
 		if !ok {
-			filesystem = new(fileSet)
-			dirs[basename] = filesystem
+			fileset = new(fileSet)
+			dirs[basename] = fileset
 		}
-		filesystem.add(info)
+		fileset.add(info)
 
 		return nil
 	}

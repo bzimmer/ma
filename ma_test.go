@@ -3,12 +3,15 @@ package ma_test
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -108,10 +111,8 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 		},
 		After: func(c *cli.Context) error {
 			t.Logf("***** %s *****\n", tt.name)
-			switch v := runtime(c).Fs.(type) {
-			case *afero.MemMapFs:
-				v.List()
-			default:
+			if err := walkfs(c); err != nil {
+				return err
 			}
 			if err := ma.Stats(c); err != nil {
 				return err
@@ -120,6 +121,20 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 		},
 		Commands: []*cli.Command{cmd},
 	}
+}
+
+func walkfs(c *cli.Context) error {
+	return afero.Walk(runtime(c).Fs, "/", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			if errors.Is(err, fs.ErrPermission) {
+				fmt.Fprintf(c.App.ErrWriter, "%s (%s)\n", path, info.Mode().Perm().String())
+				return filepath.SkipDir
+			}
+			return err
+		}
+		fmt.Fprintf(c.App.ErrWriter, "%s (%s)\n", path, info.Mode().Perm().String())
+		return nil
+	})
 }
 
 func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
@@ -149,6 +164,7 @@ type harness struct {
 	counters  map[string]int
 	before    cli.BeforeFunc
 	after     cli.AfterFunc
+	context   func(context.Context) context.Context
 }
 
 func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Command) {
@@ -186,12 +202,17 @@ func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Comman
 		}
 	}
 
-	err := app.RunContext(context.Background(), tt.args)
-	switch tt.err == "" {
-	case true:
+	ctx := context.Background()
+	if tt.context != nil {
+		ctx = tt.context(ctx)
+	}
+	err := app.RunContext(ctx, tt.args)
+	if tt.err == "" {
 		a.NoError(err)
-	case false:
-		a.Error(err)
+		return
+	}
+	a.Error(err)
+	if err != nil { // avoids a panic if err is nil
 		a.Contains(err.Error(), tt.err)
 	}
 }

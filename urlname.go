@@ -12,7 +12,7 @@ import (
 
 var ErrInvalidURLName = errors.New("node url name must start with a number or capital letter")
 
-func validateURLName(urlName string) error {
+func validate(urlName string) error {
 	if urlName == "" {
 		return ErrInvalidURLName
 	}
@@ -40,17 +40,31 @@ func CommandURLName() *cli.Command {
 	return &cli.Command{
 		Name:        "urlname",
 		HelpName:    "urlname",
-		Usage:       "create a clean url name for the argument",
+		Usage:       "process the argument as a url name",
 		Description: "create a clean url for the argument by removing \"unpleasant\" values such as `'s` and `-`",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "validate",
+				Aliases: []string{"a"},
+				Usage:   "validate the url name",
+			},
+		},
 		Action: func(c *cli.Context) error {
 			enc := runtime(c).Encoder
 			for i := 0; i < c.NArg(); i++ {
-				arg := c.Args().Get(i)
-				url := urlname(arg)
+				arg, url, valid := c.Args().Get(i), "", true
+				switch c.Bool("validate") {
+				case true:
+					if err := validate(arg); err != nil {
+						valid = false
+					}
+				case false:
+					url = urlname(arg)
+				}
 				runtime(c).Metrics.IncrCounter([]string{"urlname", c.Command.Name}, 1)
-				log.Info().Str("name", arg).Str("url", url).Msg(c.Command.Name)
-				if err := enc.Encode(map[string]string{
-					"Name": arg, "UrlName": url,
+				log.Info().Str("name", arg).Str("url", url).Bool("valid", valid).Msg(c.Command.Name)
+				if err := enc.Encode(map[string]interface{}{
+					"Name": arg, "UrlName": url, "Valid": valid,
 				}); err != nil {
 					return err
 				}

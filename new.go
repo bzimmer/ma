@@ -17,7 +17,7 @@ func knew(c *cli.Context) error {
 		url = smugmug.URLName(name)
 	case 2:
 		url = c.Args().Get(1)
-		if err := validateURLName(url); err != nil {
+		if err := validate(url); err != nil {
 			return err
 		}
 	}

@@ -104,7 +104,7 @@ func (p *patcher) urlname() *patcher {
 		}
 		url = p.c.String("urlname")
 	}
-	if err := validateURLName(url); err != nil {
+	if err := validate(url); err != nil {
 		log.Error().Err(err).Str("urlname", url).Msg("invalid")
 		p.err = err
 		return p

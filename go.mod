@@ -18,7 +18,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 
-require github.com/bzimmer/manual v0.1.0
+require (
+	github.com/barasher/go-exiftool v1.7.0
+	github.com/bzimmer/manual v0.1.0
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -27,6 +27,8 @@ type Runtime struct {
 	Fs afero.Fs
 	// Grab for bulk querying images
 	Grab Grab
+	// DateTimer for accessing EXIF metadata
+	DateTimer DateTimer
 }
 
 // Encoder encodes a struct to a specific format

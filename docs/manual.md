@@ -10,6 +10,7 @@ All your media archiving needs!
 |```smugmug-access-token```||smugmug access token|
 |```smugmug-token-secret```||smugmug token secret|
 |```json```|```j```|encode all results as JSON and print to stdout|
+|```monochrome```||disable colored output|
 |```debug```||enable debugging of http requests|
 |```help```|```h```|show help|
 
@@ -61,7 +62,7 @@ $ ma commands [flags]
 
 **Description**
 
-copy files from a source(s) to a destination using the Exif format to create the directory structure
+copy files from a source(s) to a destination using the image date to layout the directory structure
 
 
 **Syntax**

@@ -93,12 +93,13 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			}
 
 			rt := &ma.Runtime{
-				Client:  client,
-				Metrics: metric,
-				Sink:    sink,
-				Encoder: enc,
-				Grab:    new(http.Client),
-				Fs:      afero.NewMemMapFs(),
+				Client:    client,
+				Metrics:   metric,
+				Sink:      sink,
+				Encoder:   enc,
+				Grab:      new(http.Client),
+				Fs:        afero.NewMemMapFs(),
+				DateTimer: new(ma.GoExif),
 			}
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: rt,

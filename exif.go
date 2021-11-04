@@ -70,6 +70,37 @@ func (x *GoExif) Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []M
 	return mds
 }
 
+func xif(c *cli.Context) error {
+	afs := runtime(c).Fs
+	dtr := runtime(c).Exif
+	for i := 0; i < c.NArg(); i++ {
+		if err := afero.Walk(afs, c.Args().Get(i), func(path string, info fs.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() {
+				return nil
+			}
+			dirname, _ := filepath.Split(path)
+			for _, m := range dtr.Extract(afs, dirname, info) {
+				if m.Err != nil {
+					if errors.Is(m.Err, io.EOF) {
+						log.Info().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
+						return nil
+					}
+					log.Err(m.Err).Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
+					return m.Err
+				}
+				log.Info().Str("filename", path).Time("datetime", m.DateTime).Msg(c.Command.Name)
+			}
+			return nil
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func CommandExif() *cli.Command {
 	return &cli.Command{
 		Name:        "exif",
@@ -77,35 +108,6 @@ func CommandExif() *cli.Command {
 		Hidden:      true,
 		Usage:       "debugging tool for exif data",
 		Description: "debugging tool for exif data",
-		Action: func(c *cli.Context) error {
-			afs := runtime(c).Fs
-			dtr := runtime(c).Exif
-			for i := 0; i < c.NArg(); i++ {
-				if err := afero.Walk(afs, c.Args().Get(i), func(path string, info fs.FileInfo, err error) error {
-					if err != nil {
-						return err
-					}
-					if info.IsDir() {
-						return nil
-					}
-					dirname, _ := filepath.Split(path)
-					for _, m := range dtr.Extract(afs, dirname, info) {
-						if m.Err != nil {
-							if errors.Is(m.Err, io.EOF) {
-								log.Info().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
-								return nil
-							}
-							log.Err(m.Err).Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
-							return m.Err
-						}
-						log.Info().Str("filename", path).Time("datetime", m.DateTime).Msg(c.Command.Name)
-					}
-					return nil
-				}); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
+		Action:      xif,
 	}
 }

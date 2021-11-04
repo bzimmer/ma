@@ -72,7 +72,7 @@ func (x *GoExif) Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []M
 
 func xif(c *cli.Context) error {
 	afs := runtime(c).Fs
-	dtr := runtime(c).Exif
+	exf := runtime(c).Exif
 	for i := 0; i < c.NArg(); i++ {
 		if err := afero.Walk(afs, c.Args().Get(i), func(path string, info fs.FileInfo, err error) error {
 			if err != nil {
@@ -82,7 +82,7 @@ func xif(c *cli.Context) error {
 				return nil
 			}
 			dirname, _ := filepath.Split(path)
-			for _, m := range dtr.Extract(afs, dirname, info) {
+			for _, m := range exf.Extract(afs, dirname, info) {
 				if m.Err != nil {
 					if errors.Is(m.Err, io.EOF) {
 						log.Warn().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)

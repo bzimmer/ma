@@ -1,6 +1,8 @@
 package ma
 
 import (
+	"errors"
+	"io"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -90,14 +92,17 @@ func CommandExif() *cli.Command {
 					if info.IsDir() {
 						return nil
 					}
-					log.Info().Str("filename", path).Msg(c.Command.Name)
 					dirname, _ := filepath.Split(path)
 					for _, m := range dtr.DateTime(afs, dirname, info) {
 						if m.Err != nil {
-							log.Error().Err(m.Err).Str("name", dtr.Name()).Msg(c.Command.Name)
+							if errors.Is(m.Err, io.EOF) {
+								log.Info().Time("datetime", time.Time{}).Str("filename", path).Msg(c.Command.Name)
+								return nil
+							}
+							log.Err(m.Err).Time("datetime", time.Time{}).Str("filename", path).Msg(c.Command.Name)
 							return m.Err
 						}
-						log.Info().Time("datetime", m.DateTime).Str("datetimer", dtr.Name()).Msg(c.Command.Name)
+						log.Info().Str("filename", path).Time("datetime", m.DateTime).Msg(c.Command.Name)
 					}
 					return nil
 				}); err != nil {

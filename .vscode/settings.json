@@ -1,5 +1,8 @@
 {
-    "gopls": {
-        "buildFlags": ["-tags", "integration,exiftool"],
-      }
+  "gopls": {
+    "buildFlags": [
+      "-tags",
+      "integration,exiftool"
+    ],
+  }
 }

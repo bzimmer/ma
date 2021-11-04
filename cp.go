@@ -46,7 +46,7 @@ type fileset struct {
 }
 
 // dateTime attempts to create a time.Time for for every file in the fileset
-func (f *fileset) dateTime(afs afero.Fs, dt DateTimer) (time.Time, error) {
+func (f *fileset) dateTime(afs afero.Fs, ex Exif) (time.Time, error) {
 	var infos []fs.FileInfo
 	for i := range f.files {
 		info := f.files[i]
@@ -62,7 +62,7 @@ func (f *fileset) dateTime(afs afero.Fs, dt DateTimer) (time.Time, error) {
 		return time.Time{}, nil
 	}
 	var times []time.Time
-	mds := dt.DateTime(afs, f.identifier.dirname, infos...)
+	mds := ex.Extract(afs, f.identifier.dirname, infos...)
 	for i := range mds {
 		if mds[i].Err != nil {
 			return time.Time{}, mds[i].Err
@@ -78,8 +78,8 @@ func (f *fileset) dateTime(afs afero.Fs, dt DateTimer) (time.Time, error) {
 
 type entangler struct {
 	fs          afero.Fs
+	exif        Exif
 	metrics     *metrics.Metrics
-	dateTimer   DateTimer
 	concurrency int
 	dryrun      bool
 	dateFormat  string
@@ -121,7 +121,7 @@ func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() er
 	return func() error {
 		for x := range q {
 			c.metrics.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
-			dt, err := x.dateTime(c.fs, c.dateTimer)
+			dt, err := x.dateTime(c.fs, c.exif)
 			if err != nil {
 				c.metrics.IncrCounter([]string{"cp", "fileset", "failed", "exif"}, 1)
 				return err
@@ -250,7 +250,7 @@ func cp(c *cli.Context) error {
 		concurrency: c.Int("concurrency"),
 		dryrun:      c.Bool("dryrun"),
 		dateFormat:  c.String("format"),
-		dateTimer:   runtime(c).DateTimer,
+		exif:        runtime(c).Exif,
 	}
 	args := c.Args().Slice()
 	destination, err := filepath.Abs(args[len(args)-1])

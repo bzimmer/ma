@@ -144,13 +144,13 @@ func main() {
 
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: &ma.Runtime{
-					Client:    client,
-					Sink:      sink,
-					Grab:      grab,
-					Metrics:   metric,
-					Encoder:   enc,
-					Fs:        afero.NewOsFs(),
-					DateTimer: new(ma.GoExif),
+					Client:  client,
+					Sink:    sink,
+					Grab:    grab,
+					Metrics: metric,
+					Encoder: enc,
+					Fs:      afero.NewOsFs(),
+					Exif:    new(ma.GoExif),
 				},
 			}
 

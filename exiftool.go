@@ -3,7 +3,7 @@
 package ma
 
 /*
-This implementation of a `DateTimer` leverages the external `exiftool`. While `exiftool`
+This implementation of an `Exif` leverages the external `exiftool`. While `exiftool`
 is definitely more capable of a wide range of files it's also far slower and requires an
 external dependency.
 */
@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var _ DateTimer = (*Exiftool)(nil)
+var _ Exif = (*Exiftool)(nil)
 
 const exifTimeLayout = "2006:01:02 15:04:05"
 
@@ -26,7 +26,7 @@ type Exiftool struct {
 	Tool *exiftool.Exiftool
 }
 
-func (x *Exiftool) DateTime(_ afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
+func (x *Exiftool) Extract(_ afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
 	filenames := make([]string, len(infos))
 	for i := range infos {
 		switch ext := strings.ToLower(filepath.Ext(infos[i].Name())); ext {

@@ -26,8 +26,6 @@ type Exiftool struct {
 	Tool *exiftool.Exiftool
 }
 
-func (x *Exiftool) Name() string { return "exiftool" }
-
 func (x *Exiftool) DateTime(_ afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
 	filenames := make([]string, len(infos))
 	for i := range infos {

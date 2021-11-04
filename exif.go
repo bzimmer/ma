@@ -31,15 +31,11 @@ type MetaData struct {
 
 // DateTimer reads files for their EXIF metadata
 type DateTimer interface {
-	// Name of the date timer implementation
-	Name() string
 	// DateTime returns metadata about a file
 	DateTime(afs afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData
 }
 
 type GoExif struct{}
-
-func (x *GoExif) Name() string { return "goexif" }
 
 func (x *GoExif) datetime(afs afero.Fs, filename string) (time.Time, error) {
 	fp, err := afs.Open(filename)

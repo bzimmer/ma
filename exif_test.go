@@ -57,6 +57,20 @@ func TestExif(t *testing.T) {
 				return nil
 			},
 		},
+		{
+			name: "file with no exif data",
+			args: []string{"ma", "exif", "/foo/bar/user_cmac.json"},
+			before: func(c *cli.Context) error {
+				afs := runtime(c).Fs
+				a.NoError(afs.MkdirAll("/foo/bar", 0755))
+				fp, err := afs.Create("/foo/bar/user_cmac.json")
+				a.NoError(err)
+				a.NotNil(fp)
+				a.NoError(copyFile(fp, "testdata/user_cmac.json"))
+				defer fp.Close()
+				return nil
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

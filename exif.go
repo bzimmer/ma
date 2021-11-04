@@ -85,7 +85,7 @@ func xif(c *cli.Context) error {
 			for _, m := range dtr.Extract(afs, dirname, info) {
 				if m.Err != nil {
 					if errors.Is(m.Err, io.EOF) {
-						log.Info().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
+						log.Warn().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
 						return nil
 					}
 					log.Err(m.Err).Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)

@@ -9,6 +9,7 @@ external dependency.
 */
 
 import (
+	"errors"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -18,15 +19,30 @@ import (
 	"github.com/spf13/afero"
 )
 
-var _ Exif = (*Exiftool)(nil)
+var _ Exif = (*perl)(nil)
 
 const exifTimeLayout = "2006:01:02 15:04:05"
 
-type Exiftool struct {
-	Tool *exiftool.Exiftool
+type ExiftoolOption func(*perl) error
+
+func NewExiftool(options ...ExiftoolOption) (Exif, error) {
+	x := new(perl)
+	for _, opt := range options {
+		if err := opt(x); err != nil {
+			return nil, err
+		}
+	}
+	if x.tool == nil {
+		return nil, errors.New("no exiftool.Tool specified")
+	}
+	return x, nil
 }
 
-func (x *Exiftool) Extract(_ afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
+type perl struct {
+	tool *exiftool.Exiftool
+}
+
+func (x *perl) Extract(_ afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
 	filenames := make([]string, len(infos))
 	for i := range infos {
 		switch ext := strings.ToLower(filepath.Ext(infos[i].Name())); ext {
@@ -37,7 +53,7 @@ func (x *Exiftool) Extract(_ afero.Fs, dirname string, infos ...fs.FileInfo) []M
 	}
 	mds := make([]MetaData, len(infos))
 
-	for i, m := range x.Tool.ExtractMetadata(filenames...) {
+	for i, m := range x.tool.ExtractMetadata(filenames...) {
 		if m.Err != nil {
 			if filenames[i] != "" {
 				mds[i].Err = m.Err

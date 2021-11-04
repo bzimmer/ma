@@ -14,7 +14,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var _ Exif = (*GoExif)(nil)
+var _ Exif = (*goExif)(nil)
 
 const exifHeaderSize = 4
 
@@ -35,9 +35,13 @@ type Exif interface {
 	Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData
 }
 
-type GoExif struct{}
+func NewGoExif() Exif {
+	return new(goExif)
+}
 
-func (x *GoExif) datetime(afs afero.Fs, filename string) (time.Time, error) {
+type goExif struct{}
+
+func (x *goExif) datetime(afs afero.Fs, filename string) (time.Time, error) {
 	fp, err := afs.Open(filename)
 	if err != nil {
 		return time.Time{}, err
@@ -50,7 +54,7 @@ func (x *GoExif) datetime(afs afero.Fs, filename string) (time.Time, error) {
 	return m.DateTime()
 }
 
-func (x *GoExif) Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
+func (x *goExif) Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []MetaData {
 	mds := make([]MetaData, len(infos))
 	for i := range infos {
 		mds[i] = MetaData{Info: infos[i]}

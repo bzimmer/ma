@@ -150,7 +150,7 @@ func main() {
 					Metrics: metric,
 					Encoder: enc,
 					Fs:      afero.NewOsFs(),
-					Exif:    new(ma.GoExif),
+					Exif:    ma.NewGoExif(),
 				},
 			}
 

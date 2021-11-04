@@ -99,7 +99,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				Encoder: enc,
 				Grab:    new(http.Client),
 				Fs:      afero.NewMemMapFs(),
-				Exif:    new(ma.GoExif),
+				Exif:    ma.NewGoExif(),
 			}
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: rt,

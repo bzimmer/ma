@@ -3,7 +3,7 @@ package ma_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -24,7 +24,7 @@ func (g *grab) Do(req *http.Request) (*http.Response, error) {
 		res := &http.Response{
 			StatusCode:    g.status,
 			ContentLength: 0,
-			Body:          ioutil.NopCloser(bytes.NewBuffer(nil)),
+			Body:          io.NopCloser(bytes.NewBuffer(nil)),
 			Header:        make(map[string][]string),
 			Request:       req,
 		}

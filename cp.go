@@ -1,136 +1,84 @@
 package ma
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/armon/go-metrics"
 	"github.com/rs/zerolog/log"
-	"github.com/rwcarlsen/goexif/exif"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	defaultBufferSize = 1024 * 1024
-	defaultDateFormat = "2006/2006-01/02"
-)
+const defaultDateFormat = "2006/2006-01/02"
 
-func defaultImages() []string {
-	return []string{".raf", ".nef", ".dng", ".jpg", ".jpeg"}
-}
-
-func split(fullname string) (dirname, basename string) {
+func split(fullname string) identifier {
 	dirname, filename := filepath.Split(fullname)
 	n := strings.LastIndexFunc(filename, func(s rune) bool {
 		return s == '.'
 	})
+	var basename string
 	switch n {
 	case -1:
 		basename = filename
 	default:
 		basename = filename[0:n]
 	}
-	dirname = filepath.Clean(dirname)
-	return
+	return identifier{dirname: filepath.Clean(dirname), basename: basename}
 }
 
-type dateTimeExif struct {
-	fs   afero.Fs
-	src  string
-	ext  string
-	info fs.FileInfo
+type identifier struct {
+	dirname  string
+	basename string
 }
 
-func (b *dateTimeExif) bufferSize() int64 {
-	switch b.ext {
-	case ".orf", ".dng", ".nef":
-		return b.info.Size()
-	default:
-		return defaultBufferSize
-	}
+type fileset struct {
+	identifier identifier
+	files      []fs.FileInfo
 }
 
-func (b *dateTimeExif) dateTime() (time.Time, error) {
-	fp, err := b.fs.Open(filepath.Join(b.src, b.info.Name()))
-	if err != nil {
-		return time.Time{}, err
-	}
-	defer fp.Close()
-	data := make([]byte, b.bufferSize())
-	_, err = fp.Read(data)
-	if err != nil {
-		return time.Time{}, err
-	}
-	x, err := exif.Decode(bytes.NewBuffer(data))
-	if err != nil {
-		return time.Time{}, err
-	}
-	tm, err := x.DateTime()
-	if err != nil {
-		return time.Time{}, err
-	}
-	return tm, err
-}
-
-type fileSet struct {
-	files []fs.FileInfo
-}
-
-func (f *fileSet) add(info fs.FileInfo) {
-	f.files = append(f.files, info)
-}
-
-func (f *fileSet) dateTime(afs afero.Fs, dirname string) (time.Time, error) {
-	// for every file in the fileset attempt to create a time.Time
-	times := make(map[string]time.Time)
+// dateTime attempts to create a time.Time for for every file in the fileset
+func (f *fileset) dateTime(afs afero.Fs, ex Exif) (time.Time, error) {
+	var infos []fs.FileInfo
 	for i := range f.files {
 		info := f.files[i]
 		ext := strings.ToLower(filepath.Ext(info.Name()))
 		switch ext {
-		case ".jpg", ".jpeg", ".raf", ".dng", ".nef":
-			dt := &dateTimeExif{fs: afs, src: dirname, ext: ext, info: info}
-			t, err := dt.dateTime()
-			if err != nil {
-				return time.Time{}, err
-			}
-			times[ext] = t
-		case ".mp4", ".mov", ".avi":
-			// @todo(movies)
-		case ".orf":
-			// @todo(orf)
 		case "", ".xmp":
 			// not trustworthy for valid dates
+		default:
+			infos = append(infos, info)
 		}
 	}
-
-	// in priority order, find the first non-zero time.Time
-	for _, ext := range defaultImages() {
-		t, ok := times[ext]
-		if ok {
-			return t, nil
-		}
+	if len(infos) == 0 {
+		return time.Time{}, nil
 	}
-
-	// found no time
-	return time.Time{}, nil
-}
-
-type entangle struct {
-	source  string
-	fileSet *fileSet
+	var times []time.Time
+	mds := ex.Extract(afs, f.identifier.dirname, infos...)
+	for i := range mds {
+		if mds[i].Err != nil {
+			return time.Time{}, mds[i].Err
+		}
+		times = append(times, mds[i].DateTime)
+	}
+	sort.SliceStable(times, func(i, j int) bool {
+		return times[i].Before(times[j])
+	})
+	// @todo(bzimmer) ensure dates are consistent (within a ~second or so)
+	return times[0], nil
 }
 
 type entangler struct {
 	fs          afero.Fs
+	exif        Exif
 	metrics     *metrics.Metrics
 	concurrency int
 	dryrun      bool
@@ -138,52 +86,50 @@ type entangler struct {
 }
 
 func (c *entangler) cp(ctx context.Context, sources []string, destination string) error {
-	q := make(chan *entangle)
+	q := make(chan *fileset)
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(q)
-		sets := make(map[string]map[string]*fileSet)
+		sets := make(map[identifier][]fs.FileInfo)
 		for i := range sources {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
 			default:
-				if err := afero.Walk(c.fs, sources[i], c.fileSets(sets)); err != nil {
+				if err := afero.Walk(c.fs, sources[i], c.filesets(sets)); err != nil {
 					return err
 				}
 			}
 		}
-		for dirname, filesets := range sets {
-			for _, fileset := range filesets {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case q <- &entangle{source: dirname, fileSet: fileset}:
-					c.metrics.IncrCounter([]string{"cp", "filesets"}, 1)
-				}
+		for id, files := range sets {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case q <- &fileset{identifier: id, files: files}:
+				c.metrics.IncrCounter([]string{"cp", "filesets"}, 1)
 			}
 		}
 		return nil
 	})
 	for i := 0; i < c.concurrency; i++ {
-		grp.Go(c.copyFileSet(q, destination))
+		grp.Go(c.copyFileset(q, destination))
 	}
 	return grp.Wait()
 }
 
-func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() error {
+func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() error {
 	return func() error {
-		for ent := range q {
+		for x := range q {
 			c.metrics.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
-			dt, err := ent.fileSet.dateTime(c.fs, ent.source)
+			dt, err := x.dateTime(c.fs, c.exif)
 			if err != nil {
 				c.metrics.IncrCounter([]string{"cp", "fileset", "failed", "exif"}, 1)
 				return err
 			}
 			if dt.IsZero() {
 				c.metrics.IncrCounter([]string{"cp", "fileset", "skip", "unsupported"}, 1)
-				for i := range ent.fileSet.files {
-					filename := ent.fileSet.files[i].Name()
+				for i := range x.files {
+					filename := filepath.Join(x.identifier.dirname, x.files[i].Name())
 					ext := filepath.Ext(filename)
 					ext = strings.TrimPrefix(ext, ".")
 					if ext == "" {
@@ -195,9 +141,9 @@ func (c *entangler) copyFileSet(q <-chan *entangle, destination string) func() e
 				continue
 			}
 			df := dt.Format(c.dateFormat)
-			for i := range ent.fileSet.files {
-				src := filepath.Join(ent.source, ent.fileSet.files[i].Name())
-				dst := filepath.Join(destination, df, ent.fileSet.files[i].Name())
+			for i := range x.files {
+				src := filepath.Join(x.identifier.dirname, x.files[i].Name())
+				dst := filepath.Join(destination, df, x.files[i].Name())
 				if err := c.copyFile(src, dst); err != nil {
 					return err
 				}
@@ -265,8 +211,8 @@ func (c *entangler) copyFile(source, destination string) error {
 	return nil
 }
 
-// fileSets creates fileSets from a directory traversal
-func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkFunc {
+// filesets creates filesets from a directory traversal
+func (c *entangler) filesets(sets map[identifier][]fs.FileInfo) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
@@ -286,18 +232,8 @@ func (c *entangler) fileSets(sets map[string]map[string]*fileSet) filepath.WalkF
 		}
 		c.metrics.IncrCounter([]string{"cp", "visited", "files"}, 1)
 
-		dirname, basename := split(path)
-		dirs, ok := sets[dirname]
-		if !ok {
-			dirs = make(map[string]*fileSet)
-			sets[dirname] = dirs
-		}
-		fileset, ok := dirs[basename]
-		if !ok {
-			fileset = new(fileSet)
-			dirs[basename] = fileset
-		}
-		fileset.add(info)
+		id := split(path)
+		sets[id] = append(sets[id], info)
 
 		return nil
 	}
@@ -314,6 +250,7 @@ func cp(c *cli.Context) error {
 		concurrency: c.Int("concurrency"),
 		dryrun:      c.Bool("dryrun"),
 		dateFormat:  c.String("format"),
+		exif:        runtime(c).Exif,
 	}
 	args := c.Args().Slice()
 	destination, err := filepath.Abs(args[len(args)-1])
@@ -328,7 +265,7 @@ func CommandCopy() *cli.Command {
 		Name:        "cp",
 		HelpName:    "cp",
 		Usage:       "copy files to a the directory structure of `--format`",
-		Description: "copy files from a source(s) to a destination using the Exif format to create the directory structure",
+		Description: "copy files from a source(s) to a destination using the image date to layout the directory structure",
 		ArgsUsage:   "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{

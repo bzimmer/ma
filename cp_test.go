@@ -203,6 +203,32 @@ func TestCopy(t *testing.T) { //nolint
 			},
 		},
 		{
+			name: "two valid files",
+			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			counters: map[string]int{
+				"ma.cp.visited.directories": 1,
+				"ma.cp.visited.files":       2,
+			},
+			before: func(c *cli.Context) error {
+				fp := createTestFile(t, runtime(c).Fs)
+				a.NoError(fp.Close())
+				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70_0.jpg")
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
+				a.NoError(fp.Close())
+				return nil
+			},
+			after: func(c *cli.Context) error {
+				stat, err := runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70.jpg")
+				a.NoError(err)
+				a.NotNil(stat)
+				stat, err = runtime(c).Fs.Stat("/foo/baz/2008/2008-03/15/Nikon_D70_0.jpg")
+				a.NoError(err)
+				a.NotNil(stat)
+				return nil
+			},
+		},
+		{
 			name: "image + xmp dry-run",
 			args: []string{"ma", "cp", "-n", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{

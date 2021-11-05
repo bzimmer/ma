@@ -54,6 +54,12 @@ func flags() []cli.Flag {
 			Required: false,
 		},
 		&cli.BoolFlag{
+			Name:     "monochrome",
+			Required: false,
+			Usage:    "disable colored output",
+			Value:    false,
+		},
+		&cli.BoolFlag{
 			Name:     "debug",
 			Required: false,
 			Usage:    "enable debugging of http requests",
@@ -74,7 +80,7 @@ func initLogging(c *cli.Context) {
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
 			Out:        c.App.ErrWriter,
-			NoColor:    false,
+			NoColor:    c.Bool("monochrome"),
 			TimeFormat: time.RFC3339,
 		},
 	)
@@ -144,6 +150,7 @@ func main() {
 					Metrics: metric,
 					Encoder: enc,
 					Fs:      afero.NewOsFs(),
+					Exif:    ma.NewGoExif(),
 				},
 			}
 
@@ -152,6 +159,7 @@ func main() {
 		After: ma.Stats,
 		Commands: []*cli.Command{
 			ma.CommandCopy(),
+			ma.CommandExif(),
 			ma.CommandExport(),
 			ma.CommandFind(),
 			ma.CommandList(),

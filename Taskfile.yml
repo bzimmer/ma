@@ -32,13 +32,15 @@ tasks:
     desc: Run tests
     deps: [dist]
     cmds:
-      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+      # https://github.com/golang/go/issues/49138
+      - MallocNanoZone=0 go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   test-integration:
     desc: Run integration tests
     deps: [build]
     cmds:
-      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
+      # https://github.com/golang/go/issues/49138
+      - MallocNanoZone=0 go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
 
   cover:
     desc: Visualize test coverage
@@ -71,7 +73,7 @@ tasks:
     desc: Generate the user manual
     deps: [build]
     cmds:
-      - mkdir -p docs/
+      - mkdir -p docs
       - dist/{{.APP}} manual docs/templates > docs/manual.md
 
   install:

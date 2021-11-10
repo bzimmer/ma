@@ -8,19 +8,19 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type keyPatch int
+type patchKey int
 
 const (
-	keyAlbum keyPatch = iota
-	keyImage
+	patchKeyAlbum patchKey = iota
+	patchKeyImage
 )
 
-func (p keyPatch) String() string {
+func (p patchKey) String() string {
 	var key string
 	switch p {
-	case keyAlbum:
+	case patchKeyAlbum:
 		key = "albumKey"
-	case keyImage:
+	case patchKeyImage:
 		key = "imageKey"
 	}
 	return key
@@ -36,39 +36,26 @@ func with(c *cli.Context) *patcher {
 	return &patcher{c: c, patches: make(map[string]interface{})}
 }
 
-func (p *patcher) album(albumKey string) error {
+func (p *patcher) patch(k patchKey, key string) error {
 	if p.err != nil {
 		return p.err
 	}
-	if len(p.patches) == 0 {
-		log.Warn().Str("albumKey", albumKey).Msg("no patches to apply")
-		return nil
-	}
-	album, err := runtime(p.c).Client.Album.Patch(p.c.Context, albumKey, p.patches)
-	if err != nil {
+	switch k {
+	case patchKeyAlbum:
+		album, err := runtime(p.c).Client.Album.Patch(p.c.Context, key, p.patches)
+		if err != nil {
+			return err
+		}
+		f := albumIterFunc(p.c, "patch")
+		_, err = f(album)
 		return err
-	}
-	f := albumIterFunc(p.c, "patch")
-	if _, err := f(album); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *patcher) image(imageKey string) error {
-	if p.err != nil {
-		return p.err
-	}
-	if len(p.patches) == 0 {
-		log.Warn().Str("imageKey", imageKey).Msg("no patches to apply")
-		return nil
-	}
-	album, err := runtime(p.c).Client.Image.Patch(p.c.Context, imageKey, p.patches)
-	if err != nil {
-		return err
-	}
-	f := imageIterFunc(p.c, nil, "patch")
-	if _, err := f(album); err != nil {
+	case patchKeyImage:
+		image, err := runtime(p.c).Client.Image.Patch(p.c.Context, key, p.patches)
+		if err != nil {
+			return err
+		}
+		f := imageIterFunc(p.c, nil, "patch")
+		_, err = f(image)
 		return err
 	}
 	return nil
@@ -130,7 +117,7 @@ func (p *patcher) keywords(key string) *patcher {
 	return p
 }
 
-func patch(key keyPatch) cli.ActionFunc {
+func patch(key patchKey) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		p := with(c).keywords("keyword").urlname()
 		for _, flag := range []string{"title", "name", "caption"} {
@@ -142,22 +129,21 @@ func patch(key keyPatch) cli.ActionFunc {
 		if p.err != nil {
 			return p.err
 		}
+		if len(p.patches) == 0 {
+			log.Warn().Msg("no patches to apply")
+			return nil
+		}
 		for _, x := range c.Args().Slice() {
+			msg := log.Info().Str(key.String(), x).Interface("patches", p.patches)
 			switch {
 			case !c.Bool("force"):
+				msg.Msg("dryrun")
 				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "dryrun"}, 1)
-				log.Info().Str(key.String(), x).Interface("patches", p.patches).Msg("dryrun")
 			default:
-				log.Info().Str(key.String(), x).Interface("patches", p.patches).Msg("applying")
-				switch key {
-				case keyAlbum:
-					if err := p.album(x); err != nil {
-						return err
-					}
-				case keyImage:
-					if err := p.image(x); err != nil {
-						return err
-					}
+				msg.Msg("apply")
+				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "apply"}, 1)
+				if err := p.patch(key, x); err != nil {
+					return err
 				}
 			}
 		}
@@ -216,7 +202,7 @@ func albumPatch() *cli.Command {
 				return errors.New("expected only one albumKey argument")
 			}
 		},
-		Action: patch(keyAlbum),
+		Action: patch(patchKeyAlbum),
 	}
 }
 
@@ -254,7 +240,7 @@ func imagePatch() *cli.Command {
 				Usage: "the altitude of the image location",
 			},
 		},
-		Action: patch(keyImage),
+		Action: patch(patchKeyImage),
 	}
 }
 

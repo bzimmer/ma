@@ -47,32 +47,26 @@ type fileset struct {
 
 // dateTime attempts to create a time.Time for for every file in the fileset
 func (f *fileset) dateTime(afs afero.Fs, ex Exif) (time.Time, error) {
-	var infos []fs.FileInfo
-	for i := range f.files {
-		info := f.files[i]
-		ext := strings.ToLower(filepath.Ext(info.Name()))
-		switch ext {
-		case "", ".xmp":
-			// not trustworthy for valid dates
-		default:
-			infos = append(infos, info)
-		}
-	}
-	if len(infos) == 0 {
-		return time.Time{}, nil
-	}
 	var times []time.Time
-	mds := ex.Extract(afs, f.identifier.dirname, infos...)
-	for i := range mds {
-		if mds[i].Err != nil {
-			return time.Time{}, mds[i].Err
+	for _, md := range ex.Extract(afs, f.identifier.dirname, f.files...) {
+		if md.Err != nil {
+			return time.Time{}, md.Err
 		}
-		times = append(times, mds[i].DateTime)
+		if !md.DateTime.IsZero() {
+			times = append(times, md.DateTime)
+		}
 	}
-	sort.SliceStable(times, func(i, j int) bool {
-		return times[i].Before(times[j])
-	})
-	// @todo(bzimmer) ensure dates are consistent (within a ~second or so)
+	switch len(times) {
+	case 0:
+		return time.Time{}, nil
+	case 1:
+		// no need to sort
+	default:
+		// @todo(bzimmer) ensure dates are consistent (within a ~second or so)
+		sort.SliceStable(times, func(i, j int) bool {
+			return times[i].Before(times[j])
+		})
+	}
 	return times[0], nil
 }
 

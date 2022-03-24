@@ -8,6 +8,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 // RuntimeKey in app metadata
@@ -100,4 +102,9 @@ func Stats(c *cli.Context) error {
 		}
 	}
 	return runtime(c).Encoder.Encode(data)
+}
+
+func titlecase(s string) string {
+	title := cases.Title(language.English)
+	return title.String(s)
 }

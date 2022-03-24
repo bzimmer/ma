@@ -1,18 +1,10 @@
 package ma
 
 import (
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
-
-func titlecase(s string) string {
-	title := cases.Title(language.English)
-	return title.String(s)
-}
 
 func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.ImageIterFunc {
 	enc := runtime(c).Encoder

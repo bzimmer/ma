@@ -115,3 +115,9 @@ linters:
 #   golangci-lint-version: 1.23.x # use the fixed version to not introduce new linters unexpectedly
 #   prepare:
 #     - echo "here I can run custom commands, but no preparation needed for this repo"
+
+issues:
+  exclude-rules:
+    - path: 'export.go'
+      linters:
+        - bodyclose

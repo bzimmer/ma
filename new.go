@@ -2,7 +2,6 @@ package ma
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
@@ -24,7 +23,7 @@ func knew(c *cli.Context) error {
 
 	nodelet := &smugmug.Nodelet{
 		Name:    name,
-		Type:    strings.Title(c.Command.Name),
+		Type:    titlecase(c.Command.Name),
 		URLName: url,
 		Privacy: c.String("privacy"),
 	}

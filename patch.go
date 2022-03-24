@@ -2,7 +2,6 @@ package ma
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
@@ -65,7 +64,7 @@ func (p *patcher) str(key string) *patcher {
 	if p.err != nil || !p.c.IsSet(key) {
 		return p
 	}
-	p.patches[strings.Title(key)] = p.c.String(key)
+	p.patches[titlecase(key)] = p.c.String(key)
 	return p
 }
 
@@ -73,7 +72,7 @@ func (p *patcher) float(key string) *patcher {
 	if p.err != nil || !p.c.IsSet(key) {
 		return p
 	}
-	p.patches[strings.Title(key)] = p.c.Float64(key)
+	p.patches[titlecase(key)] = p.c.Float64(key)
 	return p
 }
 

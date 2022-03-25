@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/text/language"
 
 	"github.com/bzimmer/ma"
 )
@@ -93,13 +94,14 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			}
 
 			rt := &ma.Runtime{
-				Client:  client,
-				Metrics: metric,
-				Sink:    sink,
-				Encoder: enc,
-				Grab:    new(http.Client),
-				Fs:      afero.NewMemMapFs(),
-				Exif:    ma.NewGoExif(),
+				Client:   client,
+				Metrics:  metric,
+				Sink:     sink,
+				Encoder:  enc,
+				Grab:     new(http.Client),
+				Fs:       afero.NewMemMapFs(),
+				Exif:     ma.NewGoExif(),
+				Language: language.English,
 			}
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: rt,

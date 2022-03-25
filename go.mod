@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/armon/go-metrics v0.3.10
 	github.com/bzimmer/httpwares v0.1.0
-	github.com/bzimmer/smugmug v0.3.2
+	github.com/bzimmer/smugmug v0.4.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect

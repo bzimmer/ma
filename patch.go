@@ -64,7 +64,7 @@ func (p *patcher) str(key string) *patcher {
 	if p.err != nil || !p.c.IsSet(key) {
 		return p
 	}
-	p.patches[titlecase(key)] = p.c.String(key)
+	p.patches[titlecase(p.c, key)] = p.c.String(key)
 	return p
 }
 
@@ -72,7 +72,7 @@ func (p *patcher) float(key string) *patcher {
 	if p.err != nil || !p.c.IsSet(key) {
 		return p
 	}
-	p.patches[titlecase(key)] = p.c.Float64(key)
+	p.patches[titlecase(p.c, key)] = p.c.Float64(key)
 	return p
 }
 

@@ -23,7 +23,7 @@ func knew(c *cli.Context) error {
 
 	nodelet := &smugmug.Nodelet{
 		Name:    name,
-		Type:    titlecase(c.Command.Name),
+		Type:    titlecase(c, c.Command.Name),
 		URLName: url,
 		Privacy: c.String("privacy"),
 	}

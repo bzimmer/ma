@@ -16,6 +16,7 @@ import (
 	"github.com/rs/zerolog/pkgerrors"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/text/language"
 
 	"github.com/bzimmer/ma"
 )
@@ -144,13 +145,14 @@ func main() {
 
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: &ma.Runtime{
-					Client:  client,
-					Sink:    sink,
-					Grab:    grab,
-					Metrics: metric,
-					Encoder: enc,
-					Fs:      afero.NewOsFs(),
-					Exif:    ma.NewGoExif(),
+					Client:   client,
+					Sink:     sink,
+					Grab:     grab,
+					Metrics:  metric,
+					Encoder:  enc,
+					Fs:       afero.NewOsFs(),
+					Exif:     ma.NewGoExif(),
+					Language: language.English,
 				},
 			}
 

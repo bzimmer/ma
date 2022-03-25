@@ -31,6 +31,8 @@ type Runtime struct {
 	Grab Grab
 	// Exif for accessing EXIF metadata
 	Exif Exif
+	// Language for title case
+	Language language.Tag
 }
 
 // Encoder encodes a struct to a specific format
@@ -104,7 +106,7 @@ func Stats(c *cli.Context) error {
 	return runtime(c).Encoder.Encode(data)
 }
 
-func titlecase(s string) string {
-	title := cases.Title(language.English)
+func titlecase(c *cli.Context, s string) string {
+	title := cases.Title(runtime(c).Language)
 	return title.String(s)
 }

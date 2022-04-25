@@ -32,15 +32,13 @@ tasks:
     desc: Run tests
     deps: [dist]
     cmds:
-      # https://github.com/golang/go/issues/49138
-      - MallocNanoZone=0 go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
 
   test-integration:
     desc: Run integration tests
     deps: [build]
     cmds:
-      # https://github.com/golang/go/issues/49138
-      - MallocNanoZone=0 go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
+      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
 
   cover:
     desc: Visualize test coverage

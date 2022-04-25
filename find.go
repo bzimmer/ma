@@ -40,6 +40,7 @@ func CommandFind() *cli.Command {
 	return &cli.Command{
 		Name:        "find",
 		HelpName:    "find",
+		Aliases:     []string{"search"},
 		Usage:       "search for albums or folders by name",
 		Description: "find albums or folders by name (if `--album` or `--node` is not specified, both will be searched)",
 		Flags: []cli.Flag{

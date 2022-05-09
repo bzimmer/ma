@@ -31,3 +31,17 @@ changelog:
       - '^Merge pull request'
 announce:
   skip: "true"
+
+brews:
+  - name: ma
+    homepage: https://github.com/bzimmer/ma
+    description: Simple tools for managing media files with SmugMug
+    license: MIT
+    commit_author:
+      name: bzimmer
+      email: bzimmer@ziclix.com
+    tap:
+      owner: bzimmer
+      name: homebrew-tap
+    skip_upload: auto
+    install: bin.install "ma"

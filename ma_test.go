@@ -69,7 +69,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			},
 		},
 		Before: func(c *cli.Context) error {
-			cfg := metrics.DefaultConfig("ma")
+			cfg := metrics.DefaultConfig(c.App.Name)
 			cfg.EnableRuntimeMetrics = false
 			cfg.TimerGranularity = time.Second
 			sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)

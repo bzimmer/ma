@@ -69,7 +69,7 @@ func flags() []cli.Flag {
 	}
 }
 
-func initLogging(c *cli.Context) {
+func initLogging(c *cli.Context) error {
 	level := zerolog.InfoLevel
 	if c.Bool("debug") {
 		level = zerolog.DebugLevel
@@ -85,6 +85,7 @@ func initLogging(c *cli.Context) {
 			TimeFormat: time.RFC3339,
 		},
 	)
+	return nil
 }
 
 func main() {
@@ -101,9 +102,11 @@ func main() {
 			log.Error().Stack().Err(err).Msg(c.App.Name)
 		},
 		Before: func(c *cli.Context) error {
-			initLogging(c)
+			if err := initLogging(c); err != nil {
+				return err
+			}
 
-			cfg := metrics.DefaultConfig("ma")
+			cfg := metrics.DefaultConfig(c.App.Name)
 			cfg.EnableRuntimeMetrics = false
 			cfg.TimerGranularity = time.Second
 			sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)

@@ -283,7 +283,6 @@ func TestCopy(t *testing.T) { //nolint
 		{
 			name: "image with garbage exif",
 			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
-			err:  "EOF",
 			counters: map[string]int{
 				"ma.cp.filesets":            1,
 				"ma.cp.visited.directories": 1,

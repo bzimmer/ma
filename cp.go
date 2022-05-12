@@ -118,6 +118,9 @@ func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() er
 			dt, err := x.dateTime(c.fs, c.exif)
 			if err != nil {
 				c.metrics.IncrCounter([]string{"cp", "fileset", "failed", "exif"}, 1)
+				if errors.Is(err, io.EOF) {
+					return nil
+				}
 				return err
 			}
 			if dt.IsZero() {

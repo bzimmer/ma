@@ -261,7 +261,7 @@ func CommandCopy() *cli.Command {
 	return &cli.Command{
 		Name:        "cp",
 		HelpName:    "cp",
-		Usage:       "copy files to a the directory structure of `--format`",
+		Usage:       "copy files to a date-formatted directory structure",
 		Description: "copy files from a source(s) to a destination using the image date to layout the directory structure",
 		ArgsUsage:   "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
 		Flags: []cli.Flag{
@@ -281,7 +281,7 @@ func CommandCopy() *cli.Command {
 			&cli.IntFlag{
 				Name:    "concurrency",
 				Aliases: []string{"c"},
-				Usage:   "the number of concurrent copies",
+				Usage:   "the number of concurrent copy operations",
 				Value:   2,
 			},
 		},

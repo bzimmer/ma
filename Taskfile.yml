@@ -70,10 +70,10 @@ tasks:
 
   manual:
     desc: Generate the user manual
-    deps: [build]
+    deps: []
     cmds:
       - mkdir -p docs
-      - dist/{{.APP}} manual docs/templates > docs/manual.md
+      - go run {{.LDFLAGS}} cmd/{{.APP}}/*.go manual docs/templates > docs/manual.md
 
   install:
     desc: Install binary

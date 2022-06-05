@@ -175,8 +175,8 @@ func main() {
 			ma.CommandUser(),
 			ma.CommandVersion(),
 			manual.Commands(),
-			manual.Manual(),
 			manual.EnvVars(),
+			manual.Manual(),
 		},
 	}
 	if err := app.RunContext(context.Background(), os.Args); err != nil {

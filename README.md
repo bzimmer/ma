@@ -47,3 +47,15 @@ GLOBAL OPTIONS:
    --debug                        enable debugging (default: false)
    --help, -h                     show help (default: false)
 ```
+
+## new album creation
+An example to create a mirror of a top level directory structure:
+
+```sh
+$ fd -t d . /Volumes/Photos00/Scans -x ma new --parent gHCcHb album {/.}
+
+2022-06-04T18:34:46-07:00 INF album albumKey=mdtZxm name="\"Candids\"" nodeID=NgFJRs nodeURI=/api/v2/node/NgFJRs urlName=Candids webURI=https://photos.gravl.cc/Scans/Candids/n-NgFJRs
+2022-06-04T18:34:46-07:00 INF counters count=1 metric=ma.album.album
+
+2022-06-04T18:34:46-07:00 ERR ma new error=Conflict
+```

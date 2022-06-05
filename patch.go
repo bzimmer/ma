@@ -3,6 +3,7 @@ package ma
 import (
 	"errors"
 
+	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
@@ -83,7 +84,7 @@ func (p *patcher) urlname() *patcher {
 	var url string
 	switch {
 	case p.c.Bool("auto-urlname"):
-		url = urlname(p.c.String("name"))
+		url = smugmug.URLName(p.c.String("name"), runtime(p.c).Language)
 	default:
 		if !p.c.IsSet("urlname") {
 			return p

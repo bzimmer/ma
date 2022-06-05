@@ -13,7 +13,7 @@ func knew(c *cli.Context) error {
 	name := c.Args().First()
 	switch c.NArg() {
 	case 1:
-		url = smugmug.URLName(name)
+		url = smugmug.URLName(name, runtime(c).Language)
 	case 2:
 		url = c.Args().Get(1)
 		if err := validate(url); err != nil {
@@ -56,18 +56,18 @@ func CommandNew() *cli.Command {
 		if n == 0 || n > 2 {
 			return fmt.Errorf("expected one or two arguments, not {%d}", n)
 		}
-		privacy := c.String("privacy")
-		switch privacy {
+		switch p := c.String("privacy"); p {
 		case "":
 		case "Unlisted", "Private", "Public":
 		default:
-			return fmt.Errorf("privacy one of [Unlisted, Private, Public], not {%s}", privacy)
+			return fmt.Errorf("privacy one of [Unlisted, Private, Public], not {%s}", p)
 		}
 		return nil
 	}
 	return &cli.Command{
 		Name:        "new",
 		HelpName:    "new",
+		Aliases:     []string{"create"},
 		Usage:       "create a new node",
 		Description: "create a new album or folder",
 		ArgsUsage:   "<node name> [<node url>]",

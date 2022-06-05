@@ -78,7 +78,7 @@ $ ma cp [flags] <file-or-directory> [, <file-or-directory>] <file-or-directory>
 |-|-|-|-|
 |```dryrun```|```n```||prepare to copy but don't actually do it|
 |```format```|||the date format used for the destination directory|
-|```concurrency```|```c```||the number of concurrent copies|
+|```concurrency```|```c```||the number of concurrent copy operations|
 
 
 ## *envvars*
@@ -537,7 +537,7 @@ $ ma up --album 7dXUSm $HOME/Pictures/_Export
 
 **Description**
 
-create a clean url for the argument by removing "unpleasant" values such as `'s` and `-`
+create a clean urlname for each argument
 
 
 **Syntax**

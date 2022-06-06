@@ -170,6 +170,7 @@ func main() {
 			ma.CommandList(),
 			ma.CommandNew(),
 			ma.CommandPatch(),
+			ma.CommandRemove(),
 			ma.CommandUpload(),
 			ma.CommandURLName(),
 			ma.CommandUser(),

@@ -31,6 +31,8 @@ All your media archiving needs!
 * [patch](#patch)
 * [patch album](#patch-album)
 * [patch image](#patch-image)
+* [rm](#rm)
+* [rm image](#rm-image)
 * [up](#up)
 * [urlname](#urlname)
 * [user](#user)
@@ -301,7 +303,7 @@ $ ma ls image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```zero-version```|```z```||if no version is specified, append `-0`|
+|```zero-version```|```z, 0```||if no version is specified, append `-0`|
 
 
 ## *ls node*
@@ -434,6 +436,37 @@ $ ma patch image [flags] <image key> [<image key>, ...]
 |```latitude```|||the latitude of the image location|
 |```longitude```|||the longitude of the image location|
 |```altitude```|||the altitude of the image location|
+
+
+## *rm*
+
+**Description**
+
+delete an entity
+
+
+
+
+## *rm image*
+
+**Description**
+
+delete an image from an album
+
+
+**Syntax**
+
+```sh
+$ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```album```|||the album from which the image is to be deleted|
+|```zero-version```|```z, 0```||if no version is specified, append `-0`|
 
 
 ## *up*

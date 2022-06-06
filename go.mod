@@ -2,6 +2,8 @@ module github.com/bzimmer/ma
 
 go 1.18
 
+replace github.com/bzimmer/smugmug => ../smugmug
+
 require (
 	github.com/armon/go-metrics v0.4.0
 	github.com/bzimmer/httpwares v0.1.0

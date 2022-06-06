@@ -2,6 +2,8 @@ package ma
 
 import (
 	"encoding/json"
+	"fmt"
+	"regexp"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
@@ -109,4 +111,27 @@ func Stats(c *cli.Context) error {
 func titlecase(c *cli.Context, s string) string {
 	title := cases.Title(runtime(c).Language)
 	return title.String(s)
+}
+
+var imageRE = regexp.MustCompile(`[a-zA-Z0-9]+-\d+`)
+
+func zero(id string, zv bool) (string, error) {
+	ok := imageRE.MatchString(id)
+	if !ok {
+		if !zv {
+			return "", fmt.Errorf("no version specified for image key {%s}", id)
+		}
+		return fmt.Sprintf("%s-0", id), nil
+	}
+	return id, nil
+}
+
+func zeroFlag() cli.Flag {
+	return &cli.BoolFlag{
+		Name:     "zero-version",
+		Aliases:  []string{"z", "0"},
+		Usage:    "if no version is specified, append `-0`",
+		Value:    false,
+		Required: false,
+	}
 }

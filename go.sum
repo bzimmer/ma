@@ -54,8 +54,8 @@ github.com/bzimmer/httpwares v0.1.0 h1:ZaMJ51JXKNqJRsx1vtgQGVa7Qz3yZJOzvyhGrQYEP
 github.com/bzimmer/httpwares v0.1.0/go.mod h1:d7haVrcuMW9I+4Ha/V54JtyqGbu0raahd0NqqQSr2p0=
 github.com/bzimmer/manual v0.1.0 h1:bwjezUGB2iKK0kDUHYIb5IzA4+iR/UNDoBrhZ0+ijW4=
 github.com/bzimmer/manual v0.1.0/go.mod h1:RftaUkPvNcdXbGj2u3qtXDOeBvJgInJLs3lCjnTknks=
-github.com/bzimmer/smugmug v0.5.0 h1:29i+aj9IxkhQVxDc0p8ZlVu7IxgyZdWOzBkOnLoYfvU=
-github.com/bzimmer/smugmug v0.5.0/go.mod h1:FtGyvRCUpFfEnnR6mpn/qOudFw8Z3dC5I/ycjigpgWs=
+github.com/bzimmer/smugmug v0.5.1 h1:VLjiZjKJdcPFfAQALJN5OE7FXJJnq9mqgyfDEj8wqSA=
+github.com/bzimmer/smugmug v0.5.1/go.mod h1:FtGyvRCUpFfEnnR6mpn/qOudFw8Z3dC5I/ycjigpgWs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

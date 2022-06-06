@@ -2,12 +2,10 @@ module github.com/bzimmer/ma
 
 go 1.18
 
-replace github.com/bzimmer/smugmug => ../smugmug
-
 require (
 	github.com/armon/go-metrics v0.4.0
 	github.com/bzimmer/httpwares v0.1.0
-	github.com/bzimmer/smugmug v0.5.0
+	github.com/bzimmer/smugmug v0.5.1
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect

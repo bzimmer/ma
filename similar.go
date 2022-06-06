@@ -13,21 +13,20 @@ import (
 
 // https://github.com/vitali-fedulov/images3
 
-func icon(afs afero.Fs, path string) (*images3.IconT, error) {
+func icont(afs afero.Fs, path string) (images3.IconT, error) {
 	file, err := afs.Open(path)
 	if err != nil {
-		return nil, err
+		return images3.IconT{}, err
 	}
 	defer file.Close()
 	img, _, err := goimage.Decode(file)
 	if err != nil {
-		return nil, err
+		return images3.IconT{}, err
 	}
-	ic := images3.Icon(img, path)
-	return &ic, err
+	return images3.Icon(img, path), nil
 }
 
-func similar(c *cli.Context) error {
+func gather(c *cli.Context) ([]images3.IconT, error) {
 	afs := runtime(c).Fs
 	var icons []images3.IconT
 	for i := 0; i < c.NArg(); i++ {
@@ -39,7 +38,7 @@ func similar(c *cli.Context) error {
 				return nil
 			}
 			log.Info().Str("path", path).Msg("reading")
-			ic, err := icon(afs, path)
+			icon, err := icont(afs, path)
 			if err != nil {
 				if !errors.Is(err, goimage.ErrFormat) {
 					return err
@@ -47,12 +46,20 @@ func similar(c *cli.Context) error {
 				log.Warn().Str("path", path).Msg("unknown format")
 				return nil
 			}
-			icons = append(icons, *ic)
+			icons = append(icons, icon)
 			return nil
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
+	}
+	return icons, nil
+}
+
+func similar(c *cli.Context) error {
+	icons, err := gather(c)
+	if err != nil {
+		return err
 	}
 
 	n := len(icons)
@@ -62,7 +69,8 @@ func similar(c *cli.Context) error {
 			b := images3.Similar(icons[i], icons[j])
 			if b {
 				log.Info().
-					Str("A", icons[i].Path).Str("B", icons[j].Path).
+					Str("A", icons[i].Path).
+					Str("B", icons[j].Path).
 					Bool("similar", b).
 					Msg(c.Command.Name)
 			}

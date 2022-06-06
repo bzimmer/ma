@@ -102,6 +102,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				Fs:       afero.NewMemMapFs(),
 				Exif:     ma.NewGoExif(),
 				Language: language.English,
+				Start:    time.Now(),
 			}
 			c.App.Metadata = map[string]interface{}{
 				ma.RuntimeKey: rt,
@@ -217,5 +218,20 @@ func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Comman
 	a.Error(err)
 	if err != nil { // avoids a panic if err is nil
 		a.Contains(err.Error(), tt.err)
+	}
+}
+
+type ErrFs struct {
+	afero.Fs
+	name string
+	err  error
+}
+
+func (p *ErrFs) Open(name string) (afero.File, error) {
+	switch name {
+	case p.name:
+		return nil, p.err
+	default:
+		return p.Fs.Open(name)
 	}
 }

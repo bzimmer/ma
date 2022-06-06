@@ -156,6 +156,7 @@ func main() {
 					Fs:       afero.NewOsFs(),
 					Exif:     ma.NewGoExif(),
 					Language: language.English,
+					Start:    time.Now(),
 				},
 			}
 

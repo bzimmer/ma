@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
@@ -35,6 +36,8 @@ type Runtime struct {
 	Exif Exif
 	// Language for title case
 	Language language.Tag
+	// Start time of the execution
+	Start time.Time
 }
 
 // Encoder encodes a struct to a specific format
@@ -85,6 +88,8 @@ func albumOrNode(c *cli.Context) error {
 
 // Stats logs and encodes (if enabled) the stats
 func Stats(c *cli.Context) error {
+	runtime(c).Metrics.AddSample(
+		[]string{"elapsed"}, float32(time.Since(runtime(c).Start).Milliseconds()))
 	data := runtime(c).Sink.Data()
 	for i := range data {
 		for key, val := range data[i].Counters {

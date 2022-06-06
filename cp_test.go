@@ -369,18 +369,3 @@ func TestCopy(t *testing.T) { //nolint
 		})
 	}
 }
-
-type ErrFs struct {
-	afero.Fs
-	name string
-	err  error
-}
-
-func (p *ErrFs) Open(name string) (afero.File, error) {
-	switch name {
-	case p.name:
-		return nil, p.err
-	default:
-		return p.Fs.Open(name)
-	}
-}

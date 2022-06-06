@@ -474,15 +474,21 @@ $ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
 
 **Description**
 
-find similar images
+identify similar images
 
 
 **Syntax**
 
 ```sh
-$ ma similar [flags]
+$ ma similar [flags] FILE-OR-DIRECTORY, [FILE-OR-DIRECTORY, ...]
 ```
 
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```concurrency```|```c```||the number of concurrent image reads|
 
 
 ## *up*

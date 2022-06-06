@@ -171,6 +171,7 @@ func main() {
 			ma.CommandNew(),
 			ma.CommandPatch(),
 			ma.CommandRemove(),
+			ma.CommandSimilar(),
 			ma.CommandUpload(),
 			ma.CommandURLName(),
 			ma.CommandUser(),

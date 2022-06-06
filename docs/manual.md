@@ -33,6 +33,7 @@ All your media archiving needs!
 * [patch image](#patch-image)
 * [rm](#rm)
 * [rm image](#rm-image)
+* [similar](#similar)
 * [up](#up)
 * [urlname](#urlname)
 * [user](#user)
@@ -467,6 +468,21 @@ $ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
 |-|-|-|-|
 |```album```|||the album from which the image is to be deleted|
 |```zero-version```|```z, 0```||if no version is specified, append `-0`|
+
+
+## *similar*
+
+**Description**
+
+find similar images
+
+
+**Syntax**
+
+```sh
+$ ma similar [flags]
+```
+
 
 
 ## *up*

@@ -12,13 +12,13 @@ func rm(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		runtime(c).Metrics.IncrCounter([]string{"delete", c.Command.Name, "attempt"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "attempt"}, 1)
 		res, err := runtime(c).Client.Image.Delete(c.Context, albumKey, id)
 		if err != nil {
-			runtime(c).Metrics.IncrCounter([]string{"delete", c.Command.Name, "failure"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "failure"}, 1)
 			return err
 		}
-		runtime(c).Metrics.IncrCounter([]string{"delete", c.Command.Name, "success"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
 		if err := runtime(c).Encoder.Encode(map[string]any{
 			"AlbumKey": albumKey,
 			"ImageKey": id,

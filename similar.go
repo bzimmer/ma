@@ -62,7 +62,6 @@ func similar(c *cli.Context) error {
 			b := images3.Similar(icons[i], icons[j])
 			if b {
 				log.Info().
-					Int("i", i).Int("j", j).
 					Str("A", icons[i].Path).Str("B", icons[j].Path).
 					Bool("similar", b).
 					Msg(c.Command.Name)

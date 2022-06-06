@@ -24,9 +24,8 @@ func TestRemove(t *testing.T) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/album/QWERTY0/image/743XwH7-0", func(w http.ResponseWriter, r *http.Request) {
-		enc := json.NewEncoder(w)
-		switch r.Method {
-		case http.MethodDelete:
+		if r.Method == http.MethodDelete {
+			enc := json.NewEncoder(w)
 			a.NoError(enc.Encode(&response{
 				Code:    200,
 				Message: "OK",

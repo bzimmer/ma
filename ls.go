@@ -1,26 +1,17 @@
 package ma
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
 )
 
-var imageRE = regexp.MustCompile(`[a-zA-Z0-9]+-\d+`)
-
 func image(c *cli.Context) error {
 	mg := runtime(c).Client
 	zv := c.Bool("zero-version")
-	for _, id := range c.Args().Slice() {
-		// preempt a common mistake
-		ok := imageRE.MatchString(id)
-		if !ok {
-			if !zv {
-				return fmt.Errorf("no version specified for image key {%s}", id)
-			}
-			id = fmt.Sprintf("%s-0", id)
+	for i := 0; i < c.NArg(); i++ {
+		id, err := zero(c.Args().Get(i), zv)
+		if err != nil {
+			return err
 		}
 		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum"))
 		if err != nil {
@@ -132,13 +123,7 @@ func CommandList() *cli.Command {
 				Description: "list the details of an image(s)",
 				ArgsUsage:   "<image key> [<image key>, ...]",
 				Flags: []cli.Flag{
-					&cli.BoolFlag{
-						Name:     "zero-version",
-						Aliases:  []string{"z"},
-						Usage:    "if no version is specified, append `-0`",
-						Value:    false,
-						Required: false,
-					},
+					zeroFlag(),
 				},
 				Action: image,
 			},

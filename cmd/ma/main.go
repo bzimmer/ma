@@ -156,6 +156,7 @@ func main() {
 					Fs:       afero.NewOsFs(),
 					Exif:     ma.NewGoExif(),
 					Language: language.English,
+					Start:    time.Now(),
 				},
 			}
 
@@ -171,6 +172,7 @@ func main() {
 			ma.CommandNew(),
 			ma.CommandPatch(),
 			ma.CommandRemove(),
+			ma.CommandSimilar(),
 			ma.CommandUpload(),
 			ma.CommandURLName(),
 			ma.CommandUser(),

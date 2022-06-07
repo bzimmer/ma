@@ -21,6 +21,7 @@ require (
 require (
 	github.com/barasher/go-exiftool v1.7.0
 	github.com/bzimmer/manual v0.1.0
+	github.com/vitali-fedulov/images3 v1.0.14
 	golang.org/x/text v0.3.7
 )
 
@@ -30,6 +31,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/vitali-fedulov/hyper v1.0.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 )

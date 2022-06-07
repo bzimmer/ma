@@ -11,8 +11,8 @@ import (
 	"github.com/bzimmer/ma"
 )
 
-func decode(a *assert.Assertions, r io.Reader) map[string]interface{} {
-	data := make(map[string]interface{})
+func decode(a *assert.Assertions, r io.Reader) map[string]any {
+	data := make(map[string]any)
 	dec := json.NewDecoder(r)
 	a.NoError(dec.Decode(&data))
 	return data
@@ -43,8 +43,8 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 	mux.HandleFunc("/image/B2fHSt7-4", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
-		a.NoError(enc.Encode(map[string]interface{}{
-			"Response": map[string]interface{}{
+		a.NoError(enc.Encode(map[string]any{
+			"Response": map[string]any{
 				"Uri":            "/api/v2/image/B2fHSt7-4?_pretty=true",
 				"Locator":        "Image",
 				"LocatorType":    "Object",
@@ -58,8 +58,8 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 	mux.HandleFunc("/album/RM4BL3", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
-		a.NoError(enc.Encode(map[string]interface{}{
-			"Response": map[string]interface{}{
+		a.NoError(enc.Encode(map[string]any{
+			"Response": map[string]any{
 				"Uri":            "/api/v2/album/RM4BL3?_pretty=true",
 				"Locator":        "Album",
 				"LocatorType":    "Object",

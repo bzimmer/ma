@@ -158,11 +158,14 @@ func similar(c *cli.Context) error {
 
 func CommandSimilar() *cli.Command {
 	return &cli.Command{
-		Name:        "similar",
-		HelpName:    "similar",
-		Usage:       "identify similar images",
-		ArgsUsage:   "FILE-OR-DIRECTORY, [FILE-OR-DIRECTORY, ...]",
-		Description: "identifies similar images",
+		Name:      "similar",
+		HelpName:  "similar",
+		Usage:     "Identify similar images",
+		ArgsUsage: "<file-or-directory> [<file-or-directory>, ...]",
+		Description: `Identify similar images
+
+Uses the excellent similarity engine from https://github.com/vitali-fedulov/images3
+`,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "concurrency",

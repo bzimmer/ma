@@ -254,8 +254,8 @@ func CommandExport() *cli.Command {
 	return &cli.Command{
 		Name:        "export",
 		HelpName:    "export",
-		Usage:       "export images from albums",
-		Description: "export images from albums to local disk",
+		Usage:       "Export images from albums",
+		Description: "Export images from albums to local disk",
 		ArgsUsage:   "<node id> <directory>",
 		Flags: []cli.Flag{
 			&cli.IntFlag{

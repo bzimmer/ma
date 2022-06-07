@@ -35,8 +35,8 @@ func CommandVersion() *cli.Command {
 	return &cli.Command{
 		Name:        "version",
 		HelpName:    "version",
-		Usage:       "version information",
-		Description: "show the version information of the binary",
+		Usage:       "Show the version information of the binary",
+		Description: "Show the version information of the binary",
 		Action:      version,
 	}
 }

@@ -33,12 +33,12 @@ func knew(c *cli.Context) error {
 		return err
 	}
 	runtime(c).Metrics.IncrCounter([]string{"album", c.Command.Name}, 1)
-	msg := log.Info()
-	msg = msg.Str("name", node.Name)
-	msg = msg.Str("nodeID", node.NodeID)
-	msg = msg.Str("nodeURI", node.URI)
-	msg = msg.Str("urlName", node.URLName)
-	msg = msg.Str("webURI", node.WebURI)
+	msg := log.Info().
+		Str("name", node.Name).
+		Str("nodeID", node.NodeID).
+		Str("nodeURI", node.URI).
+		Str("urlName", node.URLName).
+		Str("webURI", node.WebURI)
 	if nodelet.Type == smugmug.TypeAlbum {
 		node, err = runtime(c).Client.Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
 		if err != nil {
@@ -68,8 +68,8 @@ func CommandNew() *cli.Command {
 		Name:        "new",
 		HelpName:    "new",
 		Aliases:     []string{"create"},
-		Usage:       "create a new node",
-		Description: "create a new album or folder",
+		Usage:       "Create a new node",
+		Description: "Create a new album or folder",
 		ArgsUsage:   "<node name> [<node url>]",
 		Flags: []cli.Flag{
 			&cli.StringFlag{

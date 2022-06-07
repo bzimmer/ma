@@ -34,14 +34,14 @@ func CommandRemove() *cli.Command {
 	return &cli.Command{
 		Name:        "rm",
 		HelpName:    "rm",
-		Usage:       "delete an entity",
-		Description: "delete an entity",
+		Usage:       "Delete an entity",
+		Description: "Delete an entity",
 		Subcommands: []*cli.Command{
 			{
 				Name:        "image",
 				Usage:       "delete an image from an album",
 				Description: "delete an image from an album",
-				ArgsUsage:   "IMAGE_KEY [, IMAGE-KEY, ...]",
+				ArgsUsage:   "<image key> [<image key>, ...]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "album",

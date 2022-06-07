@@ -15,7 +15,7 @@ func TestListIntegration(t *testing.T) {
 		{
 			name: "ls",
 			args: []string{"-j", "ls", "node"},
-			after: func(res map[string]interface{}) {
+			after: func(res map[string]any) {
 				a.Equal(smugmug.TypeFolder, res["Type"])
 			},
 		},

@@ -20,8 +20,8 @@ func CommandUser() *cli.Command {
 	return &cli.Command{
 		Name:        "user",
 		HelpName:    "user",
-		Usage:       "query the authenticated user",
-		Description: "query the authenticated user",
+		Usage:       "Query the authenticated user",
+		Description: "Query the authenticated user",
 		Action:      user,
 	}
 }

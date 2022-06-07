@@ -104,7 +104,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				Language: language.English,
 				Start:    time.Now(),
 			}
-			c.App.Metadata = map[string]interface{}{
+			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: rt,
 				RuntimeKey: &Runtime{
 					Runtime: rt,
@@ -118,7 +118,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			if err := walkfs(c); err != nil {
 				return err
 			}
-			if err := ma.Stats(c); err != nil {
+			if err := ma.Metrics(c); err != nil {
 				return err
 			}
 			return counters(t, tt.counters)(c)

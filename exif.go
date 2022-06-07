@@ -111,7 +111,7 @@ func CommandExif() *cli.Command {
 		HelpName:    "exif",
 		Hidden:      true,
 		Usage:       "debugging tool for exif data",
-		Description: "debugging tool for exif data",
+		Description: "Debugging tool for exif data",
 		Action:      xif,
 	}
 }

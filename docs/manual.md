@@ -474,7 +474,7 @@ $ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
 
 **Description**
 
-identify similar images
+identifies similar images
 
 
 **Syntax**

@@ -14,25 +14,27 @@ See the [manual](docs/manual.md) for an overview of all the commands.
 ```sh
 $ ma help
 NAME:
-   ma - CLI for managing photos locally and at SmugMug
+   ma - CLI for managing local and Smugmug-hosted photos
 
 USAGE:
    ma [global options] command [command options] [arguments...]
 
 DESCRIPTION:
-   CLI for managing photos locally and at SmugMug
+   CLI for managing local and Smugmug-hosted photos
 
 COMMANDS:
-   cp            copy files to a the directory structure of `--format`
-   export        export images from albums
-   find, search  search for albums or folders by name
-   ls, list      list nodes, albums, and/or images
-   new, create   create a new node
+   cp            Copy files to a date-formatted directory structure
+   export        Export images from albums
+   find, search  Search for albums or folders by name
+   ls, list      List nodes, albums, and/or images
+   new, create   Create a new node
    patch         patch the metadata of albums and images
-   up, upload    upload images to SmugMug
-   urlname       create a clean urlname for each argument
-   user          query the authenticated user
-   version       version information
+   rm            Delete an entity
+   similar       Identify similar images
+   up, upload    Upload images to SmugMug
+   urlname       Create a clean urlname for each argument
+   user          Query the authenticated user
+   version       Show the version information of the binary
    commands      Print all possible commands
    envvars       Print all the possible environment variables
    help, h       Shows a list of commands or help for one command

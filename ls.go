@@ -65,8 +65,8 @@ func CommandList() *cli.Command {
 		Name:        "ls",
 		HelpName:    "ls",
 		Aliases:     []string{"list"},
-		Usage:       "list nodes, albums, and/or images",
-		Description: "list the deails of albums, nodes, and/or images",
+		Usage:       "List nodes, albums, and/or images",
+		Description: "List the details of albums, nodes, and/or images",
 		Subcommands: []*cli.Command{
 			{
 				Name:        "album",

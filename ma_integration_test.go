@@ -57,7 +57,7 @@ type harnessIntegration struct {
 	name  string
 	args  []string
 	exit  int
-	after func(map[string]interface{})
+	after func(map[string]any)
 }
 
 func runIntegration(t *testing.T, tt harnessIntegration) {

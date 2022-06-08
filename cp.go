@@ -261,9 +261,9 @@ func CommandCopy() *cli.Command {
 	return &cli.Command{
 		Name:        "cp",
 		HelpName:    "cp",
-		Usage:       "copy files to a date-formatted directory structure",
-		Description: "copy files from a source(s) to a destination using the image date to layout the directory structure",
-		ArgsUsage:   "<file-or-directory> [, <file-or-directory>] <file-or-directory>",
+		Usage:       "Copy files to a date-formatted directory structure",
+		Description: "Copy files from a source(s) to a destination using the image date to layout the directory structure",
+		ArgsUsage:   "<file-or-directory> [<file-or-directory>, ...] <file-or-directory>",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:     "dryrun",

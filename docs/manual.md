@@ -1,4 +1,4 @@
-# ma - CLI for managing photos locally and at SmugMug
+# ma - CLI for managing local and Smugmug-hosted photos
 
 All your media archiving needs!
 
@@ -9,7 +9,8 @@ All your media archiving needs!
 |```smugmug-client-secret```||smugmug client secret|
 |```smugmug-access-token```||smugmug access token|
 |```smugmug-token-secret```||smugmug token secret|
-|```json```|```j```|encode all results as JSON and print to stdout|
+|```json```|```j```|emit all results as JSON and print to stdout|
+|```metrics```||emit summary metrics (requires --json) in addition to operation data|
 |```monochrome```||disable colored output|
 |```debug```||enable debugging of http requests|
 |```help```|```h```|show help|
@@ -65,13 +66,13 @@ $ ma commands [flags]
 
 **Description**
 
-copy files from a source(s) to a destination using the image date to layout the directory structure
+Copy files from a source(s) to a destination using the image date to layout the directory structure
 
 
 **Syntax**
 
 ```sh
-$ ma cp [flags] <file-or-directory> [, <file-or-directory>] <file-or-directory>
+$ ma cp [flags] <file-or-directory> [<file-or-directory>, ...] <file-or-directory>
 ```
 
 
@@ -103,7 +104,7 @@ $ ma envvars [flags]
 
 **Description**
 
-export images from albums to local disk
+Export images from albums to local disk
 
 
 **Syntax**
@@ -125,7 +126,10 @@ $ ma export [flags] <node id> <directory>
 
 **Description**
 
-find albums or folders by name (if `--album` or `--node` is not specified, both will be searched)
+Find albums or folders by name
+
+(if neither --album nor --node is specified, both will be searched)
+
 
 
 **Syntax**
@@ -206,7 +210,7 @@ $ ma help [flags] [command]
 
 **Description**
 
-list the deails of albums, nodes, and/or images
+List the details of albums, nodes, and/or images
 
 
 
@@ -304,7 +308,7 @@ $ ma ls image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```zero-version```|```z, 0```||if no version is specified, append `-0`|
+|```zero-version```|```z, 0```||if no version is specified, append `-0` to the image key|
 
 
 ## *ls node*
@@ -336,7 +340,7 @@ $ ma ls node [flags] <node id> [<node id>, ...]
 
 **Description**
 
-create a new album or folder
+Create a new album or folder
 
 
 
@@ -391,7 +395,7 @@ patch enables updating the metadata of both albums and images
 
 **Description**
 
-patch the metadata of a single album
+Patch the metadata of a single album
 
 
 **Syntax**
@@ -443,7 +447,7 @@ $ ma patch image [flags] <image key> [<image key>, ...]
 
 **Description**
 
-delete an entity
+Delete an entity
 
 
 
@@ -458,7 +462,7 @@ delete an image from an album
 **Syntax**
 
 ```sh
-$ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
+$ ma rm image [flags] <image key> [<image key>, ...]
 ```
 
 
@@ -467,20 +471,23 @@ $ ma rm image [flags] IMAGE_KEY [, IMAGE-KEY, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |```album```|||the album from which the image is to be deleted|
-|```zero-version```|```z, 0```||if no version is specified, append `-0`|
+|```zero-version```|```z, 0```||if no version is specified, append `-0` to the image key|
 
 
 ## *similar*
 
 **Description**
 
-identifies similar images
+Identify similar images
+
+Uses the excellent similarity engine from https://github.com/vitali-fedulov/images3
+
 
 
 **Syntax**
 
 ```sh
-$ ma similar [flags] FILE-OR-DIRECTORY, [FILE-OR-DIRECTORY, ...]
+$ ma similar [flags] <file-or-directory> [<file-or-directory>, ...]
 ```
 
 
@@ -495,7 +502,7 @@ $ ma similar [flags] FILE-OR-DIRECTORY, [FILE-OR-DIRECTORY, ...]
 
 **Description**
 
-upload image files to the specified album, selectively including specific file extensions
+Upload image files to the specified album, selectively including specific file extensions
 
 
 **Syntax**
@@ -592,7 +599,7 @@ $ ma up --album 7dXUSm $HOME/Pictures/_Export
 
 **Description**
 
-create a clean urlname for each argument
+Create a clean urlname for each argument
 
 
 **Syntax**
@@ -623,7 +630,7 @@ $ ma urlname "2021-10-31 Halloween Party"
 
 **Description**
 
-query the authenticated user
+Query the authenticated user
 
 
 **Syntax**
@@ -638,7 +645,7 @@ $ ma user [flags]
 
 **Description**
 
-show the version information of the binary
+Show the version information of the binary
 
 
 **Syntax**

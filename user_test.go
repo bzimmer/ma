@@ -36,8 +36,8 @@ func TestUserError(t *testing.T) {
 	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
-		a.NoError(enc.Encode(map[string]interface{}{
-			"Response": map[string]interface{}{
+		a.NoError(enc.Encode(map[string]any{
+			"Response": map[string]any{
 				"Uri":            "/api/v2/!authuser?_pretty=true",
 				"Locator":        "User",
 				"LocatorType":    "Object",

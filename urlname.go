@@ -28,8 +28,8 @@ func CommandURLName() *cli.Command {
 	return &cli.Command{
 		Name:        "urlname",
 		HelpName:    "urlname",
-		Usage:       "create a clean urlname for each argument",
-		Description: "create a clean urlname for each argument",
+		Usage:       "Create a clean urlname for each argument",
+		Description: "Create a clean urlname for each argument",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:    "validate",

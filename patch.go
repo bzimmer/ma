@@ -29,11 +29,11 @@ func (p patchKey) String() string {
 type patcher struct {
 	c       *cli.Context
 	err     error
-	patches map[string]interface{}
+	patches map[string]any
 }
 
 func with(c *cli.Context) *patcher {
-	return &patcher{c: c, patches: make(map[string]interface{})}
+	return &patcher{c: c, patches: make(map[string]any)}
 }
 
 func (p *patcher) patch(k patchKey, key string) error {
@@ -164,8 +164,8 @@ func albumPatch() *cli.Command {
 	return &cli.Command{
 		Name:        "album",
 		HelpName:    "album",
-		Usage:       "patch an album ",
-		Description: "patch the metadata of a single album",
+		Usage:       "Patch an album ",
+		Description: "Patch the metadata of a single album",
 		ArgsUsage:   "<album key> [<album key>, ...]",
 		Flags: []cli.Flag{
 			forceFlag(),

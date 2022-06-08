@@ -164,8 +164,8 @@ func CommandUpload() *cli.Command {
 	return &cli.Command{
 		Name:        "up",
 		Aliases:     []string{"upload"},
-		Usage:       "upload images to SmugMug",
-		Description: "upload image files to the specified album, selectively including specific file extensions",
+		Usage:       "Upload images to SmugMug",
+		Description: "Upload image files to the specified album, selectively including specific file extensions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "album",

@@ -14,7 +14,7 @@ func TestUserIntegration(t *testing.T) {
 		{
 			name: "auth user",
 			args: []string{"-j", "user"},
-			after: func(res map[string]interface{}) {
+			after: func(res map[string]any) {
 				a.NotEqual("", res["nickname"])
 			},
 		},

@@ -50,7 +50,13 @@ func flags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:     "json",
 			Aliases:  []string{"j"},
-			Usage:    "encode all results as JSON and print to stdout",
+			Usage:    "emit all results as JSON and print to stdout",
+			Value:    false,
+			Required: false,
+		},
+		&cli.BoolFlag{
+			Name:     "metrics",
+			Usage:    "emit summary metrics (requires --json) in addition to operation data",
 			Value:    false,
 			Required: false,
 		},
@@ -92,8 +98,8 @@ func main() {
 	app := &cli.App{
 		Name:        "ma",
 		HelpName:    "ma",
-		Usage:       "CLI for managing photos locally and at SmugMug",
-		Description: "CLI for managing photos locally and at SmugMug",
+		Usage:       "CLI for managing local and Smugmug-hosted photos",
+		Description: "CLI for managing local and Smugmug-hosted photos",
 		Flags:       flags(),
 		ExitErrHandler: func(c *cli.Context, err error) {
 			if err == nil {
@@ -146,7 +152,7 @@ func main() {
 				enc = ma.NewBlackholeEncoder()
 			}
 
-			c.App.Metadata = map[string]interface{}{
+			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: &ma.Runtime{
 					Client:   client,
 					Sink:     sink,
@@ -162,7 +168,7 @@ func main() {
 
 			return nil
 		},
-		After: ma.Stats,
+		After: ma.Metrics,
 		Commands: []*cli.Command{
 			ma.CommandCopy(),
 			ma.CommandExif(),

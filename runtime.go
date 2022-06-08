@@ -43,12 +43,12 @@ type Runtime struct {
 // Encoder encodes a struct to a specific format
 type Encoder interface {
 	// Encode writes the encoding of v
-	Encode(v interface{}) error
+	Encode(v any) error
 }
 
 type encoderBlackhole struct{}
 
-func (e *encoderBlackhole) Encode(_ interface{}) error {
+func (e *encoderBlackhole) Encode(_ any) error {
 	return nil
 }
 
@@ -60,7 +60,7 @@ type encoderJSON struct {
 	encoder *json.Encoder
 }
 
-func (e *encoderJSON) Encode(v interface{}) error {
+func (e *encoderJSON) Encode(v any) error {
 	return e.encoder.Encode(v)
 }
 
@@ -86,8 +86,8 @@ func albumOrNode(c *cli.Context) error {
 	return nil
 }
 
-// Stats logs and encodes (if enabled) the stats
-func Stats(c *cli.Context) error {
+// Metrics (if enabled) emits the metrics as json
+func Metrics(c *cli.Context) error {
 	runtime(c).Metrics.AddSample(
 		[]string{"elapsed"}, float32(time.Since(runtime(c).Start).Milliseconds()))
 	data := runtime(c).Sink.Data()
@@ -110,7 +110,10 @@ func Stats(c *cli.Context) error {
 				Msg("samples")
 		}
 	}
-	return runtime(c).Encoder.Encode(data)
+	if c.Bool("metrics") {
+		return runtime(c).Encoder.Encode(data)
+	}
+	return nil
 }
 
 func titlecase(c *cli.Context, s string) string {
@@ -135,7 +138,7 @@ func zeroFlag() cli.Flag {
 	return &cli.BoolFlag{
 		Name:     "zero-version",
 		Aliases:  []string{"z", "0"},
-		Usage:    "if no version is specified, append `-0`",
+		Usage:    "if no version is specified, append `-0` to the image key",
 		Value:    false,
 		Required: false,
 	}

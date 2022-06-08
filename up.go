@@ -143,6 +143,7 @@ func up(c *cli.Context) error {
 		return <-errc
 	})
 	grp.Go(func() error {
+		enc := runtime(c).Encoder
 		for up := range uploadc {
 			runtime(c).Metrics.IncrCounter([]string{"upload", "success"}, 1)
 			runtime(c).Metrics.AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
@@ -153,6 +154,9 @@ func up(c *cli.Context) error {
 				Str("uri", up.ImageURI).
 				Str("status", "success").
 				Msg("upload")
+			if err := enc.Encode(up); err != nil {
+				return err
+			}
 		}
 		log.Info().Str("albumKey", album.AlbumKey).Str("webURI", album.WebURI).Msg("complete")
 		return nil

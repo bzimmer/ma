@@ -1,6 +1,7 @@
 package ma_test
 
 import (
+	"errors"
 	"net/http"
 	"testing"
 
@@ -9,6 +10,12 @@ import (
 
 	"github.com/bzimmer/ma"
 )
+
+type errorEncoder struct{}
+
+func (e *errorEncoder) Encode(v any) error {
+	return errors.New("error encoder")
+}
 
 func TestUpload(t *testing.T) { //nolint
 	a := assert.New(t)
@@ -124,6 +131,20 @@ func TestUpload(t *testing.T) { //nolint
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
 				a.NoError(fp.Close())
+				return nil
+			},
+		},
+		{
+			name: "upload new image encoding error",
+			args: []string{"ma", "-j", "upload", "--album", "TDZWbg", "/foo/bar"},
+			err:  "error encoder",
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+				runtime(c).Encoder = &errorEncoder{}
 				return nil
 			},
 		},

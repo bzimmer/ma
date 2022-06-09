@@ -89,48 +89,47 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 func TestPatch(t *testing.T) {
 	for _, tt := range []harness{
 		{
-			name:     "no force",
-			args:     []string{"ma", "patch", "image", "--keyword", "foo", "GH8UQ9-0"},
+			name:     "dry run",
+			args:     []string{"ma", "patch", "image", "--dryrun", "--keyword", "foo", "GH8UQ9-0"},
 			counters: map[string]int{"ma.patch.image.dryrun": 1},
 		},
 		{
-			name:     "force",
-			args:     []string{"ma", "patch", "image", "--force", "--keyword", "foo", "B2fHSt7-0"},
+			name:     "keyword",
+			args:     []string{"ma", "patch", "image", "--keyword", "foo", "B2fHSt7-0"},
 			counters: map[string]int{"ma.patch.image": 1},
 		},
 		{
-			name:     "force",
-			args:     []string{"ma", "patch", "image", "--force", "--latitude", "48.4321", "B2fHSt7-1"},
+			name:     "latitude",
+			args:     []string{"ma", "patch", "image", "--latitude", "48.4321", "B2fHSt7-1"},
 			counters: map[string]int{"ma.patch.image": 1},
 		},
 		{
 			name: "no patches image",
-			args: []string{"ma", "patch", "image", "-f", "B2fHSt7-2"},
+			args: []string{"ma", "patch", "image", "B2fHSt7-2"},
 		},
 		{
 			name: "no patches album",
-			args: []string{"ma", "patch", "album", "-f", "RM4BLQ"},
+			args: []string{"ma", "patch", "album", "RM4BLQ"},
 		},
 		{
 			name:     "empty keywords",
-			args:     []string{"ma", "patch", "image", "--keyword", "", "B2fHSt7-3"},
+			args:     []string{"ma", "patch", "image", "--dryrun", "--keyword", "", "B2fHSt7-3"},
 			counters: map[string]int{"ma.patch.image.dryrun": 1},
 		},
 		{
 			name: "album",
-			args: []string{"ma", "patch", "album", "--force",
+			args: []string{"ma", "patch", "album",
 				"--name", "2021-07-04 Fourth of July", "--urlname", "2021-07-04-Fourth-of-July", "RM4BL2"},
 			counters: map[string]int{"ma.patch.album": 1},
 		},
 		{
-			name: "album with auto url naming",
-			args: []string{"ma", "patch", "album", "--force",
-				"--name", "foo bar", "--auto-urlname", "RM4BLQ"},
+			name:     "album with auto url naming",
+			args:     []string{"ma", "patch", "album", "--name", "foo bar", "--auto", "RM4BLQ"},
 			counters: map[string]int{"ma.patch.album": 1},
 		},
 		{
 			name: "invalid url name",
-			args: []string{"ma", "patch", "album", "--force", "--urlname", "this-is-invalid", "RM4BL2"},
+			args: []string{"ma", "patch", "album", "--urlname", "this-is-invalid", "RM4BL2"},
 			err:  ma.ErrInvalidURLName.Error(),
 		},
 		{
@@ -144,9 +143,9 @@ func TestPatch(t *testing.T) {
 			err:  "expected one albumKey argument",
 		},
 		{
-			name: "both urlname and auto-urlname",
-			args: []string{"ma", "patch", "album", "--urlname", "Foo-Bar", "--auto-urlname", "XM4BL2"},
-			err:  "only one of `auto-urlname` or `urlname` may be specified",
+			name: "both urlname and auto urlname",
+			args: []string{"ma", "patch", "album", "--urlname", "Foo-Bar", "--auto", "XM4BL2"},
+			err:  "only one of `auto` or `urlname` may be specified",
 		},
 		{
 			name: "invalid urlname",
@@ -154,18 +153,18 @@ func TestPatch(t *testing.T) {
 			err:  "node url name must start with a number or capital letter",
 		},
 		{
-			name: "auto-urlname without name",
-			args: []string{"ma", "patch", "album", "--auto-urlname", "XM4BL2"},
-			err:  "cannot specify `auto-urlname` without `name`",
+			name: "auto urlname without name",
+			args: []string{"ma", "patch", "album", "--auto", "XM4BL2"},
+			err:  "cannot specify `auto` without `name`",
 		},
 		{
 			name: "patch album 404",
-			args: []string{"ma", "patch", "album", "-f", "--name", "bar foo", "RM4BL3"},
+			args: []string{"ma", "patch", "album", "--name", "bar foo", "RM4BL3"},
 			err:  http.StatusText(http.StatusNotFound),
 		},
 		{
 			name: "patch image 404",
-			args: []string{"ma", "patch", "image", "-f", "--title", "something bar foo", "B2fHSt7-4"},
+			args: []string{"ma", "patch", "image", "--title", "something bar foo", "B2fHSt7-4"},
 			err:  http.StatusText(http.StatusNotFound),
 		},
 	} {

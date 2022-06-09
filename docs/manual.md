@@ -409,11 +409,11 @@ $ ma patch album [flags] <album key> [<album key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```force```|```f```||force must be specified to apply the patch|
-|```auto-urlname```|||if enabled, and an album name provided as a flag, the urlname will be auto-generated from the name|
+|```dryrun```|```n```||dryrun the patches|
+|```urlname```|||the urlname of the album|
+|```auto```|```A, auto-urlname```||auto-generate the urlname (album name is required)|
 |```keyword```|||a set of keywords describing the album|
 |```name```|||the name of the album|
-|```urlname```|||the urlname of the album (see `--auto-urlname` to set this automatically based on the album name)|
 
 
 ## *patch image*
@@ -434,7 +434,7 @@ $ ma patch image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```force```|```f```||force must be specified to apply the patch|
+|```dryrun```|```n```||dryrun the patches|
 |```keyword```|||specifies keywords describing the image|
 |```caption```|||the caption of the image|
 |```title```|||the title of the image|

@@ -26,6 +26,17 @@ func (p patchKey) String() string {
 	return key
 }
 
+func (p patchKey) Title() string {
+	var key string
+	switch p {
+	case patchKeyAlbum:
+		key = "AlbumKey"
+	case patchKeyImage:
+		key = "ImageKey"
+	}
+	return key
+}
+
 type patcher struct {
 	c       *cli.Context
 	err     error
@@ -83,7 +94,7 @@ func (p *patcher) urlname() *patcher {
 	}
 	var url string
 	switch {
-	case p.c.Bool("auto-urlname"):
+	case p.c.Bool("auto"):
 		url = smugmug.URLName(p.c.String("name"), runtime(p.c).Language)
 	default:
 		if !p.c.IsSet("urlname") {
@@ -133,16 +144,24 @@ func patch(key patchKey) cli.ActionFunc {
 			log.Warn().Msg("no patches to apply")
 			return nil
 		}
-		for _, x := range c.Args().Slice() {
-			msg := log.Info().Str(key.String(), x).Interface("patches", p.patches)
+		enc := runtime(c).Encoder
+		for i := 0; i < c.NArg(); i++ {
+			id := c.Args().Get(i)
+			msg := log.Info().Str(key.String(), id).Interface("patches", p.patches)
+			if err := enc.Encode(map[string]any{
+				key.Title(): id,
+				"Patches":   p.patches,
+			}); err != nil {
+				return err
+			}
 			switch {
-			case !c.Bool("force"):
+			case c.Bool("dryrun"):
 				msg.Msg("dryrun")
 				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "dryrun"}, 1)
 			default:
 				msg.Msg("apply")
 				runtime(c).Metrics.IncrCounter([]string{"patch", c.Command.Name, "apply"}, 1)
-				if err := p.patch(key, x); err != nil {
+				if err := p.patch(key, id); err != nil {
 					return err
 				}
 			}
@@ -151,11 +170,11 @@ func patch(key patchKey) cli.ActionFunc {
 	}
 }
 
-func forceFlag() cli.Flag {
+func dryrunFlag() cli.Flag {
 	return &cli.BoolFlag{
-		Name:    "force",
-		Aliases: []string{"f"},
-		Usage:   "force must be specified to apply the patch",
+		Name:    "dryrun",
+		Aliases: []string{"n"},
+		Usage:   "dryrun the patches",
 		Value:   false,
 	}
 }
@@ -168,10 +187,15 @@ func albumPatch() *cli.Command {
 		Description: "Patch the metadata of a single album",
 		ArgsUsage:   "<album key> [<album key>, ...]",
 		Flags: []cli.Flag{
-			forceFlag(),
+			dryrunFlag(),
+			&cli.StringFlag{
+				Name:  "urlname",
+				Usage: "the urlname of the album",
+			},
 			&cli.BoolFlag{
-				Name:  "auto-urlname",
-				Usage: "if enabled, and an album name provided as a flag, the urlname will be auto-generated from the name",
+				Name:    "auto",
+				Aliases: []string{"A", "auto-urlname"},
+				Usage:   "auto-generate the urlname (album name is required)",
 			},
 			&cli.StringSliceFlag{
 				Name:  "keyword",
@@ -181,17 +205,13 @@ func albumPatch() *cli.Command {
 				Name:  "name",
 				Usage: "the name of the album",
 			},
-			&cli.StringFlag{
-				Name:  "urlname",
-				Usage: "the urlname of the album (see `--auto-urlname` to set this automatically based on the album name)",
-			},
 		},
 		Before: func(c *cli.Context) error {
 			switch {
-			case c.IsSet("auto-urlname") && c.IsSet("urlname"):
-				return errors.New("only one of `auto-urlname` or `urlname` may be specified")
-			case c.IsSet("auto-urlname") && !c.IsSet("name"):
-				return errors.New("cannot specify `auto-urlname` without `name`")
+			case c.IsSet("auto") && c.IsSet("urlname"):
+				return errors.New("only one of `auto` or `urlname` may be specified")
+			case c.IsSet("auto") && !c.IsSet("name"):
+				return errors.New("cannot specify `auto` without `name`")
 			}
 			switch c.NArg() {
 			case 0:
@@ -214,7 +234,7 @@ func imagePatch() *cli.Command {
 		Description: "patch the metadata of an image (not the image itself though)",
 		ArgsUsage:   "<image key> [<image key>, ...]",
 		Flags: []cli.Flag{
-			forceFlag(),
+			dryrunFlag(),
 			&cli.StringSliceFlag{
 				Name:  "keyword",
 				Usage: "specifies keywords describing the image",

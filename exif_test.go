@@ -16,11 +16,11 @@ func TestExif(t *testing.T) {
 	tests := []harness{
 		{
 			name: "no arguments",
-			args: []string{"ma", "exif"},
+			args: []string{"exif"},
 		},
 		{
 			name: "supported exif file",
-			args: []string{"ma", "exif", "/foo/bar/Nikon_D70.jpg"},
+			args: []string{"exif", "/foo/bar/Nikon_D70.jpg"},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
 				a.NotNil(fp)
@@ -30,12 +30,12 @@ func TestExif(t *testing.T) {
 		},
 		{
 			name: "error does not exist",
-			args: []string{"ma", "exif", "/foo/bar/Nikon_D70.jpg"},
+			args: []string{"exif", "/foo/bar/Nikon_D70.jpg"},
 			err:  os.ErrNotExist.Error(),
 		},
 		{
 			name: "error opening file",
-			args: []string{"ma", "exif", "/foo/bar/"},
+			args: []string{"exif", "/foo/bar/"},
 			err:  os.ErrPermission.Error(),
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -46,7 +46,7 @@ func TestExif(t *testing.T) {
 		},
 		{
 			name: "unsupported exif file",
-			args: []string{"ma", "exif", "/foo/bar/Olympus.orf"},
+			args: []string{"exif", "/foo/bar/Olympus.orf"},
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs
 				a.NoError(afs.MkdirAll("/foo/bar", 0755))
@@ -59,7 +59,7 @@ func TestExif(t *testing.T) {
 		},
 		{
 			name: "file with no exif data",
-			args: []string{"ma", "exif", "/foo/bar/user_cmac.json"},
+			args: []string{"exif", "/foo/bar/user_cmac.json"},
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs
 				a.NoError(afs.MkdirAll("/foo/bar", 0755))

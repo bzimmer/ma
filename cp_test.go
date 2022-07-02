@@ -37,14 +37,14 @@ func TestCopy(t *testing.T) { //nolint
 	tests := []harness{
 		{
 			name: "one argument",
-			args: []string{"ma", "cp", "/foo/bar"},
+			args: []string{"cp", "/foo/bar"},
 			err:  "expected 2+ arguments",
 		},
 		{
 			name: "empty directory",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
+				"cp.visited.directories": 1,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
@@ -53,10 +53,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "hidden files",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
-				"ma.cp.skip.hidden":         2,
+				"cp.visited.directories": 1,
+				"cp.skip.hidden":         2,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
@@ -71,10 +71,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "filename with no extension",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories":     1,
-				"ma.cp.skip.unsupported.<none>": 1,
+				"cp.visited.directories":     1,
+				"cp.skip.unsupported.<none>": 1,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
@@ -86,11 +86,11 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "unsupported files",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories":  2,
-				"ma.cp.skip.unsupported.UKN": 1,
-				"ma.cp.skip.unsupported.txt": 1,
+				"cp.visited.directories":  2,
+				"cp.skip.unsupported.UKN": 1,
+				"cp.skip.unsupported.txt": 1,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo", 0755))
@@ -105,9 +105,9 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "single image dng",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
+				"cp.visited.directories": 1,
 			},
 			before: func(c *cli.Context) error {
 				image := createTestFile(t, runtime(c).Fs)
@@ -122,9 +122,9 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "single image",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
+				"cp.visited.directories": 1,
 			},
 			before: func(c *cli.Context) error {
 				image := createTestFile(t, runtime(c).Fs)
@@ -154,10 +154,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "image exists",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
-				"ma.cp.skip.exists":         1,
+				"cp.visited.directories": 1,
+				"cp.skip.exists":         1,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
@@ -180,9 +180,9 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "image + xmp",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
+				"cp.visited.directories": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -204,10 +204,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "two valid files",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
-				"ma.cp.visited.files":       2,
+				"cp.visited.directories": 1,
+				"cp.visited.files":       2,
 			},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -230,10 +230,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "image + xmp dry-run",
-			args: []string{"ma", "cp", "-n", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "-n", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
-				"ma.cp.file.dryrun":         2,
+				"cp.visited.directories": 1,
+				"cp.file.dryrun":         2,
 			},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -255,11 +255,11 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "image + xmp in different directories",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.visited.files":            2,
-				"ma.cp.visited.directories":      2,
-				"ma.cp.fileset.skip.unsupported": 1,
+				"cp.visited.files":            2,
+				"cp.visited.directories":      2,
+				"cp.fileset.skip.unsupported": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -282,12 +282,12 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "image with garbage exif",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.filesets":            1,
-				"ma.cp.visited.directories": 1,
-				"ma.cp.visited.files":       1,
-				"ma.cp.fileset.failed.exif": 1,
+				"cp.filesets":            1,
+				"cp.visited.directories": 1,
+				"cp.visited.files":       1,
+				"cp.fileset.failed.exif": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.jpg")
@@ -299,10 +299,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "fail on copy",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			err:  "operation not permitted",
 			counters: map[string]int{
-				"ma.cp.visited.directories": 1,
+				"cp.visited.directories": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)
@@ -319,10 +319,10 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "directory without read/execute permissions",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			counters: map[string]int{
-				"ma.cp.skip.denied":         1,
-				"ma.cp.visited.directories": 5,
+				"cp.skip.denied":         1,
+				"cp.visited.directories": 5,
 			},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo0", 0755))
@@ -335,7 +335,7 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "directory walk error",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			err:  "invalid argument",
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar/boo0", 0755))
@@ -346,7 +346,7 @@ func TestCopy(t *testing.T) { //nolint
 		},
 		{
 			name: "canceled context",
-			args: []string{"ma", "cp", "/foo/bar", "/foo/baz"},
+			args: []string{"cp", "/foo/bar", "/foo/baz"},
 			err:  context.Canceled.Error(),
 			before: func(c *cli.Context) error {
 				fp := createTestFile(t, runtime(c).Fs)

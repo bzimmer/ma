@@ -70,6 +70,7 @@ func CommandList() *cli.Command {
 		Subcommands: []*cli.Command{
 			{
 				Name:        "album",
+				HelpName:    "album",
 				Usage:       "list albums",
 				Description: "list the contents of an album(s)",
 				ArgsUsage:   "<album key> [<album key>, ...]",
@@ -84,6 +85,7 @@ func CommandList() *cli.Command {
 			},
 			{
 				Name:        "node",
+				HelpName:    "node",
 				Usage:       "list nodes",
 				Description: "list the contents of a node(s)",
 				ArgsUsage:   "<node id> [<node id>, ...]",
@@ -119,6 +121,7 @@ func CommandList() *cli.Command {
 			},
 			{
 				Name:        "image",
+				HelpName:    "image",
 				Usage:       "list images",
 				Description: "list the details of an image(s)",
 				ArgsUsage:   "<image key> [<image key>, ...]",

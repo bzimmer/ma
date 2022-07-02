@@ -36,36 +36,36 @@ func TestRemove(t *testing.T) {
 	for _, tt := range []harness{
 		{
 			name: "rm invalid image",
-			args: []string{"ma", "rm", "image", "--album", "QWERTY0", "743XwH7"},
+			args: []string{"rm", "image", "--album", "QWERTY0", "743XwH7"},
 			err:  "no version specified for image key {743XwH7}",
 			counters: map[string]int{
-				"ma.rm.image.attempt": 1,
-				"ma.rm.image.failure": 1,
+				"rm.image.attempt": 1,
+				"rm.image.failure": 1,
 			},
 		},
 		{
 			name: "rm invalid image",
-			args: []string{"ma", "rm", "image", "--album", "QWERTY0", "743XwH7-4"},
+			args: []string{"rm", "image", "--album", "QWERTY0", "743XwH7-4"},
 			err:  http.StatusText(http.StatusNotFound),
 			counters: map[string]int{
-				"ma.rm.image.attempt": 1,
-				"ma.rm.image.failure": 1,
+				"rm.image.attempt": 1,
+				"rm.image.failure": 1,
 			},
 		},
 		{
 			name: "rm invalid image",
-			args: []string{"ma", "rm", "image", "-0", "--album", "QWERTY0", "743XwH7"},
+			args: []string{"rm", "image", "-0", "--album", "QWERTY0", "743XwH7"},
 			counters: map[string]int{
-				"ma.rm.image.attempt": 1,
-				"ma.rm.image.success": 1,
+				"rm.image.attempt": 1,
+				"rm.image.success": 1,
 			},
 		},
 		{
 			name: "rm image",
-			args: []string{"ma", "rm", "image", "--album", "QWERTY0", "743XwH7-0"},
+			args: []string{"rm", "image", "--album", "QWERTY0", "743XwH7-0"},
 			counters: map[string]int{
-				"ma.rm.image.attempt": 1,
-				"ma.rm.image.success": 1,
+				"rm.image.attempt": 1,
+				"rm.image.success": 1,
 			},
 		},
 	} {

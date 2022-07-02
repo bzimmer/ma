@@ -22,9 +22,9 @@ func TestFind(t *testing.T) {
 	for _, tt := range []harness{
 		{
 			name: "find",
-			args: []string{"ma", "find", "Marmot"},
+			args: []string{"find", "Marmot"},
 			counters: map[string]int{
-				"ma.find.album": 10,
+				"find.album": 10,
 			},
 		},
 	} {

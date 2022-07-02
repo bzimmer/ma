@@ -58,27 +58,27 @@ func TestNew(t *testing.T) {
 	for _, tt := range []harness{
 		{
 			name: "new with no parent",
-			args: []string{"ma", "new", "album"},
+			args: []string{"new", "album"},
 			err:  "Required flag \"parent\" not set",
 		},
 		{
 			name: "new with no arguments",
-			args: []string{"ma", "new", "--parent", "QWERTY0", "album"},
+			args: []string{"new", "--parent", "QWERTY0", "album"},
 			err:  "expected one or two arguments",
 		},
 		{
 			name: "new with invalid privacy",
-			args: []string{"ma", "new", "--privacy", "garbage", "--parent", "QWERTY0", "album", "0YTREWQ"},
+			args: []string{"new", "--privacy", "garbage", "--parent", "QWERTY0", "album", "0YTREWQ"},
 			err:  "privacy one of",
 		},
 		{
 			name: "new with invalid url name",
-			args: []string{"ma", "new", "--parent", "QWERTY0", "album", "0YTREWQ", "lower-case"},
+			args: []string{"new", "--parent", "QWERTY0", "album", "0YTREWQ", "lower-case"},
 			err:  ma.ErrInvalidURLName.Error(),
 		},
 		{
 			name: "new album",
-			args: []string{"ma", "new", "--parent", "QWERTY0", "album", "2021-03-17 A Big Day"},
+			args: []string{"new", "--parent", "QWERTY0", "album", "2021-03-17 A Big Day"},
 		},
 	} {
 		tt := tt

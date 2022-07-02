@@ -16,12 +16,12 @@ func TestSimilar(t *testing.T) {
 	tests := []harness{
 		{
 			name: "similar files",
-			args: []string{"ma", "similar", "/foo/bar"},
+			args: []string{"similar", "/foo/bar"},
 			counters: map[string]int{
-				"ma.similar.analyze.true":  1,
-				"ma.similar.analyze.false": 2,
-				"ma.similar.path":          4,
-				"ma.similar.icon.skipped":  1,
+				"similar.analyze.true":  1,
+				"similar.analyze.false": 2,
+				"similar.path":          4,
+				"similar.icon.skipped":  1,
 			},
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs
@@ -46,11 +46,11 @@ func TestSimilar(t *testing.T) {
 		},
 		{
 			name: "permission denied",
-			args: []string{"ma", "similar", "/foo/bar"},
+			args: []string{"similar", "/foo/bar"},
 			err:  "permission denied",
 			counters: map[string]int{
-				"ma.similar.path":       1,
-				"ma.similar.icon.error": 1,
+				"similar.path":       1,
+				"similar.icon.error": 1,
 			},
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs
@@ -72,10 +72,10 @@ func TestSimilar(t *testing.T) {
 		},
 		{
 			name: "no image files",
-			args: []string{"ma", "similar", "-c", "4", "/foo/bar"},
+			args: []string{"similar", "-c", "4", "/foo/bar"},
 			counters: map[string]int{
-				"ma.similar.path":         10,
-				"ma.similar.icon.skipped": 10,
+				"similar.path":         10,
+				"similar.icon.skipped": 10,
 			},
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs

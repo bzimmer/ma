@@ -43,22 +43,22 @@ func TestUpload(t *testing.T) { //nolint
 	for _, tt := range []harness{
 		{
 			name: "upload with no arguments",
-			args: []string{"ma", "upload"},
+			args: []string{"upload"},
 			err:  "Required flag \"album\" not set",
 		},
 		{
 			name: "upload invalid album",
-			args: []string{"ma", "upload", "--album", "qety", "/tmp/foo/bar"},
+			args: []string{"upload", "--album", "qety", "/tmp/foo/bar"},
 			err:  "Not Found",
 		},
 		{
 			name: "upload directory does not exist",
-			args: []string{"ma", "upload", "--album", "TDZWbg", "/tmp/foo/bar"},
+			args: []string{"upload", "--album", "TDZWbg", "/tmp/foo/bar"},
 			err:  "file does not exist",
 		},
 		{
 			name: "upload no valid files",
-			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			before: func(c *cli.Context) error {
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
 				return nil
@@ -66,11 +66,11 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload file already exists",
-			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"ma.fsUploadable.visit":    1,
-				"ma.fsUploadable.open":     1,
-				"ma.fsUploadable.skip.md5": 1,
+				"fsUploadable.visit":    1,
+				"fsUploadable.open":     1,
+				"fsUploadable.skip.md5": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
@@ -83,10 +83,10 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload skip unsupported file",
-			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"ma.fsUploadable.visit":            1,
-				"ma.fsUploadable.skip.unsupported": 1,
+				"fsUploadable.visit":            1,
+				"fsUploadable.skip.unsupported": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.xmp")
@@ -98,12 +98,12 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload replace existing image (dryrun)",
-			args: []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"ma.fsUploadable.visit":   1,
-				"ma.fsUploadable.open":    1,
-				"ma.fsUploadable.replace": 1,
-				"ma.upload.dryrun":        1,
+				"fsUploadable.visit":   1,
+				"fsUploadable.open":    1,
+				"fsUploadable.replace": 1,
+				"upload.dryrun":        1,
 			},
 			before: func(c *cli.Context) error {
 				// create a file of the same name as a previously uploaded file but copy the
@@ -118,12 +118,12 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload new image",
-			args: []string{"ma", "upload", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"ma.fsUploadable.visit": 1,
-				"ma.upload.attempt":     1,
-				"ma.fsUploadable.open":  1,
-				"ma.upload.success":     1,
+				"fsUploadable.visit": 1,
+				"upload.attempt":     1,
+				"fsUploadable.open":  1,
+				"upload.success":     1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
@@ -136,7 +136,7 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload new image encoding error",
-			args: []string{"ma", "-j", "upload", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"-j", "upload", "--album", "TDZWbg", "/foo/bar"},
 			err:  "error encoder",
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
@@ -150,11 +150,11 @@ func TestUpload(t *testing.T) { //nolint
 		},
 		{
 			name: "upload new image (dryrun)",
-			args: []string{"ma", "upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
+			args: []string{"upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"ma.fsUploadable.visit": 1,
-				"ma.upload.dryrun":      1,
-				"ma.fsUploadable.open":  1,
+				"fsUploadable.visit": 1,
+				"upload.dryrun":      1,
+				"fsUploadable.open":  1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")

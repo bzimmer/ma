@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -57,9 +58,10 @@ func copyFile(w io.Writer, filename string) error {
 }
 
 func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.App {
+	name := strings.ReplaceAll(tt.name, " ", "-")
 	return &cli.App{
-		Name:     tt.name,
-		HelpName: tt.name,
+		Name:     name,
+		HelpName: name,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:     "json",
@@ -69,7 +71,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			},
 		},
 		Before: func(c *cli.Context) error {
-			cfg := metrics.DefaultConfig("ma")
+			cfg := metrics.DefaultConfig(c.App.Name)
 			cfg.EnableRuntimeMetrics = false
 			cfg.TimerGranularity = time.Second
 			sink := metrics.NewInmemSink(time.Hour*24, time.Hour*24)
@@ -80,6 +82,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 
 			client, err := smugmug.NewClient(
 				smugmug.WithBaseURL(url),
+				smugmug.WithUploadURL(url),
 				smugmug.WithHTTPTracing(zerolog.GlobalLevel() == zerolog.DebugLevel))
 			if err != nil {
 				t.Error(err)
@@ -121,7 +124,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			if err := ma.Metrics(c); err != nil {
 				return err
 			}
-			return counters(t, tt.counters)(c)
+			return counters(c.App.Name, t, tt.counters)(c)
 		},
 		Commands: []*cli.Command{cmd},
 	}
@@ -141,12 +144,13 @@ func walkfs(c *cli.Context) error {
 	})
 }
 
-func counters(t *testing.T, expected map[string]int) cli.AfterFunc {
+func counters(name string, t *testing.T, expected map[string]int) cli.AfterFunc {
 	a := assert.New(t)
 	return func(c *cli.Context) error {
 		data := runtime(c).Sink.Data()
 		for key, value := range expected {
 			var found bool
+			key = fmt.Sprintf("%s.%s", name, key)
 			for i := range data {
 				if counter, ok := data[i].Counters[key]; ok {
 					found = true
@@ -210,7 +214,7 @@ func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Comman
 	if tt.context != nil {
 		ctx = tt.context(ctx)
 	}
-	err := app.RunContext(ctx, tt.args)
+	err := app.RunContext(ctx, append([]string{app.Name}, tt.args...))
 	if tt.err == "" {
 		a.NoError(err)
 		return

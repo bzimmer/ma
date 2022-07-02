@@ -86,6 +86,7 @@ func CommandNew() *cli.Command {
 		Subcommands: []*cli.Command{
 			{
 				Name:        "album",
+				HelpName:    "album",
 				Usage:       "create a new album",
 				Description: "create a new album for images",
 				Before:      before,
@@ -93,6 +94,7 @@ func CommandNew() *cli.Command {
 			},
 			{
 				Name:        "folder",
+				HelpName:    "folder",
 				Usage:       "create a new folder",
 				Description: "create a new folder for albums",
 				Before:      before,

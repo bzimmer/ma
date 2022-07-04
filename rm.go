@@ -39,6 +39,7 @@ func CommandRemove() *cli.Command {
 		Subcommands: []*cli.Command{
 			{
 				Name:        "image",
+				HelpName:    "image",
 				Usage:       "delete an image from an album",
 				Description: "delete an image from an album",
 				ArgsUsage:   "<image key> [<image key>, ...]",

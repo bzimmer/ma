@@ -31,19 +31,19 @@ func TestURLName(t *testing.T) {
 	for _, tt := range []harness{
 		{
 			name:   "valid",
-			args:   []string{"ma", "-j", "urlname", "foobar"},
+			args:   []string{"-j", "urlname", "foobar"},
 			before: before,
 			after:  after("Foobar", true),
 		},
 		{
 			name:   "remove `'s` and `-`",
-			args:   []string{"ma", "-j", "urlname", "Foo's - The Best"},
+			args:   []string{"-j", "urlname", "Foo's - The Best"},
 			before: before,
 			after:  after("Foos-The-Best", true),
 		},
 		{
 			name:   "empty name",
-			args:   []string{"ma", "-j", "urlname", "-a", "\"\""},
+			args:   []string{"-j", "urlname", "-a", "\"\""},
 			before: before,
 			after:  after("", false),
 		},

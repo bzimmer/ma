@@ -1,17 +1,22 @@
 package ma_test
 
 import (
-	"context"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/ma"
 )
 
 func TestVersion(t *testing.T) {
-	a := assert.New(t)
-
-	app := NewTestApp(t, &harness{name: "version"}, ma.CommandVersion(), "")
-	a.NoError(app.RunContext(context.TODO(), []string{"ma", "version"}))
+	tests := []harness{
+		{
+			name: "version",
+			args: []string{"version"},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			run(t, &tt, nil, ma.CommandVersion)
+		})
+	}
 }

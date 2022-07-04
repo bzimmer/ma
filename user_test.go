@@ -19,7 +19,7 @@ func TestUser(t *testing.T) {
 	tests := []harness{
 		{
 			name: "authuser",
-			args: []string{"ma", "user"},
+			args: []string{"user"},
 		},
 	}
 	for _, tt := range tests {
@@ -51,7 +51,7 @@ func TestUserError(t *testing.T) {
 	tests := []harness{
 		{
 			name: "authuser",
-			args: []string{"ma", "user"},
+			args: []string{"user"},
 			err:  http.StatusText(http.StatusNotFound),
 		},
 	}

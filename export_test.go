@@ -58,14 +58,14 @@ func TestExport(t *testing.T) { //nolint
 	tests := []harness{
 		{
 			name: "export with no arguments",
-			args: []string{"ma", "export"},
+			args: []string{"export"},
 			err:  "expected two arguments, not {0}",
 		},
 		{
 			name: "export album",
-			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
+			args: []string{"export", "VsQ7zr", "/foo/bar"},
 			counters: map[string]int{
-				"ma.export.download.ok": 1,
+				"export.download.ok": 1,
 			},
 			before: func(c *cli.Context) error {
 				runtime(c).Grab = &grab{url: runtime(c).URL}
@@ -80,9 +80,9 @@ func TestExport(t *testing.T) { //nolint
 		},
 		{
 			name: "export album image not found",
-			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
+			args: []string{"export", "VsQ7zr", "/foo/bar"},
 			counters: map[string]int{
-				"ma.export.download.failed.not_found": 1,
+				"export.download.failed.not_found": 1,
 			},
 			before: func(c *cli.Context) error {
 				runtime(c).Grab = &grab{
@@ -101,9 +101,9 @@ func TestExport(t *testing.T) { //nolint
 		},
 		{
 			name: "export album image server error",
-			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
+			args: []string{"export", "VsQ7zr", "/foo/bar"},
 			counters: map[string]int{
-				"ma.export.download.failed.internal_server_error": 1,
+				"export.download.failed.internal_server_error": 1,
 			},
 			err: "download failed",
 			before: func(c *cli.Context) error {
@@ -123,9 +123,9 @@ func TestExport(t *testing.T) { //nolint
 		},
 		{
 			name: "skip existing image",
-			args: []string{"ma", "export", "VsQ7zr", "/foo/bar"},
+			args: []string{"export", "VsQ7zr", "/foo/bar"},
 			counters: map[string]int{
-				"ma.export.download.skipping.exists": 1,
+				"export.download.skipping.exists": 1,
 			},
 			before: func(c *cli.Context) error {
 				runtime(c).Grab = &grab{url: runtime(c).URL}

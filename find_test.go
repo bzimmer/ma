@@ -16,13 +16,28 @@ func TestFind(t *testing.T) {
 		http.ServeFile(w, r, "testdata/album_search_marmot.json")
 	})
 	mux.HandleFunc("/node!search", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "testdata/album_search_marmot.json")
+		http.ServeFile(w, r, "testdata/node_search_marmot.json")
 	})
 
 	for _, tt := range []harness{
 		{
 			name: "find",
 			args: []string{"find", "Marmot"},
+			counters: map[string]int{
+				"find.album": 10,
+				"find.node":  250,
+			},
+		},
+		{
+			name: "find nodes",
+			args: []string{"find", "-n", "Marmot"},
+			counters: map[string]int{
+				"find.node": 250,
+			},
+		},
+		{
+			name: "find albums",
+			args: []string{"find", "-a", "Marmot"},
 			counters: map[string]int{
 				"find.album": 10,
 			},

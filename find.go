@@ -25,7 +25,7 @@ func find(c *cli.Context) error {
 	grp, ctx := errgroup.WithContext(c.Context)
 	if c.Bool("node") {
 		grp.Go(func() error {
-			return mg.Node.SearchIter(ctx, nodeIterFunc(c, false, "find"), options...)
+			return mg.Node.SearchIter(ctx, nodeIterFunc(c, true, "find"), options...)
 		})
 	}
 	if c.Bool("album") {
@@ -53,12 +53,12 @@ func CommandFind() *cli.Command {
 			},
 			&cli.BoolFlag{
 				Name:    "album",
-				Usage:   "search only for albums",
+				Usage:   "search for albums",
 				Aliases: []string{"a"},
 			},
 			&cli.BoolFlag{
 				Name:    "node",
-				Usage:   "search only for nodes",
+				Usage:   "search for nodes",
 				Aliases: []string{"n", "f"},
 			},
 		},

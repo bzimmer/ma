@@ -1,0 +1,1039 @@
+{
+    "Request": {
+        "Version": "v2",
+        "Method": "GET",
+        "Uri": "/api/v2/node!search?Scope=&SortDirection=Descending&SortMethod=Rank&Text=Marmote"
+    },
+    "Options": {
+        "MethodDetails": {
+            "OPTIONS": {
+                "Permissions": [
+                    "Read"
+                ]
+            },
+            "GET": {
+                "Permissions": [
+                    "Read"
+                ]
+            }
+        },
+        "Methods": [
+            "OPTIONS",
+            "GET"
+        ],
+        "ParameterDescription": {
+            "Varchar": "Variable length text from MIN_CHARS to MAX_CHARS (MAX_CHARS = INFINITY meaning arbitrary length)",
+            "Select": "Select one option. Options should pass only the \"Value\".",
+            "Uri": "Absolute or relative URL, restricted to Locator(s) of the supplied URL if not null.   Up to a MAX_LENGTH in length."
+        },
+        "Parameters": {
+            "GET": [
+                {
+                    "Name": "Text",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Search all text fields",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": "INFINITY",
+                    "Value": "Marmote"
+                },
+                {
+                    "Name": "SortMethod",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "_score",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Rank",
+                        "LastUpdated"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1,
+                    "Value": "Rank"
+                },
+                {
+                    "Name": "SortDirection",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Descending",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Ascending",
+                        "Descending"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1,
+                    "Value": "Descending"
+                },
+                {
+                    "Name": "Scope",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The URI of a Folder, Node, or User to search within",
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [],
+                    "Value": ""
+                }
+            ]
+        },
+        "MediaTypes": [
+            "application/json",
+            "application/vnd.php.serialized",
+            "application/x-msgpack",
+            "text/html",
+            "text/csv"
+        ],
+        "Notes": [
+            "_multiargs does not work at this endpoint"
+        ]
+    },
+    "Response": {
+        "Uri": "/api/v2/node!search?Scope=&SortDirection=Descending&SortMethod=Rank&Text=Marmote",
+        "Locator": "Node",
+        "LocatorType": "Objects",
+        "Node": [
+            {
+                "Description": "",
+                "Name": "Marmots",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Marmots",
+                "DateAdded": "2015-08-01T12:04:33+00:00",
+                "DateModified": "2006-02-22T21:02:36+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Marmots"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "fdWPQf",
+                "UrlPath": "/Critters/Marmots",
+                "Uri": "/api/v2/node/fdWPQf",
+                "WebUri": "https://briarpatch.smugmug.com/Critters/Marmots",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/fdWPQf",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/fdWPQf!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/fdWPQf!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/briarpatch",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/fdWPQf!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/fdWPQf",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/fdWPQf!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/fdWPQf!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Marmots",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Marmots",
+                "DateAdded": "2013-08-15T16:58:01+00:00",
+                "DateModified": "2019-08-19T23:40:05+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Marmots"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "bDN5k",
+                "SortIndex": 4,
+                "UrlPath": "/Animals/Mammals/Rodents/Marmotini-chipmunks-ground-squ/Marmots",
+                "Uri": "/api/v2/node/bDN5k",
+                "WebUri": "https://ololaiki.smugmug.com/Animals/Mammals/Rodents/Marmotini-chipmunks-ground-squ/Marmots",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/bDN5k",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/bDN5k!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/bDN5k!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/ololaiki",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/bDN5k!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/bDN5k",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/bDN5k!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/bDN5k!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Marmots",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Marmots",
+                "DateAdded": "2019-08-15T16:52:00+00:00",
+                "DateModified": "2019-08-15T16:52:00+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Marmots"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "WRwxvX",
+                "UrlPath": "/Animals/Mammals-1/Land-Mammals-1/Marmots",
+                "Uri": "/api/v2/node/WRwxvX",
+                "WebUri": "https://www.waynecsmithiii.com/Animals/Mammals-1/Land-Mammals-1/Marmots",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/WRwxvX",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/WRwxvX!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/WRwxvX!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/waynecsmith",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/WRwxvX!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/WRwxvX",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/WRwxvX!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/WRwxvX!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "MARMOT",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "MARMOT",
+                "DateAdded": "2013-12-05T01:06:44+00:00",
+                "DateModified": "2013-12-05T04:06:08+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "MARMOT"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "nHgMs",
+                "UrlPath": "/ALASKA-ZOO-ANIMALS/MARMOT",
+                "Uri": "/api/v2/node/nHgMs",
+                "WebUri": "https://www.akjohn.com/ALASKA-ZOO-ANIMALS/MARMOT",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/nHgMs",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/nHgMs!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/nHgMs!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/johngomes",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/nHgMs!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/nHgMs",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/nHgMs!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/nHgMs!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Marmore Cascades",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Marmore-Cascades",
+                "DateAdded": "2018-04-18T18:13:54+00:00",
+                "DateModified": "2018-04-19T08:10:46+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Marmore Cascades"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "2JXF44",
+                "UrlPath": "/Europe/Italy/Umbria/Marmore-Cascades",
+                "Uri": "/api/v2/node/2JXF44",
+                "WebUri": "https://jbraithwaite.smugmug.com/Europe/Italy/Umbria/Marmore-Cascades",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/2JXF44",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/2JXF44!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/2JXF44!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/jbraithwaite",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/2JXF44!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/2JXF44",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/2JXF44!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/2JXF44!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "Photos of the Yellowstone Landscapes and Wildlife",
+                "Name": "Yellowstone Photography",
+                "Keywords": [
+                    "bears",
+                    "bison",
+                    "buffalo",
+                    "grizzly",
+                    "marmets",
+                    "marmots",
+                    "mountains",
+                    "pronghorn",
+                    "squirrels",
+                    "tetons",
+                    "wildlife",
+                    "yellowstone",
+                    "yellowstone photography"
+                ],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Ascending",
+                "SortMethod": "SortIndex",
+                "Type": "Folder",
+                "UrlName": "Yellowstone-Photography",
+                "DateAdded": "2013-11-11T23:27:05+00:00",
+                "DateModified": "2019-03-01T00:20:23+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Yellowstone Photography"
+                    },
+                    "Description": {
+                        "html": "Photos of the Yellowstone Landscapes and Wildlife",
+                        "text": "Photos of the Yellowstone Landscapes and Wildlife"
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "TGgdQ",
+                "SortIndex": 1,
+                "UrlPath": "/Yellowstone-Photography",
+                "Uri": "/api/v2/node/TGgdQ",
+                "WebUri": "https://www.cynthiakidwellphotography.com/Yellowstone-Photography",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/TGgdQ",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/TGgdQ!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/TGgdQ!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/CynthiaKidwell",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/TGgdQ!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/TGgdQ",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/TGgdQ!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/TGgdQ!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Mammoth",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": true,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Mammoth",
+                "DateAdded": "2020-01-09T01:45:46+00:00",
+                "DateModified": "2020-01-09T01:49:27+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Mammoth"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "P2FHj4",
+                "UrlPath": "/CountyParks/Westmoreland/Mammoth",
+                "Uri": "/api/v2/node/P2FHj4",
+                "WebUri": "https://dlmphotopa.smugmug.com/CountyParks/Westmoreland/Mammoth",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/P2FHj4",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/P2FHj4!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/P2FHj4!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/dlmphotopa",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/P2FHj4!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/P2FHj4",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/P2FHj4!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/P2FHj4!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Mammoth",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Descending",
+                "SortMethod": "DateModified",
+                "Type": "Folder",
+                "UrlName": "Mammoth",
+                "DateAdded": "2013-10-06T21:29:05+00:00",
+                "DateModified": "2012-06-24T02:58:22+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Mammoth"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "VGLTw",
+                "UrlPath": "/The-Sierra/Mammoth",
+                "Uri": "/api/v2/node/VGLTw",
+                "WebUri": "https://cjpowell22.smugmug.com/The-Sierra/Mammoth",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/VGLTw",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/VGLTw!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/VGLTw!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/cjpowell22",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/VGLTw!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/VGLTw",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/VGLTw!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/VGLTw!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Mammoth",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Ascending",
+                "SortMethod": "SortIndex",
+                "Type": "Folder",
+                "UrlName": "Mammoth",
+                "DateAdded": "2014-02-26T16:16:32+00:00",
+                "DateModified": "2014-08-22T03:38:07+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Mammoth"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "jcSWT",
+                "SortIndex": 54,
+                "UrlPath": "/Scenic/Mammoth",
+                "Uri": "/api/v2/node/jcSWT",
+                "WebUri": "https://blangham.smugmug.com/Scenic/Mammoth",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/jcSWT",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/jcSWT!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/jcSWT!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/blangham",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/jcSWT!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/jcSWT",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/jcSWT!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/jcSWT!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            },
+            {
+                "Description": "",
+                "Name": "Mammoth",
+                "Keywords": [],
+                "PasswordHint": "",
+                "SecurityType": "None",
+                "ShowCoverImage": false,
+                "SortDirection": "Ascending",
+                "SortMethod": "SortIndex",
+                "Type": "Folder",
+                "UrlName": "Mammoth",
+                "DateAdded": "2016-07-10T04:28:32+00:00",
+                "DateModified": "2022-02-01T02:33:57+00:00",
+                "EffectiveSecurityType": "None",
+                "FormattedValues": {
+                    "Name": {
+                        "html": "Mammoth"
+                    },
+                    "Description": {
+                        "html": "",
+                        "text": ""
+                    }
+                },
+                "HasChildren": true,
+                "IsRoot": false,
+                "NodeID": "zC7HMt",
+                "SortIndex": 1468124912,
+                "UrlPath": "/Travel/US-Travel/California/Mammoth",
+                "Uri": "/api/v2/node/zC7HMt",
+                "WebUri": "https://rwglenn.smugmug.com/Travel/US-Travel/California/Mammoth",
+                "UriDescription": "Node with the given id.",
+                "Uris": {
+                    "FolderByID": {
+                        "Uri": "/api/v2/folder/id/zC7HMt",
+                        "Locator": "Folder",
+                        "LocatorType": "Object",
+                        "UriDescription": "Get folder by its ID",
+                        "EndpointType": "FolderByID"
+                    },
+                    "ParentNode": {
+                        "Uri": "/api/v2/node/zC7HMt!parent",
+                        "Locator": "Node",
+                        "LocatorType": "Object",
+                        "UriDescription": "Parent node of the given node.",
+                        "EndpointType": "ParentNode"
+                    },
+                    "ParentNodes": {
+                        "Uri": "/api/v2/node/zC7HMt!parents",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Hierarchy of nodes from the given node (inclusive) to the root node.",
+                        "EndpointType": "ParentNodes"
+                    },
+                    "User": {
+                        "Uri": "/api/v2/user/rwglenn",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "NodeCoverImage": {
+                        "Uri": "/api/v2/node/zC7HMt!cover",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Cover image for a folder, album, or page",
+                        "EndpointType": "NodeCoverImage"
+                    },
+                    "HighlightImage": {
+                        "Uri": "/api/v2/highlight/node/zC7HMt",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Highlight image for a folder, album, or page",
+                        "EndpointType": "HighlightImage"
+                    },
+                    "NodeComments": {
+                        "Uri": "/api/v2/node/zC7HMt!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on a Node",
+                        "EndpointType": "NodeComments"
+                    },
+                    "ChildNodes": {
+                        "Uri": "/api/v2/node/zC7HMt!children",
+                        "Locator": "Node",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Child nodes of the given node.",
+                        "EndpointType": "ChildNodes"
+                    }
+                },
+                "ResponseLevel": "Public"
+            }
+        ],
+        "UriDescription": "Search for nodes",
+        "EndpointType": "NodeSearch",
+        "Pages": {
+            "Total": 250,
+            "Start": 1,
+            "Count": 10,
+            "RequestedCount": 10,
+            "FirstPage": "/api/v2/node!search?Scope=&SortDirection=Descending&SortMethod=Rank&Text=Marmote&start=1&count=10",
+            "LastPage": "/api/v2/node!search?Scope=&SortDirection=Descending&SortMethod=Rank&Text=Marmote&start=241&count=10",
+            "NextPage": "/api/v2/node!search?Scope=&SortDirection=Descending&SortMethod=Rank&Text=Marmote&start=11&count=10"
+        },
+        "Timing": {
+            "Total": {
+                "time": 0.28124,
+                "cycles": 1,
+                "objects": 0
+            }
+        }
+    },
+    "Code": 200,
+    "Message": "Ok"
+}

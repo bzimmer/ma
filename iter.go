@@ -86,6 +86,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			if !nodeq {
 				return recurse, nil
 			}
+			msg = msg.Str("scope", node.URI)
 		}
 
 		msg.Msg(op)

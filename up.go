@@ -194,7 +194,6 @@ func mdelete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Im
 			id := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
 			res, err := mg.Image.Delete(c.Context, album.AlbumKey, id)
 			if err != nil {
-				runtime(c).Metrics.IncrCounter([]string{c.Command.Name, "mirror", "failure"}, 1)
 				return err
 			}
 			met.IncrCounter([]string{c.Command.Name, "delete", "success"}, 1)

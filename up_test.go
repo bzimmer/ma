@@ -175,8 +175,7 @@ func TestUpload(t *testing.T) { //nolint
 	}
 }
 
-func TestMirror(t *testing.T) {
-	t.Skip("skipping mirror")
+func TestMirrorDryRun(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
@@ -186,7 +185,48 @@ func TestMirror(t *testing.T) {
 	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/album_TDZWbg.json")
 	})
-	mux.HandleFunc("/album/TDZWbg/image/TL4PJfh", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
+	})
+
+	for _, tt := range []harness{
+		{
+			name: "upload new image dryrun",
+			args: []string{"upload", "--album", "TDZWbg", "--mirror", "--dryrun", "/foo/bar"},
+			counters: map[string]int{
+				"up.mirror.dryrun":    1,
+				"uploadable.fs.open":  1,
+				"uploadable.fs.visit": 1,
+			},
+			before: func(c *cli.Context) error {
+				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+				return nil
+			},
+		},
+	} {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			run(t, &tt, mux, ma.CommandUpload)
+		})
+	}
+}
+
+func TestMirror(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "testdata/album_TDZWbg_images.json")
+	})
+	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "testdata/album_TDZWbg.json")
+	})
+	mux.HandleFunc("/album/TDZWbg/image/TL4PJfh-0", func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.Method == http.MethodDelete:
 			enc := json.NewEncoder(w)
@@ -211,32 +251,14 @@ func TestMirror(t *testing.T) {
 
 	for _, tt := range []harness{
 		{
-			name: "upload new image",
+			name: "mirror filesystem",
 			args: []string{"upload", "--album", "TDZWbg", "--mirror", "/foo/bar"},
 			counters: map[string]int{
-				"uploadable.fs.visit": 1,
-				"upload.attempt":      1,
+				"upload.success": 1,
+				// "up.mirror.delete":    1,
+				// "up.delete.attempt":   1,
 				"uploadable.fs.open":  1,
-				"upload.success":      1,
-				"mirror.delete":       1,
-			},
-			before: func(c *cli.Context) error {
-				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
-				a.NotNil(fp)
-				a.NoError(err)
-				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
-				a.NoError(fp.Close())
-				return nil
-			},
-		},
-		{
-			name: "upload new image dryrun",
-			args: []string{"upload", "--album", "TDZWbg", "--mirror", "--dryrun", "/foo/bar"},
-			counters: map[string]int{
 				"uploadable.fs.visit": 1,
-				"uploadable.fs.open":  1,
-				"upload.dryrun":       1,
-				"mirror.dryrun":       1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")

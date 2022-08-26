@@ -2,6 +2,8 @@ package ma
 
 import (
 	"fmt"
+	"path/filepath"
+	"sync"
 
 	"github.com/bzimmer/smugmug"
 	"github.com/bzimmer/smugmug/uploadable/filesystem"
@@ -13,7 +15,7 @@ import (
 
 func visit(c *cli.Context) filesystem.PreFunc {
 	return func(fs afero.Fs, filename string) (bool, error) {
-		runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "visit"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "visit"}, 1)
 		return true, nil
 	}
 }
@@ -26,7 +28,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 			return false, err
 		}
 		if !ok {
-			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "skip", "unsupported"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "unsupported"}, 1)
 			log.Info().Str("reason", "unsupported").Str("path", filename).Msg("skipping")
 		}
 		return ok, err
@@ -35,7 +37,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 
 func open(c *cli.Context) filesystem.UseFunc {
 	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "open"}, 1)
+		runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "open"}, 1)
 		return up, nil
 	}
 }
@@ -48,7 +50,7 @@ func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 			return nil, err
 		}
 		if sup == nil {
-			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "skip", "md5"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "md5"}, 1)
 			log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
 			return nil, err
 		}
@@ -67,7 +69,7 @@ func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFun
 			return nil, nil
 		}
 		if up.Replaces != "" {
-			runtime(c).Metrics.IncrCounter([]string{"fsUploadable", "replace"}, 1)
+			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "replace"}, 1)
 		}
 		return up, err
 	}
@@ -130,7 +132,8 @@ func existing(c *cli.Context) (*smugmug.Album, map[string]*smugmug.Image, error)
 	return album, images, nil
 }
 
-func uploadable(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (<-chan *smugmug.Upload, <-chan error) {
+func uploadable(
+	c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (uploadc <-chan *smugmug.Upload, errc <-chan error) {
 	mg := runtime(c).Client
 	u, err := filesystem.NewFsUploadable(album.AlbumKey)
 	if err != nil {
@@ -142,19 +145,17 @@ func uploadable(c *cli.Context, album *smugmug.Album, images map[string]*smugmug
 		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u))
 }
 
-func do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) ([]string, error) {
-	var filenames []string
+func do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error {
 	enc := runtime(c).Encoder
-Done:
 	for {
 		select {
 		case <-c.Done():
-			return nil, c.Err()
+			return c.Err()
 		case err := <-errc:
-			return nil, err
+			return err
 		case up, ok := <-uploadc:
 			if !ok {
-				break Done
+				return nil
 			}
 			runtime(c).Metrics.IncrCounter([]string{"upload", "success"}, 1)
 			runtime(c).Metrics.AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
@@ -166,50 +167,90 @@ Done:
 				Str("status", "success").
 				Msg("upload")
 			if err := enc.Encode(up); err != nil {
-				return nil, err
+				return err
 			}
-			filenames = append(filenames, up.Uploadable.Name)
 		}
 	}
-	log.Info().Msg("complete")
-	return filenames, nil
 }
 
-func mirror(c *cli.Context, images map[string]*smugmug.Image, filenames []string) error {
-	if !c.Bool("mirror") {
-		return nil
-	}
+func mdelete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) error {
 	mg := runtime(c).Client
-	album := c.String("album")
+	enc := runtime(c).Encoder
+	met := runtime(c).Metrics
 	dryrun := c.Bool("dryrun")
-	f := func(filename string, image *smugmug.Image) error {
-		imageKey := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
+	log.Info().Int("count", len(images)).Msg("existing images to remove")
+	for filename, image := range images {
 		log.Info().
 			Str("filename", filename).
-			Str("imageKey", imageKey).
+			Str("imageKey", image.ImageKey).
 			Bool("dryrun", dryrun).
 			Msg("mirror")
 		switch dryrun {
 		case true:
-			runtime(c).Metrics.IncrCounter([]string{"mirror", "dryrun"}, 1)
+			met.IncrCounter([]string{c.Command.Name, "mirror", "dryrun"}, 1)
 		case false:
-			runtime(c).Metrics.IncrCounter([]string{"mirror", "delete"}, 1)
-			if _, err := mg.Image.Delete(c.Context, album, imageKey); err != nil {
+			met.IncrCounter([]string{c.Command.Name, "mirror", "delete"}, 1)
+			met.IncrCounter([]string{c.Command.Name, "delete", "attempt"}, 1)
+			id := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
+			res, err := mg.Image.Delete(c.Context, album.AlbumKey, id)
+			if err != nil {
+				runtime(c).Metrics.IncrCounter([]string{c.Command.Name, "mirror", "failure"}, 1)
 				return err
 			}
-		}
-		return nil
-	}
-	for _, filename := range filenames {
-		log.Info().Msg(filename)
-		delete(images, filename)
-	}
-	for filename, image := range images {
-		if err := f(filename, image); err != nil {
-			return err
+			met.IncrCounter([]string{c.Command.Name, "delete", "success"}, 1)
+			if err := enc.Encode(map[string]any{
+				"AlbumKey": album.AlbumKey,
+				"ImageKey": id,
+				"Status":   res,
+			}); err != nil {
+				return err
+			}
+			log.Info().
+				Bool("dryrun", dryrun).
+				Str("albumKey", album.AlbumKey).
+				Str("imageKey", id).
+				Bool("status", res).
+				Msg("delete")
 		}
 	}
 	return nil
+}
+
+func mirror(c *cli.Context) error {
+	if !c.Bool("mirror") {
+		return nil
+	}
+	var m sync.RWMutex
+	album, images, err := existing(c)
+	if err != nil {
+		return err
+	}
+	u, err := filesystem.NewFsUploadable(album.AlbumKey)
+	if err != nil {
+		return nil
+	}
+	u.Pre(filesystem.Extensions(c.StringSlice("ext")...))
+	u.Pre(func(fs afero.Fs, filename string) (bool, error) {
+		m.Lock()
+		delete(images, filepath.Base(filename))
+		m.Unlock()
+		return true, nil
+	})
+	uploadc, errc :=
+		filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u).
+			Uploadables(c.Context)
+	for {
+		select {
+		case <-c.Done():
+			return c.Err()
+		case err := <-errc:
+			return err
+		case _, ok := <-uploadc:
+			if !ok {
+				return mdelete(c, album, images)
+			}
+		}
+	}
 }
 
 func up(c *cli.Context) error {
@@ -217,14 +258,15 @@ func up(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
 	uc, ec := uploadable(c, album, images)
-	filenames, err := do(c, uc, ec)
-	if err != nil {
+	if err := do(c, uc, ec); err != nil {
 		return err
 	}
-
-	return mirror(c, images, filenames)
+	if err := mirror(c); err != nil {
+		return err
+	}
+	log.Info().Msg("done")
+	return nil
 }
 
 func CommandUpload() *cli.Command {
@@ -256,7 +298,7 @@ func CommandUpload() *cli.Command {
 			},
 			&cli.BoolFlag{
 				Name:     "mirror",
-				Usage:    "mirror the smugmug gallery to the local filesystem",
+				Usage:    "mirror the SmugMug gallery to the local filesystem",
 				Value:    false,
 				Required: false,
 			},

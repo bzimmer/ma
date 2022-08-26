@@ -144,8 +144,8 @@ $ ma find [flags]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |```scope```|||root the search at the scope, if not specified the authenticated user's scope will be used|
-|```album```|```a```||search only for albums|
-|```node```|```n, f```||search only for nodes|
+|```album```|```a```||search for albums|
+|```node```|```n, f```||search for nodes|
 
 **Example**
 
@@ -519,6 +519,7 @@ $ ma up [flags]
 |```album```|```a```||the album to which image files will be uploaded|
 |```ext```|```x```||the set of file extensions suitable for uploading|
 |```dryrun```|```n```||prepare to upload but don't actually do it|
+|```mirror```|||mirror the SmugMug gallery to the local filesystem|
 
 **Example**
 

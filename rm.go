@@ -1,6 +1,7 @@
 package ma
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
@@ -26,6 +27,7 @@ func rm(c *cli.Context) error {
 		}); err != nil {
 			return err
 		}
+		log.Info().Str("albumKey", albumKey).Str("imageKey", id).Msg("delete")
 	}
 	return nil
 }

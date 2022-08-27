@@ -51,7 +51,7 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 		}
 		if imageq {
 			f := imageIterFunc(c, album, op)
-			if err := mg.Image.ImagesIter(c.Context, album.AlbumKey, f); err != nil {
+			if err = mg.Image.ImagesIter(c.Context, album.AlbumKey, f); err != nil {
 				return false, err
 			}
 		}

@@ -74,7 +74,7 @@ func (x *goExif) Extract(afs afero.Fs, dirname string, infos ...fs.FileInfo) []M
 	return mds
 }
 
-func xif(c *cli.Context) error {
+func xif(c *cli.Context) error { //nolint:gocognit
 	afs := runtime(c).Fs
 	exf := runtime(c).Exif
 	for i := 0; i < c.NArg(); i++ {
@@ -92,7 +92,7 @@ func xif(c *cli.Context) error {
 						log.Warn().Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
 						return nil
 					}
-					log.Err(m.Err).Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
+					log.Error().Err(m.Err).Time("datetime", m.DateTime).Str("filename", path).Msg(c.Command.Name)
 					return m.Err
 				}
 				log.Info().Str("filename", path).Time("datetime", m.DateTime).Msg(c.Command.Name)

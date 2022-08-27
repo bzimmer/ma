@@ -180,18 +180,19 @@ func mdelete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Im
 	dryrun := c.Bool("dryrun")
 	log.Info().Int("count", len(images)).Msg("existing images to remove")
 	for filename, image := range images {
+		id := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
 		log.Info().
-			Str("filename", filename).
-			Str("imageKey", image.ImageKey).
 			Bool("dryrun", dryrun).
-			Msg("mirror")
+			Str("filename", filename).
+			Str("albumKey", album.AlbumKey).
+			Str("imageKey", id).
+			Msg("delete")
 		switch dryrun {
 		case true:
 			met.IncrCounter([]string{c.Command.Name, "mirror", "dryrun"}, 1)
 		case false:
 			met.IncrCounter([]string{c.Command.Name, "mirror", "delete"}, 1)
 			met.IncrCounter([]string{c.Command.Name, "delete", "attempt"}, 1)
-			id := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
 			res, err := mg.Image.Delete(c.Context, album.AlbumKey, id)
 			if err != nil {
 				return err
@@ -204,21 +205,12 @@ func mdelete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Im
 			}); err != nil {
 				return err
 			}
-			log.Info().
-				Bool("dryrun", dryrun).
-				Str("albumKey", album.AlbumKey).
-				Str("imageKey", id).
-				Bool("status", res).
-				Msg("delete")
 		}
 	}
 	return nil
 }
 
 func mirror(c *cli.Context) error {
-	if !c.Bool("mirror") {
-		return nil
-	}
 	var m sync.RWMutex
 	album, images, err := existing(c)
 	if err != nil {
@@ -233,7 +225,7 @@ func mirror(c *cli.Context) error {
 		m.Lock()
 		delete(images, filepath.Base(filename))
 		m.Unlock()
-		return true, nil
+		return false, nil
 	})
 	uploadc, errc :=
 		filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u).
@@ -261,8 +253,10 @@ func up(c *cli.Context) error {
 	if err := do(c, uc, ec); err != nil {
 		return err
 	}
-	if err := mirror(c); err != nil {
-		return err
+	if c.Bool("mirror") {
+		if err := mirror(c); err != nil {
+			return err
+		}
 	}
 	log.Info().Msg("done")
 	return nil

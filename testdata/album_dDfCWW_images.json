@@ -1,0 +1,873 @@
+{
+    "Request": {
+        "Version": "v2",
+        "Method": "GET",
+        "Uri": "/api/v2/album/dDfCWW!images"
+    },
+    "Options": {
+        "MethodDetails": {
+            "OPTIONS": {
+                "Permissions": [
+                    "Read"
+                ]
+            },
+            "GET": {
+                "Permissions": [
+                    "Read"
+                ]
+            },
+            "POST": {
+                "Permissions": [
+                    "Add"
+                ]
+            }
+        },
+        "Methods": [
+            "OPTIONS",
+            "GET",
+            "POST"
+        ],
+        "ParameterDescription": {
+            "Varchar": "Variable length text from MIN_CHARS to MAX_CHARS (MAX_CHARS = INFINITY meaning arbitrary length)",
+            "Integer": "Integer value in the range MIN_VALUE to MAX_VALUE, inclusive",
+            "Boolean": "For true return type true or 1, for false type false or 0",
+            "Array": "An indexed array of values with a length in the range MIN_COUNT to MAX_COUNT, inclusive.",
+            "File": "A file"
+        },
+        "Parameters": {
+            "GET": [
+                {
+                    "Name": "FileNames",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "",
+                    "Description": "A list of filenames (percent-encoded and comma-separated); if used, an image will only be included in the result set if its file name is in the list",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": "INFINITY"
+                }
+            ],
+            "POST": [
+                {
+                    "Name": "ByteCount",
+                    "Required": true,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The size of the media file in bytes, for improved error-detection",
+                    "Type": "Integer",
+                    "MIN_VALUE": 1,
+                    "MAX_VALUE": "POSITIVE_INFINITY"
+                },
+                {
+                    "Name": "Caption",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The caption to attach to the uploaded media",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": "INFINITY"
+                },
+                {
+                    "Name": "Hidden",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": false,
+                    "Description": "Should the uploaded media be set as hidden?",
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Keywords",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Keywords to attach to the uploaded media",
+                    "Type": "Array",
+                    "ITEM_TYPE": "Varchar",
+                    "MIN_COUNT": 0,
+                    "MAX_COUNT": "INFINITY"
+                },
+                {
+                    "Name": "MD5Sum",
+                    "Required": true,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The MD5 hash of the media file as a hexadecimal string, for improved error-detection",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 32,
+                    "MAX_CHARS": 32
+                },
+                {
+                    "Name": "Title",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The title to attach to the uploaded media",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": "INFINITY"
+                },
+                {
+                    "Name": "Media",
+                    "Required": true,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "The photo or video itself",
+                    "Type": "File"
+                }
+            ]
+        },
+        "MediaTypes": [
+            "application/json",
+            "application/vnd.php.serialized",
+            "application/x-msgpack",
+            "text/html",
+            "text/csv"
+        ],
+        "Notes": [
+            "_multiargs does not work at this endpoint"
+        ],
+        "Path": [
+            {
+                "type": "path",
+                "text": "api"
+            },
+            {
+                "type": "path",
+                "text": "v2"
+            },
+            {
+                "type": "path",
+                "text": "album"
+            },
+            {
+                "type": "singleparam",
+                "param_name": "albumkey",
+                "param_value": "dDfCWW"
+            },
+            {
+                "type": "action",
+                "text": "images"
+            }
+        ]
+    },
+    "Response": {
+        "Uri": "/api/v2/album/dDfCWW!images",
+        "Locator": "AlbumImage",
+        "LocatorType": "Objects",
+        "AlbumImage": [
+            {
+                "Title": "",
+                "Caption": "",
+                "Keywords": "Fujifilm; FinePix6900ZOOM",
+                "KeywordArray": [
+                    "Fujifilm",
+                    "FinePix6900ZOOM"
+                ],
+                "Watermark": "No",
+                "Latitude": "0",
+                "Longitude": "0",
+                "Altitude": 0,
+                "Hidden": false,
+                "ThumbnailUrl": "https://photos.smugmug.com/photos/i-8tbngZQ/0/Th/i-8tbngZQ-Th.jpg",
+                "FileName": "Fujifilm_FinePix6900ZOOM.jpg",
+                "Processing": false,
+                "UploadKey": "12310029331",
+                "Date": "2022-08-27T03:53:07+00:00",
+                "DateTimeUploaded": "2022-08-27T03:53:07+00:00",
+                "DateTimeOriginal": "2001-02-19T14:40:05+00:00",
+                "Format": "JPG",
+                "OriginalHeight": 75,
+                "OriginalWidth": 100,
+                "OriginalSize": 4278,
+                "LastUpdated": "2022-08-27T03:53:08+00:00",
+                "Collectable": true,
+                "IsArchive": false,
+                "IsVideo": false,
+                "ComponentFileTypes": {
+                    "Image": [
+                        "jpg"
+                    ]
+                },
+                "CanEdit": true,
+                "CanBuy": true,
+                "Protected": false,
+                "EZProject": false,
+                "Watermarked": false,
+                "ImageKey": "8tbngZQ",
+                "Serial": 0,
+                "ArchivedUri": "https://photos.smugmug.com/photos/i-8tbngZQ/0/80dcaa16/D/i-8tbngZQ-D.jpg",
+                "ArchivedSize": 4278,
+                "ArchivedMD5": "6bd24ddf5094cc2c8cea8e11b397d4cc",
+                "CanShare": true,
+                "Comments": true,
+                "ShowKeywords": true,
+                "FormattedValues": {
+                    "Caption": {
+                        "html": "",
+                        "text": ""
+                    },
+                    "FileName": {
+                        "html": "Fujifilm_FinePix6900ZOOM.jpg",
+                        "text": "Fujifilm_FinePix6900ZOOM.jpg"
+                    }
+                },
+                "PreferredDisplayFileExtension": "JPG",
+                "Uri": "/api/v2/album/dDfCWW/image/8tbngZQ-0",
+                "WebUri": "https://photos.gravl.cc/Test/n-8PWSBm/i-8tbngZQ",
+                "UriDescription": "Image from album",
+                "Uris": {
+                    "Components": {
+                        "Uri": "/api/v2/library/asset/8tbngZQ!components",
+                        "Locator": "Component",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Components available for an asset",
+                        "EndpointType": "Components"
+                    },
+                    "LargestImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!largestimage",
+                        "Locator": "LargestImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Largest size available for image",
+                        "EndpointType": "LargestImage"
+                    },
+                    "ImageSizes": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!sizes",
+                        "Locator": "ImageSizes",
+                        "LocatorType": "Object",
+                        "UriDescription": "Sizes available for image",
+                        "EndpointType": "ImageSizes"
+                    },
+                    "ImageSizeDetails": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!sizedetails",
+                        "Locator": "ImageSizeDetails",
+                        "LocatorType": "Object",
+                        "UriDescription": "Detailed size information for image",
+                        "EndpointType": "ImageSizeDetails"
+                    },
+                    "PointOfInterest": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!pointofinterest",
+                        "Locator": "PointOfInterest",
+                        "LocatorType": "Object",
+                        "UriDescription": "Point of interest for image",
+                        "EndpointType": "PointOfInterest"
+                    },
+                    "PointOfInterestCrops": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!poicrops",
+                        "Locator": "PointOfInterestCrops",
+                        "LocatorType": "List",
+                        "UriDescription": "PointOfInterest Crops for image",
+                        "EndpointType": "PointOfInterestCrops"
+                    },
+                    "Regions": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!regions",
+                        "Locator": "Region",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Regions for image",
+                        "EndpointType": "Regions"
+                    },
+                    "ImageAlbum": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "ImageOwner": {
+                        "Uri": "/api/v2/user/zimmer",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "ImageAlbums": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!albums",
+                        "Locator": "Album",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Albums the image is included in",
+                        "EndpointType": "ImageAlbums"
+                    },
+                    "ImageDownload": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!download",
+                        "Locator": "ImageDownload",
+                        "LocatorType": "Object",
+                        "UriDescription": "Download image",
+                        "EndpointType": "ImageDownload"
+                    },
+                    "ImageComments": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on image",
+                        "EndpointType": "ImageComments"
+                    },
+                    "RotateImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!rotate",
+                        "UriDescription": "Rotate an image",
+                        "EndpointType": "RotateImage"
+                    },
+                    "ColorImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!color",
+                        "Locator": "ColorImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Color an image",
+                        "EndpointType": "ColorImage"
+                    },
+                    "CopyImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!copy",
+                        "UriDescription": "Copy an image",
+                        "EndpointType": "CopyImage"
+                    },
+                    "CropImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!crop",
+                        "UriDescription": "Crop an image",
+                        "EndpointType": "CropImage"
+                    },
+                    "WatermarkImage": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!watermark",
+                        "UriDescription": "Watermark Image",
+                        "EndpointType": "WatermarkImage"
+                    },
+                    "ImageMetadata": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!metadata",
+                        "Locator": "ImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for image",
+                        "EndpointType": "ImageMetadata"
+                    },
+                    "ImagePrices": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!prices",
+                        "Locator": "CatalogSkuPrice",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Purchasable Skus",
+                        "EndpointType": "ImagePrices"
+                    },
+                    "ImagePricelistExclusions": {
+                        "Uri": "/api/v2/image/8tbngZQ-0!pricelistexclusions",
+                        "Locator": "ImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an image",
+                        "EndpointType": "ImagePricelistExclusions"
+                    },
+                    "Album": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "Image": {
+                        "Uri": "/api/v2/image/8tbngZQ-0",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Image by key",
+                        "EndpointType": "Image"
+                    },
+                    "AlbumImagePricelistExclusions": {
+                        "Uri": "/api/v2/album/dDfCWW/image/8tbngZQ-0!pricelistexclusions",
+                        "Locator": "AlbumImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an album image",
+                        "EndpointType": "AlbumImagePricelistExclusions"
+                    },
+                    "AlbumImageMetadata": {
+                        "Uri": "/api/v2/album/dDfCWW/image/8tbngZQ-0!metadata",
+                        "Locator": "AlbumImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for AlbumImage",
+                        "EndpointType": "AlbumImageMetadata"
+                    },
+                    "AlbumImageShareUris": {
+                        "Uri": "/api/v2/album/dDfCWW/image/8tbngZQ-0!shareuris",
+                        "Locator": "AlbumImageShareUris",
+                        "LocatorType": "Object",
+                        "UriDescription": "URIs that are useful for sharing",
+                        "EndpointType": "AlbumImageShareUris"
+                    }
+                },
+                "Movable": true,
+                "Origin": "Album"
+            },
+            {
+                "Title": "",
+                "Caption": "",
+                "Keywords": "Nikon; D70",
+                "KeywordArray": [
+                    "Nikon",
+                    "D70"
+                ],
+                "Watermark": "No",
+                "Latitude": "0",
+                "Longitude": "0",
+                "Altitude": 0,
+                "Hidden": false,
+                "ThumbnailUrl": "https://photos.smugmug.com/photos/i-tX9sFsc/0/Th/i-tX9sFsc-Th.jpg",
+                "FileName": "Nikon_D70.jpg",
+                "Processing": false,
+                "UploadKey": "12310029333",
+                "Date": "2022-08-27T03:53:08+00:00",
+                "DateTimeUploaded": "2022-08-27T03:53:08+00:00",
+                "DateTimeOriginal": "2008-03-15T16:52:01+00:00",
+                "Format": "JPG",
+                "OriginalHeight": 66,
+                "OriginalWidth": 100,
+                "OriginalSize": 14034,
+                "LastUpdated": "2022-08-27T03:53:08+00:00",
+                "Collectable": true,
+                "IsArchive": false,
+                "IsVideo": false,
+                "ComponentFileTypes": {
+                    "Image": [
+                        "jpg"
+                    ]
+                },
+                "CanEdit": true,
+                "CanBuy": true,
+                "Protected": false,
+                "EZProject": false,
+                "Watermarked": false,
+                "ImageKey": "tX9sFsc",
+                "Serial": 0,
+                "ArchivedUri": "https://photos.smugmug.com/photos/i-tX9sFsc/0/28ecc9f6/D/i-tX9sFsc-D.jpg",
+                "ArchivedSize": 14034,
+                "ArchivedMD5": "91eb620bfdd57190de804d6b15e08e56",
+                "CanShare": true,
+                "Comments": true,
+                "ShowKeywords": true,
+                "FormattedValues": {
+                    "Caption": {
+                        "html": "",
+                        "text": ""
+                    },
+                    "FileName": {
+                        "html": "Nikon_D70.jpg",
+                        "text": "Nikon_D70.jpg"
+                    }
+                },
+                "PreferredDisplayFileExtension": "JPG",
+                "Uri": "/api/v2/album/dDfCWW/image/tX9sFsc-0",
+                "WebUri": "https://photos.gravl.cc/Test/n-8PWSBm/i-tX9sFsc",
+                "UriDescription": "Image from album",
+                "Uris": {
+                    "Components": {
+                        "Uri": "/api/v2/library/asset/tX9sFsc!components",
+                        "Locator": "Component",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Components available for an asset",
+                        "EndpointType": "Components"
+                    },
+                    "LargestImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!largestimage",
+                        "Locator": "LargestImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Largest size available for image",
+                        "EndpointType": "LargestImage"
+                    },
+                    "ImageSizes": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!sizes",
+                        "Locator": "ImageSizes",
+                        "LocatorType": "Object",
+                        "UriDescription": "Sizes available for image",
+                        "EndpointType": "ImageSizes"
+                    },
+                    "ImageSizeDetails": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!sizedetails",
+                        "Locator": "ImageSizeDetails",
+                        "LocatorType": "Object",
+                        "UriDescription": "Detailed size information for image",
+                        "EndpointType": "ImageSizeDetails"
+                    },
+                    "PointOfInterest": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!pointofinterest",
+                        "Locator": "PointOfInterest",
+                        "LocatorType": "Object",
+                        "UriDescription": "Point of interest for image",
+                        "EndpointType": "PointOfInterest"
+                    },
+                    "PointOfInterestCrops": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!poicrops",
+                        "Locator": "PointOfInterestCrops",
+                        "LocatorType": "List",
+                        "UriDescription": "PointOfInterest Crops for image",
+                        "EndpointType": "PointOfInterestCrops"
+                    },
+                    "Regions": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!regions",
+                        "Locator": "Region",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Regions for image",
+                        "EndpointType": "Regions"
+                    },
+                    "ImageAlbum": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "ImageOwner": {
+                        "Uri": "/api/v2/user/zimmer",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "ImageAlbums": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!albums",
+                        "Locator": "Album",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Albums the image is included in",
+                        "EndpointType": "ImageAlbums"
+                    },
+                    "ImageDownload": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!download",
+                        "Locator": "ImageDownload",
+                        "LocatorType": "Object",
+                        "UriDescription": "Download image",
+                        "EndpointType": "ImageDownload"
+                    },
+                    "ImageComments": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on image",
+                        "EndpointType": "ImageComments"
+                    },
+                    "RotateImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!rotate",
+                        "UriDescription": "Rotate an image",
+                        "EndpointType": "RotateImage"
+                    },
+                    "ColorImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!color",
+                        "Locator": "ColorImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Color an image",
+                        "EndpointType": "ColorImage"
+                    },
+                    "CopyImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!copy",
+                        "UriDescription": "Copy an image",
+                        "EndpointType": "CopyImage"
+                    },
+                    "CropImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!crop",
+                        "UriDescription": "Crop an image",
+                        "EndpointType": "CropImage"
+                    },
+                    "WatermarkImage": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!watermark",
+                        "UriDescription": "Watermark Image",
+                        "EndpointType": "WatermarkImage"
+                    },
+                    "ImageMetadata": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!metadata",
+                        "Locator": "ImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for image",
+                        "EndpointType": "ImageMetadata"
+                    },
+                    "ImagePrices": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!prices",
+                        "Locator": "CatalogSkuPrice",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Purchasable Skus",
+                        "EndpointType": "ImagePrices"
+                    },
+                    "ImagePricelistExclusions": {
+                        "Uri": "/api/v2/image/tX9sFsc-0!pricelistexclusions",
+                        "Locator": "ImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an image",
+                        "EndpointType": "ImagePricelistExclusions"
+                    },
+                    "Album": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "Image": {
+                        "Uri": "/api/v2/image/tX9sFsc-0",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Image by key",
+                        "EndpointType": "Image"
+                    },
+                    "AlbumImagePricelistExclusions": {
+                        "Uri": "/api/v2/album/dDfCWW/image/tX9sFsc-0!pricelistexclusions",
+                        "Locator": "AlbumImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an album image",
+                        "EndpointType": "AlbumImagePricelistExclusions"
+                    },
+                    "AlbumImageMetadata": {
+                        "Uri": "/api/v2/album/dDfCWW/image/tX9sFsc-0!metadata",
+                        "Locator": "AlbumImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for AlbumImage",
+                        "EndpointType": "AlbumImageMetadata"
+                    },
+                    "AlbumImageShareUris": {
+                        "Uri": "/api/v2/album/dDfCWW/image/tX9sFsc-0!shareuris",
+                        "Locator": "AlbumImageShareUris",
+                        "LocatorType": "Object",
+                        "UriDescription": "URIs that are useful for sharing",
+                        "EndpointType": "AlbumImageShareUris"
+                    }
+                },
+                "Movable": true,
+                "Origin": "Album"
+            },
+            {
+                "Title": "",
+                "Caption": "",
+                "Keywords": "",
+                "KeywordArray": [],
+                "Watermark": "No",
+                "Latitude": "47.276697222222",
+                "Longitude": "8.5238333333333",
+                "Altitude": 782,
+                "Hidden": false,
+                "ThumbnailUrl": "https://photos.smugmug.com/photos/i-qPzttW4/0/Th/i-qPzttW4-Th.jpg",
+                "FileName": "DSCF9798.jpg",
+                "Processing": false,
+                "UploadKey": "12306511315",
+                "Date": "2022-08-26T07:43:51+00:00",
+                "DateTimeUploaded": "2022-08-26T07:43:51+00:00",
+                "DateTimeOriginal": "2022-08-21T16:38:53+00:00",
+                "Format": "JPG",
+                "OriginalHeight": 3434,
+                "OriginalWidth": 6104,
+                "OriginalSize": 15323743,
+                "LastUpdated": "2022-08-26T07:43:52+00:00",
+                "Collectable": true,
+                "IsArchive": false,
+                "IsVideo": false,
+                "ComponentFileTypes": {
+                    "Image": [
+                        "jpg"
+                    ]
+                },
+                "CanEdit": true,
+                "CanBuy": true,
+                "Protected": false,
+                "EZProject": false,
+                "Watermarked": false,
+                "ImageKey": "qPzttW4",
+                "Serial": 0,
+                "ArchivedUri": "https://photos.smugmug.com/photos/i-qPzttW4/0/5fef4ab2/D/i-qPzttW4-D.jpg",
+                "ArchivedSize": 15323743,
+                "ArchivedMD5": "bc60bf39b9aa985b6a5c751987a6c023",
+                "CanShare": true,
+                "Comments": true,
+                "ShowKeywords": true,
+                "FormattedValues": {
+                    "Caption": {
+                        "html": "",
+                        "text": ""
+                    },
+                    "FileName": {
+                        "html": "DSCF9798.jpg",
+                        "text": "DSCF9798.jpg"
+                    }
+                },
+                "PreferredDisplayFileExtension": "JPG",
+                "Uri": "/api/v2/album/dDfCWW/image/qPzttW4-0",
+                "WebUri": "https://photos.gravl.cc/Test/n-8PWSBm/i-qPzttW4",
+                "UriDescription": "Image from album",
+                "Uris": {
+                    "Components": {
+                        "Uri": "/api/v2/library/asset/qPzttW4!components",
+                        "Locator": "Component",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Components available for an asset",
+                        "EndpointType": "Components"
+                    },
+                    "LargestImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!largestimage",
+                        "Locator": "LargestImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Largest size available for image",
+                        "EndpointType": "LargestImage"
+                    },
+                    "ImageSizes": {
+                        "Uri": "/api/v2/image/qPzttW4-0!sizes",
+                        "Locator": "ImageSizes",
+                        "LocatorType": "Object",
+                        "UriDescription": "Sizes available for image",
+                        "EndpointType": "ImageSizes"
+                    },
+                    "ImageSizeDetails": {
+                        "Uri": "/api/v2/image/qPzttW4-0!sizedetails",
+                        "Locator": "ImageSizeDetails",
+                        "LocatorType": "Object",
+                        "UriDescription": "Detailed size information for image",
+                        "EndpointType": "ImageSizeDetails"
+                    },
+                    "PointOfInterest": {
+                        "Uri": "/api/v2/image/qPzttW4-0!pointofinterest",
+                        "Locator": "PointOfInterest",
+                        "LocatorType": "Object",
+                        "UriDescription": "Point of interest for image",
+                        "EndpointType": "PointOfInterest"
+                    },
+                    "PointOfInterestCrops": {
+                        "Uri": "/api/v2/image/qPzttW4-0!poicrops",
+                        "Locator": "PointOfInterestCrops",
+                        "LocatorType": "List",
+                        "UriDescription": "PointOfInterest Crops for image",
+                        "EndpointType": "PointOfInterestCrops"
+                    },
+                    "Regions": {
+                        "Uri": "/api/v2/image/qPzttW4-0!regions",
+                        "Locator": "Region",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Regions for image",
+                        "EndpointType": "Regions"
+                    },
+                    "ImageAlbum": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "ImageOwner": {
+                        "Uri": "/api/v2/user/zimmer",
+                        "Locator": "User",
+                        "LocatorType": "Object",
+                        "UriDescription": "User By Nickname",
+                        "EndpointType": "User"
+                    },
+                    "ImageAlbums": {
+                        "Uri": "/api/v2/image/qPzttW4-0!albums",
+                        "Locator": "Album",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Albums the image is included in",
+                        "EndpointType": "ImageAlbums"
+                    },
+                    "ImageDownload": {
+                        "Uri": "/api/v2/image/qPzttW4-0!download",
+                        "Locator": "ImageDownload",
+                        "LocatorType": "Object",
+                        "UriDescription": "Download image",
+                        "EndpointType": "ImageDownload"
+                    },
+                    "ImageComments": {
+                        "Uri": "/api/v2/image/qPzttW4-0!comments",
+                        "Locator": "Comment",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Comments on image",
+                        "EndpointType": "ImageComments"
+                    },
+                    "RotateImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!rotate",
+                        "UriDescription": "Rotate an image",
+                        "EndpointType": "RotateImage"
+                    },
+                    "ColorImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!color",
+                        "Locator": "ColorImage",
+                        "LocatorType": "Object",
+                        "UriDescription": "Color an image",
+                        "EndpointType": "ColorImage"
+                    },
+                    "CopyImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!copy",
+                        "UriDescription": "Copy an image",
+                        "EndpointType": "CopyImage"
+                    },
+                    "CropImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!crop",
+                        "UriDescription": "Crop an image",
+                        "EndpointType": "CropImage"
+                    },
+                    "WatermarkImage": {
+                        "Uri": "/api/v2/image/qPzttW4-0!watermark",
+                        "UriDescription": "Watermark Image",
+                        "EndpointType": "WatermarkImage"
+                    },
+                    "ImageMetadata": {
+                        "Uri": "/api/v2/image/qPzttW4-0!metadata",
+                        "Locator": "ImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for image",
+                        "EndpointType": "ImageMetadata"
+                    },
+                    "ImagePrices": {
+                        "Uri": "/api/v2/image/qPzttW4-0!prices",
+                        "Locator": "CatalogSkuPrice",
+                        "LocatorType": "Objects",
+                        "UriDescription": "Purchasable Skus",
+                        "EndpointType": "ImagePrices"
+                    },
+                    "ImagePricelistExclusions": {
+                        "Uri": "/api/v2/image/qPzttW4-0!pricelistexclusions",
+                        "Locator": "ImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an image",
+                        "EndpointType": "ImagePricelistExclusions"
+                    },
+                    "Album": {
+                        "Uri": "/api/v2/album/dDfCWW",
+                        "Locator": "Album",
+                        "LocatorType": "Object",
+                        "UriDescription": "Album by key",
+                        "EndpointType": "Album"
+                    },
+                    "Image": {
+                        "Uri": "/api/v2/image/qPzttW4-0",
+                        "Locator": "Image",
+                        "LocatorType": "Object",
+                        "UriDescription": "Image by key",
+                        "EndpointType": "Image"
+                    },
+                    "AlbumImagePricelistExclusions": {
+                        "Uri": "/api/v2/album/dDfCWW/image/qPzttW4-0!pricelistexclusions",
+                        "Locator": "AlbumImagePricelistExclusions",
+                        "LocatorType": "Object",
+                        "UriDescription": "Pricelist information for an album image",
+                        "EndpointType": "AlbumImagePricelistExclusions"
+                    },
+                    "AlbumImageMetadata": {
+                        "Uri": "/api/v2/album/dDfCWW/image/qPzttW4-0!metadata",
+                        "Locator": "AlbumImageMetadata",
+                        "LocatorType": "Object",
+                        "UriDescription": "Metadata for AlbumImage",
+                        "EndpointType": "AlbumImageMetadata"
+                    },
+                    "AlbumImageShareUris": {
+                        "Uri": "/api/v2/album/dDfCWW/image/qPzttW4-0!shareuris",
+                        "Locator": "AlbumImageShareUris",
+                        "LocatorType": "Object",
+                        "UriDescription": "URIs that are useful for sharing",
+                        "EndpointType": "AlbumImageShareUris"
+                    }
+                },
+                "Movable": true,
+                "Origin": "Album"
+            }
+        ],
+        "UriDescription": "Images from album",
+        "EndpointType": "AlbumImages",
+        "Pages": {
+            "Total": 3,
+            "Start": 1,
+            "Count": 3,
+            "RequestedCount": 100,
+            "FirstPage": "/api/v2/album/dDfCWW!images?start=1&count=100",
+            "LastPage": "/api/v2/album/dDfCWW!images?start=1&count=100"
+        },
+        "Timing": {
+            "Total": {
+                "time": 0.09745,
+                "cycles": 1,
+                "objects": 0
+            }
+        }
+    },
+    "Code": 200,
+    "Message": "Ok"
+}

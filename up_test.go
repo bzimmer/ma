@@ -17,7 +17,7 @@ func (e *errorEncoder) Encode(v any) error {
 	return errors.New("error encoder")
 }
 
-func TestUpload(t *testing.T) { //nolint
+func TestUpload(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

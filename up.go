@@ -154,7 +154,7 @@ func up(c *cli.Context) error {
 				Str("uri", up.ImageURI).
 				Str("status", "success").
 				Msg("upload")
-			if err := enc.Encode(up); err != nil {
+			if err = enc.Encode(up); err != nil {
 				return err
 			}
 		}

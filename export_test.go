@@ -38,7 +38,7 @@ func (g *grab) Do(req *http.Request) (*http.Response, error) {
 	return http.DefaultClient.Do(proxy)
 }
 
-func TestExport(t *testing.T) { //nolint
+func TestExport(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()

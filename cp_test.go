@@ -26,13 +26,13 @@ func createTestFile(t *testing.T, afs afero.Fs) afero.File {
 		t.Error(err)
 	}
 	defer fp.Close()
-	if err := copyFile(fp, "testdata/Nikon_D70.jpg"); err != nil {
+	if err = copyFile(fp, "testdata/Nikon_D70.jpg"); err != nil {
 		t.Error(err)
 	}
 	return fp
 }
 
-func TestCopy(t *testing.T) { //nolint
+func TestCopy(t *testing.T) {
 	a := assert.New(t)
 	tests := []harness{
 		{

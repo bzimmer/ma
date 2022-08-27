@@ -19,6 +19,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var ErrFileExists = errors.New("foo")
+
 type Grab interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -69,7 +71,7 @@ func (x *exporter) request(image *smugmug.Image, destination string) (*request, 
 			}
 		}
 		if stat != nil && stat.Size() == original.Size {
-			return nil, nil
+			return nil, ErrFileExists
 		}
 	}
 	req, err := http.NewRequest(http.MethodGet, original.URL, http.NoBody)
@@ -88,7 +90,7 @@ func (x *exporter) do(ctx context.Context, req *request) (*response, error) {
 	defer func(t time.Time) {
 		x.metrics.AddSample([]string{"export", "download"}, float32(time.Since(t).Seconds()))
 	}(time.Now())
-	res, err := x.grab.Do(req.HTTPRequest.WithContext(ctx))
+	res, err := x.grab.Do(req.HTTPRequest.WithContext(ctx)) //nolint:bodyclose // response closed later
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +138,7 @@ func (x *exporter) write(res *response) error {
 		log.Error().Err(err).Str("filename", res.Request.Filename).Msg("failed to write file contents")
 		return err
 	}
-	if err := fp.Close(); err != nil {
+	if err = fp.Close(); err != nil {
 		log.Error().Err(err).Str("filename", res.Request.Filename).Msg("failed to close file")
 		return err
 	}
@@ -165,7 +167,7 @@ func (x *exporter) download(ctx context.Context, reqs []*request) error {
 				if err != nil {
 					return err
 				}
-				if err := x.write(res); err != nil {
+				if err = x.write(res); err != nil {
 					return err
 				}
 			}
@@ -195,12 +197,12 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			dest := filepath.Join(out, image.FileName)
 			req, err = x.request(image, dest)
 			if err != nil {
+				if errors.Is(err, ErrFileExists) {
+					x.metrics.IncrCounter([]string{"export", "download", "skipping", "exists"}, 1)
+					log.Info().Str("imageKey", image.ImageKey).Str("filename", dest).Msg("skipping")
+					return true, nil
+				}
 				return false, err
-			}
-			if req == nil {
-				x.metrics.IncrCounter([]string{"export", "download", "skipping", "exists"}, 1)
-				log.Info().Str("imageKey", image.ImageKey).Str("filename", dest).Msg("skipping")
-				return true, nil
 			}
 			x.metrics.IncrCounter([]string{"export", "download", "enqueued"}, 1)
 			log.Info().

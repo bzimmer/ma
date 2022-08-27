@@ -19,7 +19,7 @@ func rm(c *cli.Context) error {
 			return err
 		}
 		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
-		if err := runtime(c).Encoder.Encode(map[string]any{
+		if err = runtime(c).Encoder.Encode(map[string]any{
 			"AlbumKey": albumKey,
 			"ImageKey": id,
 			"Status":   res,

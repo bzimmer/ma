@@ -111,7 +111,7 @@ func (c *entangler) cp(ctx context.Context, sources []string, destination string
 	return grp.Wait()
 }
 
-func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() error {
+func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() error { //nolint:gocognit
 	return func() error {
 		for x := range q {
 			c.metrics.IncrCounter([]string{"cp", "fileset", "attempt"}, 1)
@@ -141,7 +141,7 @@ func (c *entangler) copyFileset(q <-chan *fileset, destination string) func() er
 			for i := range x.files {
 				src := filepath.Join(x.identifier.dirname, x.files[i].Name())
 				dst := filepath.Join(destination, df, x.files[i].Name())
-				if err := c.copyFile(src, dst); err != nil {
+				if err = c.copyFile(src, dst); err != nil {
 					return err
 				}
 			}
@@ -200,7 +200,7 @@ func (c *entangler) copyFile(source, destination string) error {
 		c.metrics.IncrCounter([]string{"cp", "file", "dryrun"}, 1)
 		return nil
 	}
-	if err := c.copy(source, destination); err != nil {
+	if err = c.copy(source, destination); err != nil {
 		c.metrics.IncrCounter([]string{"cp", "file", "failed"}, 1)
 		return err
 	}

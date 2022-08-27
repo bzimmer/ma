@@ -18,7 +18,7 @@ func image(c *cli.Context) error {
 			return err
 		}
 		f := imageIterFunc(c, image.Album, "ls")
-		if _, err := f(image); err != nil {
+		if _, err = f(image); err != nil {
 			return err
 		}
 	}
@@ -33,7 +33,7 @@ func album(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
-		if _, err := f(album); err != nil {
+		if _, err = f(album); err != nil {
 			return err
 		}
 	}

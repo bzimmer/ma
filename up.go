@@ -133,7 +133,7 @@ func existing(c *cli.Context) (*smugmug.Album, map[string]*smugmug.Image, error)
 }
 
 func uploadable(
-	c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (uploadc <-chan *smugmug.Upload, errc <-chan error) {
+	c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (<-chan *smugmug.Upload, <-chan error) {
 	mg := runtime(c).Client
 	u, err := filesystem.NewFsUploadable(album.AlbumKey)
 	if err != nil {
@@ -166,7 +166,7 @@ func do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error
 				Str("uri", up.ImageURI).
 				Str("status", "success").
 				Msg("upload")
-			if err = enc.Encode(up); err != nil {
+			if err := enc.Encode(up); err != nil {
 				return err
 			}
 		}
@@ -198,7 +198,7 @@ func mdelete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Im
 				return err
 			}
 			met.IncrCounter([]string{c.Command.Name, "delete", "success"}, 1)
-			if err := enc.Encode(map[string]any{
+			if err = enc.Encode(map[string]any{
 				"AlbumKey": album.AlbumKey,
 				"ImageKey": id,
 				"Status":   res,
@@ -218,7 +218,7 @@ func mirror(c *cli.Context) error {
 	}
 	u, err := filesystem.NewFsUploadable(album.AlbumKey)
 	if err != nil {
-		return nil
+		return err
 	}
 	u.Pre(filesystem.Extensions(c.StringSlice("ext")...))
 	u.Pre(func(fs afero.Fs, filename string) (bool, error) {
@@ -234,7 +234,7 @@ func mirror(c *cli.Context) error {
 		select {
 		case <-c.Done():
 			return c.Err()
-		case err := <-errc:
+		case err = <-errc:
 			return err
 		case _, ok := <-uploadc:
 			if !ok {
@@ -250,11 +250,11 @@ func up(c *cli.Context) error {
 		return err
 	}
 	uc, ec := uploadable(c, album, images)
-	if err := do(c, uc, ec); err != nil {
+	if err = do(c, uc, ec); err != nil {
 		return err
 	}
 	if c.Bool("mirror") {
-		if err := mirror(c); err != nil {
+		if err = mirror(c); err != nil {
 			return err
 		}
 	}

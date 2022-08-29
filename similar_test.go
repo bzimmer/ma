@@ -36,7 +36,7 @@ func TestSimilar(t *testing.T) {
 					if err != nil {
 						a.NoError(err)
 					}
-					if err := copyFile(fp, file); err != nil {
+					if err = copyFile(fp, file); err != nil {
 						a.NoError(err)
 					}
 					a.NoError(fp.Close())
@@ -59,7 +59,7 @@ func TestSimilar(t *testing.T) {
 				if err != nil {
 					a.NoError(err)
 				}
-				if err := copyFile(fp, "testdata/user_cmac.json"); err != nil {
+				if err = copyFile(fp, "testdata/user_cmac.json"); err != nil {
 					a.NoError(err)
 				}
 				a.NoError(fp.Close())
@@ -85,7 +85,7 @@ func TestSimilar(t *testing.T) {
 					if err != nil {
 						a.NoError(err)
 					}
-					if err := copyFile(fp, "testdata/user_cmac.json"); err != nil {
+					if err = copyFile(fp, "testdata/user_cmac.json"); err != nil {
 						a.NoError(err)
 					}
 					a.NoError(fp.Close())

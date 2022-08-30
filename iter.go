@@ -4,6 +4,7 @@ import (
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.ImageIterFunc {
@@ -104,4 +105,44 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 
 		return recurse, nil
 	}
+}
+
+func existing[T comparable](c *cli.Context, f func(*smugmug.Image) T) (*smugmug.Album, map[T]*smugmug.Image, error) {
+	mg := runtime(c).Client
+	albumKey := c.String("album")
+	albumc := make(chan *smugmug.Album, 1)
+	imagesc := make(chan map[T]*smugmug.Image, 1)
+	grp, ctx := errgroup.WithContext(c.Context)
+	grp.Go(func() error {
+		images := make(map[T]*smugmug.Image)
+		log.Info().Str("albumKey", albumKey).Msg("querying existing gallery images")
+		if err := mg.Image.ImagesIter(ctx, albumKey, func(img *smugmug.Image) (bool, error) {
+			images[f(img)] = img
+			return true, nil
+		}); err != nil {
+			return err
+		}
+		imagesc <- images
+		return nil
+	})
+	grp.Go(func() error {
+		defer close(albumc)
+		album, err := mg.Album.Album(ctx, albumKey)
+		if err != nil {
+			return err
+		}
+		albumc <- album
+		return nil
+	})
+	if err := grp.Wait(); err != nil {
+		log.Error().Err(err).Msg("failed to query album or album images")
+		return nil, nil, err
+	}
+	album, images := <-albumc, <-imagesc
+	log.Info().
+		Int("count", len(images)).
+		Str("name", album.Name).
+		Str("albumKey", album.AlbumKey).
+		Msg("existing gallery images")
+	return album, images, nil
 }

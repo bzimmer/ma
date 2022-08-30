@@ -1,0 +1,1200 @@
+{
+    "Request": {
+        "Version": "v2",
+        "Method": "GET",
+        "Uri": "/api/v2/album/dDfCWW"
+    },
+    "Options": {
+        "MethodDetails": {
+            "OPTIONS": {
+                "Permissions": [
+                    "Read"
+                ]
+            },
+            "GET": {
+                "Permissions": [
+                    "Read"
+                ]
+            },
+            "PATCH": {
+                "Permissions": [
+                    "Modify"
+                ]
+            },
+            "DELETE": {
+                "Permissions": [
+                    "Modify"
+                ]
+            }
+        },
+        "Methods": [
+            "OPTIONS",
+            "GET",
+            "PATCH",
+            "DELETE"
+        ],
+        "ParameterDescription": {
+            "Varchar": "Variable length text from MIN_CHARS to MAX_CHARS (MAX_CHARS = INFINITY meaning arbitrary length)",
+            "Uri": "Absolute or relative URL, restricted to Locator(s) of the supplied URL if not null.   Up to a MAX_LENGTH in length.",
+            "Boolean": "For true return type true or 1, for false type false or 0",
+            "Select": "Select one option. Options should pass only the \"Value\".",
+            "Text": "Variable length text from MIN_CHARS to MAX_CHARS (MAX_CHARS = INFINITY meaning arbitrary length)",
+            "Integer": "Integer value in the range MIN_VALUE to MAX_VALUE, inclusive"
+        },
+        "Parameters": {
+            "PATCH": [
+                {
+                    "Name": "NiceName",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Use UrlName instead",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 1,
+                    "MAX_CHARS": 60,
+                    "Deprecated": "2014-11-20"
+                },
+                {
+                    "Name": "UrlName",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "A human-readable name for use in the URL",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 1,
+                    "MAX_CHARS": 60
+                },
+                {
+                    "Name": "Title",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Use Name instead",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 255,
+                    "Deprecated": "2014-11-20"
+                },
+                {
+                    "Name": "Name",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 255
+                },
+                {
+                    "Name": "PrintmarkUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "Printmark"
+                    ]
+                },
+                {
+                    "Name": "WatermarkUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "Watermark"
+                    ]
+                },
+                {
+                    "Name": "ThemeUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Only applies to legacy accounts",
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "Theme"
+                    ]
+                },
+                {
+                    "Name": "TemplateUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "Template"
+                    ]
+                },
+                {
+                    "Name": "AllowDownloads",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Backprinting",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 255
+                },
+                {
+                    "Name": "BoutiquePackaging",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Inherit from User",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "No",
+                        "Yes",
+                        "Inherit from User"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "CanRank",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Clean",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Comments",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Description",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Text",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 65535
+                },
+                {
+                    "Name": "DownloadPassword",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 50
+                },
+                {
+                    "Name": "EXIF",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "External",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "An old setting that no longer has any function",
+                    "Type": "Boolean",
+                    "Deprecated": "2015-09-08"
+                },
+                {
+                    "Name": "FamilyEdit",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Filenames",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "FriendEdit",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Geography",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Header",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Custom",
+                    "Description": "Appearance",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Custom",
+                        "SmugMug"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "HideOwner",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "InterceptShipping",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Inherit from User",
+                    "Description": "Personal Delivery",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "No",
+                        "Yes",
+                        "Inherit from User"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "Keywords",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 255
+                },
+                {
+                    "Name": "LargestSize",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Original",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Medium",
+                        "Large",
+                        "XLarge",
+                        "X2Large",
+                        "X3Large",
+                        "X4Large",
+                        "X5Large",
+                        "4K",
+                        "5K",
+                        "Original"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "PackagingBranding",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Password",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 50
+                },
+                {
+                    "Name": "PasswordHint",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": 255
+                },
+                {
+                    "Name": "Printable",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Privacy",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "\"Private\" is not supported on legacy accounts",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Public",
+                        "Unlisted",
+                        "Private"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "ProofDays",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": 0,
+                    "Type": "Integer",
+                    "MIN_VALUE": "NEGATIVE_INFINITY",
+                    "MAX_VALUE": "POSITIVE_INFINITY"
+                },
+                {
+                    "Name": "ProofDigital",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Protected",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Right-Click Protection",
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Share",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "Slideshow",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "SmugSearchable",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Inherit from User",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "No",
+                        "Inherit from User"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "SortDirection",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Ascending",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Ascending",
+                        "Descending"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "SortMethod",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": "Date Taken",
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "Position",
+                        "Caption",
+                        "Filename",
+                        "Date Uploaded",
+                        "Date Modified",
+                        "Date Taken"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "SquareThumbs",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "UploadKey",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Guest UploadKey",
+                    "Type": "Varchar",
+                    "MIN_CHARS": 0,
+                    "MAX_CHARS": "INFINITY"
+                },
+                {
+                    "Name": "Watermark",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Automatically apply watermark to uploaded images?",
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "WorldSearchable",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "AutoRename",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": false,
+                    "Description": "Auto-rename conflicting album NiceNames?",
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "SecurityType",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Select",
+                    "OPTIONS": [
+                        "None",
+                        "Password",
+                        "GrantAccess"
+                    ],
+                    "MIN_COUNT": 1,
+                    "MAX_COUNT": 1
+                },
+                {
+                    "Name": "CommerceLightbox",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Boolean"
+                },
+                {
+                    "Name": "HighlightAlbumImageUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "AlbumImage"
+                    ]
+                },
+                {
+                    "Name": "AlbumTemplateUri",
+                    "Required": false,
+                    "ReadOnly": false,
+                    "Default": null,
+                    "Description": "Specify default album presets by providing an AlbumTemplateUri.",
+                    "Type": "Uri",
+                    "MAX_LENGTH": "INFINITY",
+                    "Locator": [
+                        "AlbumTemplate"
+                    ]
+                }
+            ],
+            "DELETE": []
+        },
+        "MediaTypes": [
+            "application/json",
+            "application/vnd.php.serialized",
+            "application/x-msgpack",
+            "text/html",
+            "text/csv"
+        ],
+        "Output": [
+            {
+                "Name": "NiceName",
+                "Description": "Use UrlName instead",
+                "Type": "Varchar",
+                "MIN_CHARS": 1,
+                "MAX_CHARS": 60,
+                "Deprecated": "2014-11-20"
+            },
+            {
+                "Name": "UrlName",
+                "Description": "A human-readable name for use in the URL",
+                "Type": "Varchar",
+                "MIN_CHARS": 1,
+                "MAX_CHARS": 60
+            },
+            {
+                "Name": "Title",
+                "Description": "Use Name instead",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 255,
+                "Deprecated": "2014-11-20"
+            },
+            {
+                "Name": "Name",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 255
+            },
+            {
+                "Name": "PrintmarkUri",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "Printmark"
+                ]
+            },
+            {
+                "Name": "WatermarkUri",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "Watermark"
+                ]
+            },
+            {
+                "Name": "ThemeUri",
+                "Description": "Only applies to legacy accounts",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "Theme"
+                ]
+            },
+            {
+                "Name": "TemplateUri",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "Template"
+                ]
+            },
+            {
+                "Name": "AllowDownloads",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Backprinting",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 255
+            },
+            {
+                "Name": "BoutiquePackaging",
+                "Type": "Select",
+                "OPTIONS": [
+                    "No",
+                    "Yes",
+                    "Inherit from User"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "CanRank",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Clean",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Comments",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Description",
+                "Type": "Text",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 65535
+            },
+            {
+                "Name": "DownloadPassword",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 50
+            },
+            {
+                "Name": "EXIF",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "External",
+                "Description": "An old setting that no longer has any function",
+                "Type": "Boolean",
+                "Deprecated": "2015-09-08"
+            },
+            {
+                "Name": "FamilyEdit",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Filenames",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "FriendEdit",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Geography",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Header",
+                "Description": "Appearance",
+                "Type": "Select",
+                "OPTIONS": [
+                    "Custom",
+                    "SmugMug"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "HideOwner",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "InterceptShipping",
+                "Description": "Personal Delivery",
+                "Type": "Select",
+                "OPTIONS": [
+                    "No",
+                    "Yes",
+                    "Inherit from User"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "Keywords",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 255
+            },
+            {
+                "Name": "LargestSize",
+                "Type": "Select",
+                "OPTIONS": [
+                    "Medium",
+                    "Large",
+                    "XLarge",
+                    "X2Large",
+                    "X3Large",
+                    "X4Large",
+                    "X5Large",
+                    "4K",
+                    "5K",
+                    "Original"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "PackagingBranding",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Password",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 50
+            },
+            {
+                "Name": "PasswordHint",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": 255
+            },
+            {
+                "Name": "Printable",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Privacy",
+                "Description": "\"Private\" is not supported on legacy accounts",
+                "Type": "Select",
+                "OPTIONS": [
+                    "Public",
+                    "Unlisted",
+                    "Private"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "ProofDays",
+                "Type": "Integer",
+                "MIN_VALUE": "NEGATIVE_INFINITY",
+                "MAX_VALUE": "POSITIVE_INFINITY"
+            },
+            {
+                "Name": "ProofDigital",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Protected",
+                "Description": "Right-Click Protection",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Share",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Slideshow",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "SmugSearchable",
+                "Type": "Select",
+                "OPTIONS": [
+                    "No",
+                    "Inherit from User"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "SortDirection",
+                "Type": "Select",
+                "OPTIONS": [
+                    "Ascending",
+                    "Descending"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "SortMethod",
+                "Type": "Select",
+                "OPTIONS": [
+                    "Position",
+                    "Caption",
+                    "Filename",
+                    "Date Uploaded",
+                    "Date Modified",
+                    "Date Taken"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "SquareThumbs",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "UploadKey",
+                "Description": "Guest UploadKey",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": "INFINITY"
+            },
+            {
+                "Name": "Watermark",
+                "Description": "Automatically apply watermark to uploaded images?",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "WorldSearchable",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "SecurityType",
+                "Type": "Select",
+                "OPTIONS": [
+                    "None",
+                    "Password",
+                    "GrantAccess"
+                ],
+                "MIN_COUNT": 1,
+                "MAX_COUNT": 1
+            },
+            {
+                "Name": "CommerceLightbox",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "HighlightAlbumImageUri",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "AlbumImage"
+                ]
+            },
+            {
+                "Name": "AlbumTemplateUri",
+                "Description": "Specify default album presets by providing an AlbumTemplateUri.",
+                "Type": "Uri",
+                "MAX_LENGTH": "INFINITY",
+                "Locator": [
+                    "AlbumTemplate"
+                ]
+            },
+            {
+                "Name": "AlbumKey",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": "INFINITY"
+            },
+            {
+                "Name": "CanBuy",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "CanFavorite",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "FavoriteAlbumUrl",
+                "Type": "FullUrl",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": "INFINITY"
+            },
+            {
+                "Name": "Date",
+                "Type": "DateTimeISO8601"
+            },
+            {
+                "Name": "LastUpdated",
+                "Type": "DateTimeISO8601"
+            },
+            {
+                "Name": "ImagesLastUpdated",
+                "Description": "The last time at which images were added, removed, or rearranged in this album",
+                "Type": "DateTimeISO8601"
+            },
+            {
+                "Name": "NodeID",
+                "Type": "Varchar",
+                "MIN_CHARS": 1,
+                "MAX_CHARS": "INFINITY"
+            },
+            {
+                "Name": "OriginalSizes",
+                "Type": "Integer",
+                "MIN_VALUE": "NEGATIVE_INFINITY",
+                "MAX_VALUE": "POSITIVE_INFINITY"
+            },
+            {
+                "Name": "TotalSizes",
+                "Type": "Integer",
+                "MIN_VALUE": "NEGATIVE_INFINITY",
+                "MAX_VALUE": "POSITIVE_INFINITY"
+            },
+            {
+                "Name": "ImageCount",
+                "Type": "Integer",
+                "MIN_VALUE": "NEGATIVE_INFINITY",
+                "MAX_VALUE": "POSITIVE_INFINITY"
+            },
+            {
+                "Name": "UrlPath",
+                "Type": "Varchar",
+                "MIN_CHARS": 0,
+                "MAX_CHARS": "INFINITY"
+            },
+            {
+                "Name": "CanShare",
+                "Description": "Does the owner of this album want it to be shareable?",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "HasDownloadPassword",
+                "Type": "Boolean"
+            },
+            {
+                "Name": "Packages",
+                "Description": "Are any packages available for album",
+                "Type": "Boolean"
+            }
+        ],
+        "Notes": [
+            "To sort images manually first set SortMethod to Position",
+            "When selecting SortMethod=Position, SortMethod is automatically set to Ascending",
+            "NiceName is deprecated; use UrlName instead",
+            "Title is deprecated; use Name instead",
+            "AlbumHighlightImage is deprecated, use HighlightImage instead"
+        ],
+        "ResponseLevels": [
+            "Full",
+            "Password",
+            "Public",
+            "GrantAccess"
+        ],
+        "Path": [
+            {
+                "type": "path",
+                "text": "api"
+            },
+            {
+                "type": "path",
+                "text": "v2"
+            },
+            {
+                "type": "path",
+                "text": "album"
+            },
+            {
+                "type": "singleparam",
+                "param_name": "albumkey",
+                "param_value": "dDfCWW"
+            }
+        ]
+    },
+    "Response": {
+        "Uri": "/api/v2/album/dDfCWW",
+        "Locator": "Album",
+        "LocatorType": "Object",
+        "Album": {
+            "NiceName": "Test",
+            "UrlName": "Test",
+            "Title": "Test",
+            "Name": "Test",
+            "TemplateUri": "/api/v2/template/17",
+            "AllowDownloads": false,
+            "Backprinting": "",
+            "BoutiquePackaging": "No",
+            "CanRank": true,
+            "Clean": false,
+            "Comments": true,
+            "Description": "",
+            "EXIF": true,
+            "External": true,
+            "FamilyEdit": false,
+            "Filenames": false,
+            "FriendEdit": false,
+            "Geography": true,
+            "Header": "Custom",
+            "HideOwner": false,
+            "InterceptShipping": "Inherit from User",
+            "Keywords": "",
+            "LargestSize": "5K",
+            "PackagingBranding": true,
+            "Password": "",
+            "PasswordHint": "",
+            "Printable": true,
+            "Privacy": "Unlisted",
+            "ProofDays": 0,
+            "ProofDigital": false,
+            "Protected": false,
+            "Share": true,
+            "Slideshow": true,
+            "SmugSearchable": "Inherit from User",
+            "SortDirection": "Ascending",
+            "SortMethod": "Date Taken",
+            "SquareThumbs": true,
+            "Watermark": false,
+            "WorldSearchable": true,
+            "SecurityType": "None",
+            "CommerceLightbox": false,
+            "HighlightAlbumImageUri": "/api/v2/album/dDfCWW/image/qPzttW4-0",
+            "AlbumKey": "dDfCWW",
+            "CanBuy": true,
+            "CanFavorite": false,
+            "Date": "2022-08-26T07:12:45+00:00",
+            "LastUpdated": "2022-08-27T03:53:08+00:00",
+            "ImagesLastUpdated": "2022-08-27T03:53:19+00:00",
+            "NodeID": "8PWSBm",
+            "OriginalSizes": 0,
+            "TotalSizes": 0,
+            "ImageCount": 3,
+            "UrlPath": "/Test",
+            "CanShare": true,
+            "HasDownloadPassword": false,
+            "Packages": false,
+            "Uri": "/api/v2/album/dDfCWW",
+            "WebUri": "https://photos.gravl.cc/Test/n-8PWSBm",
+            "UriDescription": "Album by key",
+            "Uris": {
+                "AlbumShareUris": {
+                    "Uri": "/api/v2/album/dDfCWW!shareuris",
+                    "Locator": "AlbumShareUris",
+                    "LocatorType": "Object",
+                    "UriDescription": "URIs that are useful for sharing",
+                    "EndpointType": "AlbumShareUris"
+                },
+                "Node": {
+                    "Uri": "/api/v2/node/8PWSBm",
+                    "Locator": "Node",
+                    "LocatorType": "Object",
+                    "UriDescription": "Node with the given id.",
+                    "EndpointType": "Node"
+                },
+                "NodeCoverImage": {
+                    "Uri": "/api/v2/node/8PWSBm!cover",
+                    "Locator": "Image",
+                    "LocatorType": "Object",
+                    "UriDescription": "Cover image for a folder, album, or page",
+                    "EndpointType": "NodeCoverImage"
+                },
+                "User": {
+                    "Uri": "/api/v2/user/zimmer",
+                    "Locator": "User",
+                    "LocatorType": "Object",
+                    "UriDescription": "User By Nickname",
+                    "EndpointType": "User"
+                },
+                "Folder": {
+                    "Uri": "/api/v2/folder/user/zimmer",
+                    "Locator": "Folder",
+                    "LocatorType": "Object",
+                    "UriDescription": "A folder or legacy (sub)category by UrlPath",
+                    "EndpointType": "Folder"
+                },
+                "ParentFolders": {
+                    "Uri": "/api/v2/folder/user/zimmer!parents",
+                    "Locator": "Folder",
+                    "LocatorType": "Objects",
+                    "UriDescription": "The sequence of parent folders, from the given folder to the root",
+                    "EndpointType": "ParentFolders"
+                },
+                "HighlightImage": {
+                    "Uri": "/api/v2/highlight/node/8PWSBm",
+                    "Locator": "Image",
+                    "LocatorType": "Object",
+                    "UriDescription": "Highlight image for a folder, album, or page",
+                    "EndpointType": "HighlightImage"
+                },
+                "AddSamplePhotos": {
+                    "Uri": "/api/v2/album/dDfCWW!addsamplephotos",
+                    "UriDescription": "Add sample photos to Album",
+                    "EndpointType": "AddSamplePhotos"
+                },
+                "AlbumHighlightImage": {
+                    "Uri": "/api/v2/album/dDfCWW!highlightimage",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Object",
+                    "UriDescription": "Highlight image for album",
+                    "EndpointType": "AlbumHighlightImage"
+                },
+                "AlbumImages": {
+                    "Uri": "/api/v2/album/dDfCWW!images",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Images from album",
+                    "EndpointType": "AlbumImages"
+                },
+                "AlbumPopularMedia": {
+                    "Uri": "/api/v2/album/dDfCWW!popularmedia",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Popular images from album",
+                    "EndpointType": "AlbumPopularMedia"
+                },
+                "AlbumGeoMedia": {
+                    "Uri": "/api/v2/album/dDfCWW!geomedia",
+                    "Locator": "AlbumImage",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Geotagged images from album",
+                    "EndpointType": "AlbumGeoMedia"
+                },
+                "AlbumComments": {
+                    "Uri": "/api/v2/album/dDfCWW!comments",
+                    "Locator": "Comment",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Comments on album",
+                    "EndpointType": "AlbumComments"
+                },
+                "MoveAlbumImages": {
+                    "Uri": "/api/v2/album/dDfCWW!moveimages",
+                    "UriDescription": "Move images into album",
+                    "EndpointType": "MoveAlbumImages"
+                },
+                "CollectImages": {
+                    "Uri": "/api/v2/album/dDfCWW!collectimages",
+                    "UriDescription": "Collect images into album",
+                    "EndpointType": "CollectImages"
+                },
+                "ApplyAlbumTemplate": {
+                    "Uri": "/api/v2/album/dDfCWW!applyalbumtemplate",
+                    "Locator": "ApplyAlbumTemplate",
+                    "LocatorType": "Object",
+                    "UriDescription": "Apply an album template",
+                    "EndpointType": "ApplyAlbumTemplate"
+                },
+                "DeleteAlbumImages": {
+                    "Uri": "/api/v2/album/dDfCWW!deleteimages",
+                    "UriDescription": "Delete album images",
+                    "EndpointType": "DeleteAlbumImages"
+                },
+                "UploadFromExternalResource": {
+                    "Uri": "/api/v2/album/dDfCWW!uploadfromexternalresource",
+                    "UriDescription": "Upload a photo or video from external storage",
+                    "EndpointType": "UploadFromExternalResource"
+                },
+                "UploadFromUri": {
+                    "Uri": "/api/v2/album/dDfCWW!uploadfromuri",
+                    "UriDescription": "Upload a photo or video from elsewhere on the web",
+                    "EndpointType": "UploadFromUri"
+                },
+                "AlbumGrants": {
+                    "Uri": "/api/v2/album/dDfCWW!grants",
+                    "Locator": "Grant",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Grants for the Album",
+                    "EndpointType": "AlbumGrants"
+                },
+                "AlbumDownload": {
+                    "Uri": "/api/v2/album/dDfCWW!download",
+                    "Locator": "Download",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Download album",
+                    "EndpointType": "AlbumDownload"
+                },
+                "AlbumPrices": {
+                    "Uri": "/api/v2/album/dDfCWW!prices",
+                    "Locator": "CatalogSkuPrice",
+                    "LocatorType": "Objects",
+                    "UriDescription": "Purchasable Skus",
+                    "EndpointType": "AlbumPrices"
+                },
+                "AlbumPricelistExclusions": {
+                    "Uri": "/api/v2/album/dDfCWW!pricelistexclusions",
+                    "Locator": "AlbumPricelistExclusions",
+                    "LocatorType": "Object",
+                    "UriDescription": "Pricelist information for an Album",
+                    "EndpointType": "AlbumPricelistExclusions"
+                }
+            },
+            "ResponseLevel": "Full"
+        },
+        "UriDescription": "Album by key",
+        "EndpointType": "Album",
+        "DocUri": "https://api.smugmug.com/api/v2/doc/reference/album.html",
+        "Timing": {
+            "Total": {
+                "time": 0.04111,
+                "cycles": 1,
+                "objects": 0
+            }
+        }
+    },
+    "Code": 200,
+    "Message": "Ok"
+}

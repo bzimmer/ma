@@ -1,6 +1,7 @@
 package ma_test
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"testing"
@@ -9,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/ma"
+	"github.com/bzimmer/smugmug"
 )
 
 type errorEncoder struct{}
@@ -68,9 +70,9 @@ func TestUpload(t *testing.T) {
 			name: "upload file already exists",
 			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"fsUploadable.visit":    1,
-				"fsUploadable.open":     1,
-				"fsUploadable.skip.md5": 1,
+				"uploadable.fs.visit":    1,
+				"uploadable.fs.open":     1,
+				"uploadable.fs.skip.md5": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Nikon_D70.jpg")
@@ -85,8 +87,8 @@ func TestUpload(t *testing.T) {
 			name: "upload skip unsupported file",
 			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"fsUploadable.visit":            1,
-				"fsUploadable.skip.unsupported": 1,
+				"uploadable.fs.visit":            1,
+				"uploadable.fs.skip.unsupported": 1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/Nikon_D70.xmp")
@@ -100,10 +102,10 @@ func TestUpload(t *testing.T) {
 			name: "upload replace existing image (dryrun)",
 			args: []string{"upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"fsUploadable.visit":   1,
-				"fsUploadable.open":    1,
-				"fsUploadable.replace": 1,
-				"upload.dryrun":        1,
+				"uploadable.fs.visit":   1,
+				"uploadable.fs.open":    1,
+				"uploadable.fs.replace": 1,
+				"upload.dryrun":         1,
 			},
 			before: func(c *cli.Context) error {
 				// create a file of the same name as a previously uploaded file but copy the
@@ -120,10 +122,10 @@ func TestUpload(t *testing.T) {
 			name: "upload new image",
 			args: []string{"upload", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"fsUploadable.visit": 1,
-				"upload.attempt":     1,
-				"fsUploadable.open":  1,
-				"upload.success":     1,
+				"uploadable.fs.visit": 1,
+				"upload.attempt":      1,
+				"uploadable.fs.open":  1,
+				"upload.success":      1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
@@ -152,9 +154,9 @@ func TestUpload(t *testing.T) {
 			name: "upload new image (dryrun)",
 			args: []string{"upload", "--dryrun", "--album", "TDZWbg", "/foo/bar"},
 			counters: map[string]int{
-				"fsUploadable.visit": 1,
-				"upload.dryrun":      1,
-				"fsUploadable.open":  1,
+				"uploadable.fs.visit": 1,
+				"upload.dryrun":       1,
+				"uploadable.fs.open":  1,
 			},
 			before: func(c *cli.Context) error {
 				fp, err := runtime(c).Fs.Create("/foo/bar/hdxDH/VsQ7zr/Fujifilm_FinePix6900ZOOM.jpg")
@@ -162,6 +164,81 @@ func TestUpload(t *testing.T) {
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
 				a.NoError(fp.Close())
+				return nil
+			},
+		},
+	} {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			run(t, &tt, mux, ma.CommandUpload)
+		})
+	}
+}
+
+func TestMirror(t *testing.T) {
+	a := assert.New(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/album/dDfCWW!images", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "testdata/album_dDfCWW_images.json")
+	})
+	mux.HandleFunc("/album/dDfCWW", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "testdata/album_dDfCWW.json")
+	})
+	mux.HandleFunc("/album/dDfCWW/image/qPzttW4-0", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodDelete, r.Method)
+		a.NoError(json.NewEncoder(w).Encode(struct {
+			Response struct {
+				Image *smugmug.Image `json:"Image"`
+			} `json:"Response"`
+			Code    int    `json:"Code"`
+			Message string `json:"Message"`
+		}{
+			Code:    200,
+			Message: "OK",
+		}))
+	})
+
+	for _, tt := range []harness{
+		{
+			name: "mirror filesystem dryrun",
+			args: []string{"upload", "--album", "dDfCWW", "--mirror", "--dryrun", "/foo/bar"},
+			counters: map[string]int{
+				"up.mirror.dryrun":       1,
+				"uploadable.fs.open":     2,
+				"uploadable.fs.skip.md5": 2,
+				"uploadable.fs.visit":    2,
+			},
+			before: func(c *cli.Context) error {
+				for _, name := range []string{"Fujifilm_FinePix6900ZOOM.jpg", "Nikon_D70.jpg"} {
+					fp, err := runtime(c).Fs.Create("/foo/bar/baz/" + name)
+					a.NotNil(fp)
+					a.NoError(err)
+					a.NoError(copyFile(fp, "testdata/"+name))
+					a.NoError(fp.Close())
+				}
+				return nil
+			},
+		},
+		{
+			name: "mirror filesystem",
+			args: []string{"upload", "--album", "dDfCWW", "--mirror", "/foo/bar"},
+			counters: map[string]int{
+				"up.mirror.delete":       1,
+				"uploadable.fs.open":     2,
+				"uploadable.fs.skip.md5": 2,
+				"uploadable.fs.visit":    2,
+				"up.delete.attempt":      1,
+				"up.delete.success":      1,
+			},
+			before: func(c *cli.Context) error {
+				for _, name := range []string{"Fujifilm_FinePix6900ZOOM.jpg", "Nikon_D70.jpg"} {
+					fp, err := runtime(c).Fs.Create("/foo/bar/baz/" + name)
+					a.NotNil(fp)
+					a.NoError(err)
+					a.NoError(copyFile(fp, "testdata/"+name))
+					a.NoError(fp.Close())
+				}
 				return nil
 			},
 		},

@@ -1,24 +1,50 @@
 package ma
 
 import (
+	"fmt"
+
+	"github.com/bzimmer/smugmug"
+	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 )
 
 func rm(c *cli.Context) error {
-	zv := c.Bool("zero-version")
+	dryrun := c.Bool("dryrun")
 	albumKey := c.String("album")
+	var (
+		res    bool
+		err    error
+		images map[string]*smugmug.Image
+	)
 	for i := 0; i < c.NArg(); i++ {
-		id, err := zero(c.Args().Get(i), zv)
-		if err != nil {
-			return err
+		id := c.Args().Get(i)
+		if !imageRE.MatchString(id) {
+			if images == nil {
+				_, images, err = existing(c, func(img *smugmug.Image) string {
+					return img.ImageKey
+				})
+				if err != nil {
+					return err
+				}
+			}
+			image, ok := images[id]
+			if !ok {
+				return &InvalidVersionError{ImageKey: id}
+			}
+			id = fmt.Sprintf("%s-%d", id, image.Serial)
 		}
-		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "attempt"}, 1)
-		res, err := runtime(c).Client.Image.Delete(c.Context, albumKey, id)
-		if err != nil {
-			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "failure"}, 1)
-			return err
+		if dryrun {
+			res = false
+			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "dryrun"}, 1)
+		} else {
+			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "attempt"}, 1)
+			res, err = runtime(c).Client.Image.Delete(c.Context, albumKey, id)
+			if err != nil {
+				runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "failure"}, 1)
+				return err
+			}
+			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
 		}
-		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
 		if err = runtime(c).Encoder.Encode(map[string]any{
 			"AlbumKey": albumKey,
 			"ImageKey": id,
@@ -26,6 +52,7 @@ func rm(c *cli.Context) error {
 		}); err != nil {
 			return err
 		}
+		log.Info().Str("albumKey", albumKey).Str("imageKey", id).Msg("delete")
 	}
 	return nil
 }
@@ -49,7 +76,13 @@ func CommandRemove() *cli.Command {
 						Required: true,
 						Usage:    "the album from which the image is to be deleted",
 					},
-					zeroFlag(),
+					&cli.BoolFlag{
+						Name:     "dryrun",
+						Usage:    "prepare to upload but don't actually do it",
+						Aliases:  []string{"n"},
+						Value:    false,
+						Required: false,
+					},
 				},
 				Action: rm,
 			},

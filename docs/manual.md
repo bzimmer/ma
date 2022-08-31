@@ -513,7 +513,11 @@ $ ma up [flags]
 |```album```|```a```||the album to which image files will be uploaded|
 |```ext```|```x```||the set of file extensions suitable for uploading|
 |```dryrun```|```n```||prepare to upload but don't actually do it|
+<<<<<<< HEAD
 |```mirror```|||mirror the local filesystem with a SmugMug gallery|
+=======
+|```mirror```|||mirror the SmugMug gallery to the local filesystem|
+>>>>>>> 5648a256f48729569e9c925cc06148f4ee40996a
 
 **Example**
 

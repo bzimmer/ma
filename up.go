@@ -74,7 +74,7 @@ func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFun
 	}
 }
 
-func upload(c *cli.Context) filesystem.UseFunc {
+func attempt(c *cli.Context) filesystem.UseFunc {
 	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
 		info := log.Info().
 			Str("name", up.Name).
@@ -91,7 +91,20 @@ func upload(c *cli.Context) filesystem.UseFunc {
 	}
 }
 
-func uploadable(
+type upload struct{}
+
+func (x *upload) upload(c *cli.Context) error {
+	album, images, err := existing(c, func(img *smugmug.Image) string {
+		return img.FileName
+	})
+	if err != nil {
+		return err
+	}
+	uc, ec := x.uploadable(c, album, images)
+	return x.do(c, uc, ec)
+}
+
+func (x *upload) uploadable(
 	c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (<-chan *smugmug.Upload, <-chan error) {
 	mg := runtime(c).Client
 	u, err := filesystem.NewFsUploadable(album.AlbumKey)
@@ -99,12 +112,12 @@ func uploadable(
 		return nil, nil
 	}
 	u.Pre(visit(c), extensions(c))
-	u.Use(open(c), skip(c, images), replace(c, images), upload(c))
+	u.Use(open(c), skip(c, images), replace(c, images), attempt(c))
 	return mg.Upload.Uploads(
 		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u))
 }
 
-func do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error {
+func (x *upload) do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error {
 	enc := runtime(c).Encoder
 	for {
 		select {
@@ -132,7 +145,45 @@ func do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error
 	}
 }
 
-func deleteImages(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) error {
+type mirror struct{}
+
+func (x *mirror) mirror(c *cli.Context) error {
+	var m sync.RWMutex
+	album, images, err := existing(c, func(img *smugmug.Image) string {
+		return img.FileName
+	})
+	if err != nil {
+		return err
+	}
+	u, err := filesystem.NewFsUploadable(album.AlbumKey)
+	if err != nil {
+		return err
+	}
+	u.Pre(filesystem.Extensions(c.StringSlice("ext")...))
+	u.Pre(func(fs afero.Fs, filename string) (bool, error) {
+		m.Lock()
+		delete(images, filepath.Base(filename))
+		m.Unlock()
+		return false, nil
+	})
+	uploadc, errc := filesystem.
+		NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u).
+		Uploadables(c.Context)
+	for {
+		select {
+		case <-c.Done():
+			return c.Err()
+		case err = <-errc:
+			return err
+		case _, ok := <-uploadc:
+			if !ok {
+				return x.delete(c, album, images)
+			}
+		}
+	}
+}
+
+func (x *mirror) delete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) error {
 	mg := runtime(c).Client
 	enc := runtime(c).Encoder
 	met := runtime(c).Metrics
@@ -169,55 +220,14 @@ func deleteImages(c *cli.Context, album *smugmug.Album, images map[string]*smugm
 	return nil
 }
 
-func mirror(c *cli.Context) error {
-	var m sync.RWMutex
-	album, images, err := existing(c, func(img *smugmug.Image) string {
-		return img.FileName
-	})
-	if err != nil {
-		return err
-	}
-	u, err := filesystem.NewFsUploadable(album.AlbumKey)
-	if err != nil {
-		return err
-	}
-	u.Pre(filesystem.Extensions(c.StringSlice("ext")...))
-	u.Pre(func(fs afero.Fs, filename string) (bool, error) {
-		m.Lock()
-		delete(images, filepath.Base(filename))
-		m.Unlock()
-		return false, nil
-	})
-	uploadc, errc := filesystem.
-		NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u).
-		Uploadables(c.Context)
-	for {
-		select {
-		case <-c.Done():
-			return c.Err()
-		case err = <-errc:
-			return err
-		case _, ok := <-uploadc:
-			if !ok {
-				return deleteImages(c, album, images)
-			}
-		}
-	}
-}
-
 func up(c *cli.Context) error {
-	album, images, err := existing(c, func(img *smugmug.Image) string {
-		return img.FileName
-	})
-	if err != nil {
-		return err
-	}
-	uc, ec := uploadable(c, album, images)
-	if err = do(c, uc, ec); err != nil {
+	var u upload
+	if err := u.upload(c); err != nil {
 		return err
 	}
 	if c.Bool("mirror") {
-		if err = mirror(c); err != nil {
+		var m mirror
+		if err := m.mirror(c); err != nil {
 			return err
 		}
 	}

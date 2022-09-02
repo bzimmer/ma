@@ -100,24 +100,18 @@ func (x *upload) upload(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	uc, ec := x.uploadable(c, album, images)
-	return x.do(c, uc, ec)
-}
-
-func (x *upload) uploadable(
-	c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) (<-chan *smugmug.Upload, <-chan error) {
-	mg := runtime(c).Client
 	u, err := filesystem.NewFsUploadable(album.AlbumKey)
 	if err != nil {
-		return nil, nil
+		return err
 	}
 	u.Pre(visit(c), extensions(c))
 	u.Use(open(c), skip(c, images), replace(c, images), attempt(c))
-	return mg.Upload.Uploads(
+	uc, ec := runtime(c).Client.Upload.Uploads(
 		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u))
+	return x.up(c, uc, ec)
 }
 
-func (x *upload) do(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error {
+func (x *upload) up(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan error) error {
 	enc := runtime(c).Encoder
 	for {
 		select {

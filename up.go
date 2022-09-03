@@ -1,6 +1,7 @@
 package ma
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"sync"
@@ -35,47 +36,45 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 }
 
 func open(c *cli.Context) filesystem.UseFunc {
-	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+	return func(up *smugmug.Uploadable) error {
 		runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "open"}, 1)
-		return up, nil
+		return nil
 	}
 }
 
 func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 	f := filesystem.Skip(false, images)
-	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		sup, err := f(up)
-		if err != nil {
-			return nil, err
+	return func(up *smugmug.Uploadable) error {
+		if err := f(up); err != nil {
+			if errors.Is(err, filesystem.ErrSkip) {
+				runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "md5"}, 1)
+				log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
+				return filesystem.ErrSkip
+			}
+			return err
 		}
-		if sup == nil {
-			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "md5"}, 1)
-			log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
-			return nil, err
-		}
-		return sup, nil
+		return nil
 	}
 }
 
 func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 	f := filesystem.Replace(true, images)
-	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
-		up, err := f(up)
-		if err != nil {
-			return nil, err
-		}
-		if up == nil {
-			return nil, nil
+	return func(up *smugmug.Uploadable) error {
+		if err := f(up); err != nil {
+			if errors.Is(err, filesystem.ErrSkip) {
+				return nil
+			}
+			return err
 		}
 		if up.Replaces != "" {
 			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "replace"}, 1)
 		}
-		return up, err
+		return nil
 	}
 }
 
 func attempt(c *cli.Context) filesystem.UseFunc {
-	return func(up *smugmug.Uploadable) (*smugmug.Uploadable, error) {
+	return func(up *smugmug.Uploadable) error {
 		info := log.Info().
 			Str("name", up.Name).
 			Str("album", up.AlbumKey).
@@ -83,11 +82,11 @@ func attempt(c *cli.Context) filesystem.UseFunc {
 		if c.Bool("dryrun") {
 			info.Str("status", "dryrun").Msg("upload")
 			runtime(c).Metrics.IncrCounter([]string{"upload", "dryrun"}, 1)
-			return nil, nil
+			return filesystem.ErrSkip
 		}
 		info.Str("status", "attempt").Msg("upload")
 		runtime(c).Metrics.IncrCounter([]string{"upload", "attempt"}, 1)
-		return up, nil
+		return nil
 	}
 }
 

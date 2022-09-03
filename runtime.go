@@ -123,23 +123,10 @@ func titlecase(c *cli.Context, s string) string {
 
 var imageRE = regexp.MustCompile(`[a-zA-Z0-9]+-\d+`)
 
-func zero(id string, zv bool) (string, error) {
-	ok := imageRE.MatchString(id)
-	if !ok {
-		if !zv {
-			return "", fmt.Errorf("no version specified for image key {%s}", id)
-		}
-		return fmt.Sprintf("%s-0", id), nil
-	}
-	return id, nil
+type InvalidVersionError struct {
+	ImageKey string
 }
 
-func zeroFlag() cli.Flag {
-	return &cli.BoolFlag{
-		Name:     "zero-version",
-		Aliases:  []string{"z", "0"},
-		Usage:    "if no version is specified, append `-0` to the image key",
-		Value:    false,
-		Required: false,
-	}
+func (x *InvalidVersionError) Error() string {
+	return fmt.Sprintf("no version specified for image key {%s}", x.ImageKey)
 }

@@ -80,10 +80,11 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				t.Error(err)
 			}
 
+			tracing := false // zerolog.GlobalLevel() == zerolog.DebugLevel
 			client, err := smugmug.NewClient(
 				smugmug.WithBaseURL(url),
 				smugmug.WithUploadURL(url),
-				smugmug.WithHTTPTracing(zerolog.GlobalLevel() == zerolog.DebugLevel))
+				smugmug.WithHTTPTracing(tracing))
 			if err != nil {
 				t.Error(err)
 			}

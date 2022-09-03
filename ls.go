@@ -1,17 +1,18 @@
 package ma
 
 import (
+	"fmt"
+
 	"github.com/bzimmer/smugmug"
 	"github.com/urfave/cli/v2"
 )
 
 func image(c *cli.Context) error {
 	mg := runtime(c).Client
-	zv := c.Bool("zero-version")
 	for i := 0; i < c.NArg(); i++ {
-		id, err := zero(c.Args().Get(i), zv)
-		if err != nil {
-			return err
+		id := c.Args().Get(i)
+		if !imageRE.MatchString(id) {
+			id = fmt.Sprintf("%s-0", id)
 		}
 		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum"))
 		if err != nil {
@@ -125,10 +126,7 @@ func CommandList() *cli.Command {
 				Usage:       "list images",
 				Description: "list the details of an image(s)",
 				ArgsUsage:   "<image key> [<image key>, ...]",
-				Flags: []cli.Flag{
-					zeroFlag(),
-				},
-				Action: image,
+				Action:      image,
 			},
 		},
 	}

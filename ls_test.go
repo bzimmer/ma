@@ -52,14 +52,9 @@ func TestList(t *testing.T) {
 			counters: map[string]int{"ls.image": 1},
 		},
 		{
-			name:     "image with auto-versioning",
-			args:     []string{"ls", "image", "--zero-version", "B2fHSt7"},
+			name:     "image with autoversioning",
+			args:     []string{"ls", "image", "B2fHSt7"},
 			counters: map[string]int{"ls.image": 1},
-		},
-		{
-			name: "image with no version and no auto-versioning",
-			args: []string{"ls", "image", "B2fHSt7"},
-			err:  "no version specified",
 		},
 		{
 			name: "invalid album",

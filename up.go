@@ -224,7 +224,6 @@ func up(c *cli.Context) error {
 			return err
 		}
 	}
-	log.Info().Msg("done")
 	return nil
 }
 

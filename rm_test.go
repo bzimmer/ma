@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bzimmer/smugmug"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/bzimmer/ma"
-	"github.com/bzimmer/smugmug"
 )
 
 func TestRemove(t *testing.T) {

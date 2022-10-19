@@ -80,3 +80,11 @@ tasks:
     deps: [snapshot]
     cmds:
       - cp {{.DIST}}/{{.APP}}_{{OS}}_{{ARCH}}/{{.APP}} $GOPATH/bin
+
+  goimports:
+    desc: Run goimports
+    vars:
+      Module:
+        sh: go mod edit -json | jq -r .Module.Path
+    cmds:
+      - goimports -w -local "{{.Module}}" .

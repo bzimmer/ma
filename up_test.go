@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bzimmer/smugmug"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 
 	"github.com/bzimmer/ma"
-	"github.com/bzimmer/smugmug"
 )
 
 type errorEncoder struct{}

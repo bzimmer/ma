@@ -46,7 +46,7 @@ func TestUpload(t *testing.T) {
 		{
 			name: "upload with no arguments",
 			args: []string{"upload"},
-			err:  "Required flag \"album\" not set",
+			err:  "Required flag \"a\" not set",
 		},
 		{
 			name: "upload invalid album",

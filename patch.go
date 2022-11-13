@@ -131,7 +131,7 @@ func (p *patcher) keywords(key string) *patcher {
 func patch(key patchKey) cli.ActionFunc {
 	return func(c *cli.Context) error {
 		p := with(c).keywords("keyword").urlname()
-		for _, flag := range []string{"title", "name", "caption"} {
+		for _, flag := range []string{"title", "name", "caption", "description"} {
 			p = p.str(flag)
 		}
 		for _, flag := range []string{"latitude", "longitude", "altitude"} {
@@ -203,7 +203,11 @@ func albumPatch() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "name",
-				Usage: "the name of the album",
+				Usage: "the album name",
+			},
+			&cli.StringFlag{
+				Name:  "description",
+				Usage: "the album description",
 			},
 		},
 		Before: func(c *cli.Context) error {

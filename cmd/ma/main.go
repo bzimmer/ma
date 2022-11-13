@@ -180,6 +180,7 @@ func main() {
 			ma.CommandPatch(),
 			ma.CommandRemove(),
 			ma.CommandSimilar(),
+			ma.CommandTitle(),
 			ma.CommandUpload(),
 			ma.CommandURLName(),
 			ma.CommandUser(),

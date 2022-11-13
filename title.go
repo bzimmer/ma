@@ -17,6 +17,7 @@ func CommandTitle() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "caser",
+				Aliases:  []string{"c"},
 				Usage:    "The case algorithm to use, one of 'upper', 'lower', or 'title'",
 				Value:    "title",
 				Required: false,

@@ -2,12 +2,10 @@ package ma
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/rs/zerolog/log"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 func CommandTitle() *cli.Command {
@@ -18,13 +16,6 @@ func CommandTitle() *cli.Command {
 		Description: "Create a title following the specified convention",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "language",
-				Aliases:  []string{"lang", "l"},
-				Usage:    "The language being cased as a BCP 47 language tag (eg 'en', 'de')",
-				Value:    "en",
-				Required: false,
-			},
-			&cli.StringFlag{
 				Name:     "caser",
 				Usage:    "The case algorithm to use, one of 'upper', 'lower', or 'title'",
 				Value:    "title",
@@ -33,10 +24,7 @@ func CommandTitle() *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			enc := runtime(c).Encoder
-			tag, err := language.Parse(c.String("language"))
-			if err != nil {
-				return err
-			}
+			tag := runtime(c).Language
 			var caser cases.Caser
 			switch c.String("caser") {
 			case "lower":
@@ -48,11 +36,15 @@ func CommandTitle() *cli.Command {
 			default:
 				return fmt.Errorf("unknown caser: %s", c.String("caser"))
 			}
-			runtime(c).Metrics.IncrCounter([]string{c.Command.Name, c.String("language")}, 1)
-			log.Info().Str("caser", c.String("caser")).Str("lang", tag.String()).Msg(c.Command.Name)
-			return enc.Encode(map[string]string{
-				"Title": caser.String(strings.Join(c.Args().Slice(), " ")),
-			})
+			for i := 0; i < c.NArg(); i++ {
+				title := c.Args().Get(i)
+				runtime(c).Metrics.IncrCounter([]string{c.Command.Name, c.String("caser")}, 1)
+				log.Info().Str("title", title).Str("caser", c.String("caser")).Str("lang", tag.String()).Msg(c.Command.Name)
+				if err := enc.Encode(map[string]string{"Title": caser.String(title)}); err != nil {
+					return err
+				}
+			}
+			return nil
 		},
 	}
 }

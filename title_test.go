@@ -29,8 +29,14 @@ func TestTitle(t *testing.T) {
 	}
 	for _, tt := range []harness{
 		{
-			name:   "title",
+			name:   "default",
 			args:   []string{"-j", "title", "foobar"},
+			before: before,
+			after:  after("Foobar"),
+		},
+		{
+			name:   "title",
+			args:   []string{"-j", "title", "--caser", "title", "foobar"},
 			before: before,
 			after:  after("Foobar"),
 		},
@@ -51,12 +57,6 @@ func TestTitle(t *testing.T) {
 			args:   []string{"-j", "title", "--caser", "orange", "foOBar"},
 			before: before,
 			err:    "unknown caser: orange",
-		},
-		{
-			name:   "unknown language",
-			args:   []string{"-j", "title", "--lang", "orange", "foOBar"},
-			before: before,
-			err:    "language: tag is not well-formed",
 		},
 	} {
 		tt := tt

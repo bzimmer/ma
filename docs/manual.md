@@ -35,6 +35,7 @@ All your media archiving needs!
 * [rm](#rm)
 * [rm image](#rm-image)
 * [similar](#similar)
+* [title](#title)
 * [up](#up)
 * [urlname](#urlname)
 * [user](#user)
@@ -407,7 +408,8 @@ $ ma patch album [flags] <album key> [<album key>, ...]
 |```urlname```|||the urlname of the album|
 |```auto```|```A, auto-urlname```||auto-generate the urlname (album name is required)|
 |```keyword```|||a set of keywords describing the album|
-|```name```|||the name of the album|
+|```name```|||the album name|
+|```description```|||the album description|
 
 
 ## *patch image*
@@ -490,6 +492,27 @@ $ ma similar [flags] <file-or-directory> [<file-or-directory>, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |```concurrency```|```c```||the number of concurrent image reads|
+
+
+## *title*
+
+**Description**
+
+Create a title following the specified convention
+
+
+**Syntax**
+
+```sh
+$ ma title [flags]
+```
+
+
+**Flags**
+
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|```caser```|```c```||The case algorithm to use, one of 'upper', 'lower', or 'title'|
 
 
 ## *up*

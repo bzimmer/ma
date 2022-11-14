@@ -512,8 +512,7 @@ $ ma title [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```language```|```lang, l```||The language being cased as a BCP 47 language tag (eg 'en', 'de')|
-|```caser```|||The case algorithm to use, one of 'upper', 'lower', or 'title'|
+|```caser```|```c```||The case algorithm to use, one of 'upper', 'lower', or 'title'|
 
 
 ## *up*

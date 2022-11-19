@@ -1,8 +1,10 @@
 package ma
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"path/filepath"
 	"sync"
 
@@ -12,6 +14,27 @@ import (
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 )
+
+func input(c *cli.Context) ([]string, error) {
+	if !c.Bool("0") {
+		return c.Args().Slice(), nil
+	}
+	log.Info().Msg("reading paths from stdin")
+	data, err := io.ReadAll(c.App.Reader)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	for {
+		x := bytes.IndexByte(data, 0)
+		if x == -1 {
+			break
+		}
+		out = append(out, string(data[0:x]))
+		data = data[x+1:]
+	}
+	return out, nil
+}
 
 func visit(c *cli.Context) filesystem.PreFunc {
 	return func(fs afero.Fs, filename string) (bool, error) {
@@ -93,6 +116,10 @@ func attempt(c *cli.Context) filesystem.UseFunc {
 type upload struct{}
 
 func (x *upload) upload(c *cli.Context) error {
+	in, err := input(c)
+	if err != nil {
+		return err
+	}
 	album, images, err := existing(c, func(img *smugmug.Image) string {
 		return img.FileName
 	})
@@ -106,7 +133,7 @@ func (x *upload) upload(c *cli.Context) error {
 	u.Pre(visit(c), extensions(c))
 	u.Use(open(c), skip(c, images), replace(c, images), attempt(c))
 	uc, ec := runtime(c).Client.Upload.Uploads(
-		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u))
+		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, in, u))
 	return x.up(c, uc, ec)
 }
 
@@ -142,6 +169,10 @@ type mirror struct{}
 
 func (x *mirror) mirror(c *cli.Context) error {
 	var m sync.RWMutex
+	in, err := input(c)
+	if err != nil {
+		return err
+	}
 	album, images, err := existing(c, func(img *smugmug.Image) string {
 		return img.FileName
 	})
@@ -159,8 +190,9 @@ func (x *mirror) mirror(c *cli.Context) error {
 		m.Unlock()
 		return false, nil
 	})
+
 	uploadc, errc := filesystem.
-		NewFsUploadables(runtime(c).Fs, c.Args().Slice(), u).
+		NewFsUploadables(runtime(c).Fs, in, u).
 		Uploadables(c.Context)
 	for {
 		select {
@@ -257,6 +289,12 @@ func CommandUpload() *cli.Command {
 			&cli.BoolFlag{
 				Name:     "mirror",
 				Usage:    "mirror the local filesystem with a SmugMug gallery",
+				Value:    false,
+				Required: false,
+			},
+			&cli.BoolFlag{
+				Name:     "0",
+				Usage:    "read null byte terminated strings from stdin",
 				Value:    false,
 				Required: false,
 			},

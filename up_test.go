@@ -1,9 +1,12 @@
 package ma_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/bzimmer/smugmug"
@@ -38,6 +41,14 @@ func TestUpload(t *testing.T) {
 		http.ServeFile(w, r, "testdata/album_TDZWbg.json")
 	})
 	mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
+	})
+	mux.HandleFunc("/IMG_0827.JPG", func(w http.ResponseWriter, r *http.Request) {
+		a.Equal(http.MethodPut, r.Method)
+		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
+	})
+	mux.HandleFunc("/_DSC6073.JPG", func(w http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
 	})
@@ -132,6 +143,35 @@ func TestUpload(t *testing.T) {
 				a.NotNil(fp)
 				a.NoError(err)
 				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+				return nil
+			},
+		},
+		{
+			name: "upload images from null strings",
+			args: []string{"upload", "--album", "TDZWbg", "--0"},
+			counters: map[string]int{
+				"upload.attempt":      2,
+				"upload.success":      2,
+				"uploadable.fs.open":  2,
+				"uploadable.fs.visit": 2,
+			},
+			before: func(c *cli.Context) error {
+				var in bytes.Buffer
+				input, err := os.Open("testdata/null_input.txt")
+				a.NoError(err)
+				_, err = io.Copy(&in, input)
+				a.NoError(err)
+				c.App.Reader = &in
+				fp, err := runtime(c).Fs.Create("/foo/bar/_DSC6073.JPG")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Fujifilm_FinePix6900ZOOM.jpg"))
+				a.NoError(fp.Close())
+				fp, err = runtime(c).Fs.Create("/foo/bar/IMG_0827.JPG")
+				a.NotNil(fp)
+				a.NoError(err)
+				a.NoError(copyFile(fp, "testdata/Nikon_D70.jpg"))
 				a.NoError(fp.Close())
 				return nil
 			},

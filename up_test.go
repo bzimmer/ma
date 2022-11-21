@@ -40,15 +40,7 @@ func TestUpload(t *testing.T) {
 	mux.HandleFunc("/album/TDZWbg", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/album_TDZWbg.json")
 	})
-	mux.HandleFunc("/Fujifilm_FinePix6900ZOOM.jpg", func(w http.ResponseWriter, r *http.Request) {
-		a.Equal(http.MethodPut, r.Method)
-		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
-	})
-	mux.HandleFunc("/IMG_0827.JPG", func(w http.ResponseWriter, r *http.Request) {
-		a.Equal(http.MethodPut, r.Method)
-		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
-	})
-	mux.HandleFunc("/_DSC6073.JPG", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/photo.jpg", func(w http.ResponseWriter, r *http.Request) {
 		a.Equal(http.MethodPut, r.Method)
 		http.ServeFile(w, r, "testdata/album_vVjSft_upload.json")
 	})

@@ -144,6 +144,7 @@ func (x *upload) up(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan 
 		case <-c.Done():
 			return c.Err()
 		case err := <-errc:
+			runtime(c).Metrics.IncrCounter([]string{"upload", "failure"}, 1)
 			return err
 		case up, ok := <-uploadc:
 			if !ok {

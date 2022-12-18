@@ -88,6 +88,9 @@ func albumOrNode(c *cli.Context) error {
 
 // Metrics (if enabled) emits the metrics as json
 func Metrics(c *cli.Context) error {
+	if len(c.App.Metadata) == 0 {
+		return nil
+	}
 	runtime(c).Metrics.AddSample(
 		[]string{"elapsed"}, float32(time.Since(runtime(c).Start).Milliseconds()))
 	data := runtime(c).Sink.Data()
@@ -109,9 +112,6 @@ func Metrics(c *cli.Context) error {
 				Float64("stddev", as.Stddev()).
 				Msg("samples")
 		}
-	}
-	if c.Bool("metrics") {
-		return runtime(c).Encoder.Encode(data)
 	}
 	return nil
 }

@@ -56,12 +56,6 @@ func flags() []cli.Flag {
 			Required: false,
 		},
 		&cli.BoolFlag{
-			Name:     "metrics",
-			Usage:    "emit summary metrics (requires --json) in addition to operation data",
-			Value:    false,
-			Required: false,
-		},
-		&cli.BoolFlag{
 			Name:     "monochrome",
 			Required: false,
 			Usage:    "disable colored output",

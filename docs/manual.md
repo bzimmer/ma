@@ -10,9 +10,9 @@ All your media archiving needs!
 |```smugmug-access-token```||smugmug access token|
 |```smugmug-token-secret```||smugmug token secret|
 |```json```|```j```|emit all results as JSON and print to stdout|
-|```metrics```||emit summary metrics (requires --json) in addition to operation data|
 |```monochrome```||disable colored output|
 |```debug```||enable debugging of http requests|
+|```trace```||enable http client tracing|
 |```help```|```h```|show help|
 
 ## Commands
@@ -537,6 +537,7 @@ $ ma up [flags]
 |```ext```|```x```||the set of file extensions suitable for uploading|
 |```dryrun```|```n```||prepare to upload but don't actually do it|
 |```mirror```|||mirror the local filesystem with a SmugMug gallery|
+|```0```|||read null byte terminated strings from stdin|
 
 **Example**
 

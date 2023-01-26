@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
+	"net/http/httptrace"
 	"os"
 	"time"
 
@@ -66,6 +68,13 @@ func flags() []cli.Flag {
 			Required: false,
 			Usage:    "enable debugging of http requests",
 			Value:    false,
+		},
+		&cli.BoolFlag{
+			Name:     "trace",
+			Required: false,
+			Usage:    "enable http client tracing",
+			Value:    false,
+			Hidden:   true,
 		},
 	}
 }
@@ -139,12 +148,9 @@ func main() {
 				return err
 			}
 
-			var enc ma.Encoder
-			switch {
-			case c.Bool("json"):
-				enc = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
-			default:
-				enc = ma.NewBlackholeEncoder()
+			writer := io.Discard
+			if c.Bool("json") {
+				writer = c.App.Writer
 			}
 
 			c.App.Metadata = map[string]any{
@@ -153,12 +159,16 @@ func main() {
 					Sink:     sink,
 					Grab:     grab,
 					Metrics:  metric,
-					Encoder:  enc,
+					Encoder:  json.NewEncoder(writer),
 					Fs:       afero.NewOsFs(),
 					Exif:     ma.NewGoExif(),
 					Language: language.English,
 					Start:    time.Now(),
 				},
+			}
+
+			if c.Bool("trace") {
+				c.Context = httptrace.WithClientTrace(c.Context, ClientTrace())
 			}
 
 			return nil
@@ -184,7 +194,8 @@ func main() {
 			manual.Manual(),
 		},
 	}
-	if err := app.RunContext(context.Background(), os.Args); err != nil {
+	ctx := context.Background()
+	if err := app.RunContext(ctx, os.Args); err != nil {
 		os.Exit(1)
 	}
 	os.Exit(0)

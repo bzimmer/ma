@@ -17,7 +17,7 @@ func TestURLName(t *testing.T) {
 
 	before := func(c *cli.Context) error {
 		c.App.Writer = new(bytes.Buffer)
-		runtime(c).Encoder = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
+		runtime(c).Encoder = json.NewEncoder(c.App.Writer)
 		return nil
 	}
 	after := func(u string, valid bool) cli.AfterFunc {

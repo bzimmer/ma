@@ -89,19 +89,16 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				t.Error(err)
 			}
 
-			var enc ma.Encoder
-			switch {
-			case c.Bool("json"):
-				enc = ma.NewJSONEncoder(json.NewEncoder(c.App.Writer))
-			default:
-				enc = ma.NewBlackholeEncoder()
+			writer := io.Discard
+			if c.Bool("json") {
+				writer = c.App.Writer
 			}
 
 			rt := &ma.Runtime{
 				Client:   client,
 				Metrics:  metric,
 				Sink:     sink,
-				Encoder:  enc,
+				Encoder:  json.NewEncoder(writer),
 				Grab:     new(http.Client),
 				Fs:       afero.NewMemMapFs(),
 				Exif:     ma.NewGoExif(),

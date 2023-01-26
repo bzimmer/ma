@@ -1,7 +1,6 @@
 package ma
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"time"
@@ -44,28 +43,6 @@ type Runtime struct {
 type Encoder interface {
 	// Encode writes the encoding of v
 	Encode(v any) error
-}
-
-type encoderBlackhole struct{}
-
-func (e *encoderBlackhole) Encode(_ any) error {
-	return nil
-}
-
-func NewBlackholeEncoder() Encoder {
-	return &encoderBlackhole{}
-}
-
-type encoderJSON struct {
-	encoder *json.Encoder
-}
-
-func (e *encoderJSON) Encode(v any) error {
-	return e.encoder.Encode(v)
-}
-
-func NewJSONEncoder(enc *json.Encoder) Encoder {
-	return &encoderJSON{encoder: enc}
 }
 
 func runtime(c *cli.Context) *Runtime {

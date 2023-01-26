@@ -8,8 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func ClientTrace() *httptrace.ClientTrace {
-
+func ClientTrace() *httptrace.ClientTrace { //nolint:funlen
 	return &httptrace.ClientTrace{
 		// GetConn is called before a connection is created or
 		// retrieved from an idle pool. The hostPort is the
@@ -25,7 +24,6 @@ func ClientTrace() *httptrace.ClientTrace {
 		// Transport.RoundTrip.
 		GotConn: func(info httptrace.GotConnInfo) {
 			log.Info().Interface("info", info).Msg("GotConn")
-
 		},
 
 		// PutIdleConn is called when the connection is returned to
@@ -38,21 +36,18 @@ func ClientTrace() *httptrace.ClientTrace {
 		// For HTTP/2, this hook is not currently used.
 		PutIdleConn: func(err error) {
 			log.Info().Err(err).Msg("PutIdleConn")
-
 		},
 
 		// GotFirstResponseByte is called when the first byte of the response
 		// headers is available.
 		GotFirstResponseByte: func() {
 			log.Info().Msg("GotFirstResponseByte")
-
 		},
 
 		// Got100Continue is called if the server replies with a "100
 		// Continue" response.
 		Got100Continue: func() {
 			log.Info().Msg("Got100Continue")
-
 		},
 
 		// Got1xxResponse is called for each 1xx informational response header
@@ -61,14 +56,12 @@ func ClientTrace() *httptrace.ClientTrace {
 		// If it returns an error, the client request is aborted with that error value.
 		Got1xxResponse: func(code int, header textproto.MIMEHeader) error {
 			log.Info().Int("code", code).Msg("Got1xxResponse")
-
 			return nil
 		},
 
 		// DNSStart is called when a DNS lookup begins.
 		DNSStart: func(info httptrace.DNSStartInfo) {
 			log.Info().Interface("info", info).Msg("DNSStart")
-
 		},
 
 		// DNSDone is called when a DNS lookup ends.

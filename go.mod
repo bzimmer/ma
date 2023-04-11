@@ -20,7 +20,7 @@ require (
 
 require (
 	github.com/barasher/go-exiftool v1.8.0
-	github.com/bzimmer/manual v0.1.1
+	github.com/bzimmer/manual v0.1.2
 	github.com/vitali-fedulov/images3 v1.0.16
 	golang.org/x/text v0.9.0
 )
@@ -38,5 +38,3 @@ require (
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 )
-
-replace github.com/bzimmer/manual => ../manual

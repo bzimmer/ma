@@ -18,7 +18,7 @@ import (
 
 type errorEncoder struct{}
 
-func (e *errorEncoder) Encode(v any) error {
+func (e *errorEncoder) Encode(_ any) error {
 	return errors.New("error encoder")
 }
 

@@ -9,10 +9,9 @@ Uses [smugmug](https://github.com/bzimmer/smugmug) for accessing the SmugMug [AP
 
 # usage
 
-See the [manual](docs/manual.md) for an overview of all the commands.
+See the [manual](https://bzimmer.github.io/ma/commands) for an overview of all the commands.
 
 ```sh
-$ ma help
 NAME:
    ma - CLI for managing local and Smugmug-hosted photos
 
@@ -31,23 +30,23 @@ COMMANDS:
    patch         patch the metadata of albums and images
    rm            Delete an entity
    similar       Identify similar images
+   title         Create a title following the specified convention
    up, upload    Upload images to SmugMug
    urlname       Create a clean urlname for each argument
    user          Query the authenticated user
    version       Show the version information of the binary
-   commands      Print all possible commands
    envvars       Print all the possible environment variables
    help, h       Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --debug                        enable debugging of http requests (default: false)
-   --help, -h                     show help (default: false)
-   --json, -j                     encode all results as JSON and print to stdout (default: false)
+   --smugmug-client-key value     smugmug client key [$SMUGMUG_CLIENT_KEY]
+   --smugmug-client-secret value  smugmug client secret [$SMUGMUG_CLIENT_SECRET]
+   --smugmug-access-token value   smugmug access token [$SMUGMUG_ACCESS_TOKEN]
+   --smugmug-token-secret value   smugmug token secret [$SMUGMUG_TOKEN_SECRET]
+   --json, -j                     emit all results as JSON and print to stdout (default: false)
    --monochrome                   disable colored output (default: false)
-   --smugmug-access-token value   smugmug access token (default: "") [$SMUGMUG_ACCESS_TOKEN]
-   --smugmug-client-key value     smugmug client key (default: "") [$SMUGMUG_CLIENT_KEY]
-   --smugmug-client-secret value  smugmug client secret (default: "") [$SMUGMUG_CLIENT_SECRET]
-   --smugmug-token-secret value   smugmug token secret (default: "") [$SMUGMUG_TOKEN_SECRET]
+   --debug                        enable debugging of http requests (default: false)
+   --help, -h                     show help
 ```
 
 ## new album creation

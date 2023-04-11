@@ -189,7 +189,6 @@ func main() {
 			ma.CommandURLName(),
 			ma.CommandUser(),
 			ma.CommandVersion(),
-			manual.Commands(),
 			manual.EnvVars(),
 			manual.Manual(),
 		},

@@ -1,22 +1,21 @@
-# ma - CLI for managing local and Smugmug-hosted photos
+# Commands
 
 All your media archiving needs!
 
 ## Global Flags
-|Name|Aliases|Description|
-|-|-|-|
-|```smugmug-client-key```||smugmug client key|
-|```smugmug-client-secret```||smugmug client secret|
-|```smugmug-access-token```||smugmug access token|
-|```smugmug-token-secret```||smugmug token secret|
-|```json```|```j```|emit all results as JSON and print to stdout|
-|```monochrome```||disable colored output|
-|```debug```||enable debugging of http requests|
-|```trace```||enable http client tracing|
-|```help```|```h```|show help|
+|Name|Aliases|EnvVars|Description|
+|-|-|-|-|
+|smugmug-client-key||SMUGMUG_CLIENT_KEY|smugmug client key|
+|smugmug-client-secret||SMUGMUG_CLIENT_SECRET|smugmug client secret|
+|smugmug-access-token||SMUGMUG_ACCESS_TOKEN|smugmug access token|
+|smugmug-token-secret||SMUGMUG_TOKEN_SECRET|smugmug token secret|
+|json|j||emit all results as JSON and print to stdout|
+|monochrome|||disable colored output|
+|debug|||enable debugging of http requests|
+|trace|||enable http client tracing|
+|help|h||show help|
 
 ## Commands
-* [commands](#commands)
 * [cp](#cp)
 * [envvars](#envvars)
 * [export](#export)
@@ -41,33 +40,12 @@ All your media archiving needs!
 * [user](#user)
 * [version](#version)
 
-## *commands*
-
-**Description**
-
-Print all possible commands
-
-
-**Syntax**
-
-```sh
-$ ma commands [flags]
-```
-
-
-**Flags**
-
-|Name|Aliases|EnvVars|Description|
-|-|-|-|-|
-|```description```|```d```||Print the command description as a comment|
-|```relative```|```r```||Specify the command relative to the current working directory|
-
-
-## *cp*
+### *cp*
 
 **Description**
 
 Copy files from a source(s) to a destination using the image date to layout the directory structure
+
 
 
 **Syntax**
@@ -81,16 +59,17 @@ $ ma cp [flags] <file-or-directory> [<file-or-directory>, ...] <file-or-director
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```dryrun```|```n```||prepare to copy but don't actually do it|
-|```format```|||the date format used for the destination directory|
-|```concurrency```|```c```||the number of concurrent copy operations|
+|dryrun|n||prepare to copy but don't actually do it|
+|format|||the date format used for the destination directory|
+|concurrency|c||the number of concurrent copy operations|
 
 
-## *envvars*
+### *envvars*
 
 **Description**
 
 Useful for creating a .env file for all possible environment variables
+
 
 
 **Syntax**
@@ -101,11 +80,12 @@ $ ma envvars [flags]
 
 
 
-## *export*
+### *export*
 
 **Description**
 
 Export images from albums to local disk
+
 
 
 **Syntax**
@@ -119,17 +99,18 @@ $ ma export [flags] <node id> <directory>
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```concurrency```|```c```||the number of concurrent downloads|
-|```force```|||overwrite existing files|
+|concurrency|c||the number of concurrent downloads|
+|force|||overwrite existing files|
 
 
-## *find*
+### *find*
 
 **Description**
 
 Find albums or folders by name
 
 (if neither --album nor --node is specified, both will be searched)
+
 
 
 
@@ -144,9 +125,9 @@ $ ma find [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```scope```|||root the search at the scope, if not specified the authenticated user's scope will be used|
-|```album```|```a```||search for albums|
-|```node```|```n, f```||search for nodes|
+|scope|||root the search at the scope, if not specified the authenticated user's scope will be used|
+|album|a||search for albums|
+|node|n, f||search for nodes|
 
 **Example**
 
@@ -192,11 +173,12 @@ $ ma find --scope "/api/v2/user/cmac" SmugMug
 ```
 
 
-## *help*
+### *help*
 
 **Description**
 
 Shows a list of commands or help for one command
+
 
 
 **Syntax**
@@ -207,7 +189,7 @@ $ ma help [flags] [command]
 
 
 
-## *ls*
+### *ls*
 
 **Description**
 
@@ -270,11 +252,12 @@ $ ma ls node -R -i q2qP7F
 ```
 
 
-## *ls album*
+### *ls album*
 
 **Description**
 
 list the contents of an album(s)
+
 
 
 **Syntax**
@@ -288,14 +271,15 @@ $ ma ls album [flags] <album key> [<album key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```image```|```i, R```||include images in the query|
+|image|i, R||include images in the query|
 
 
-## *ls image*
+### *ls image*
 
 **Description**
 
 list the details of an image(s)
+
 
 
 **Syntax**
@@ -306,11 +290,12 @@ $ ma ls image [flags] <image key> [<image key>, ...]
 
 
 
-## *ls node*
+### *ls node*
 
 **Description**
 
 list the contents of a node(s)
+
 
 
 **Syntax**
@@ -324,14 +309,14 @@ $ ma ls node [flags] <node id> [<node id>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```album```|```a```||include albums in the query|
-|```node```|```n, f```||include nodes in the query|
-|```image```|```i```||include images in the query|
-|```recurse```|```R```||walk the node tree|
-|```depth```|||walk the node tree to the specified depth|
+|album|a||include albums in the query|
+|node|n, f||include nodes in the query|
+|image|i||include images in the query|
+|recurse|R||walk the node tree|
+|depth|||walk the node tree to the specified depth|
 
 
-## *new*
+### *new*
 
 **Description**
 
@@ -343,15 +328,16 @@ Create a new album or folder
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```parent```|||the parent node at which the new node will be rooted|
-|```privacy```|||the privacy settings for the new album|
+|parent|||the parent node at which the new node will be rooted|
+|privacy|||the privacy settings for the new album|
 
 
-## *new album*
+### *new album*
 
 **Description**
 
 create a new album for images
+
 
 
 **Syntax**
@@ -362,11 +348,12 @@ $ ma new album [flags]
 
 
 
-## *new folder*
+### *new folder*
 
 **Description**
 
 create a new folder for albums
+
 
 
 **Syntax**
@@ -377,7 +364,7 @@ $ ma new folder [flags]
 
 
 
-## *patch*
+### *patch*
 
 **Description**
 
@@ -386,11 +373,12 @@ patch enables updating the metadata of both albums and images
 
 
 
-## *patch album*
+### *patch album*
 
 **Description**
 
 Patch the metadata of a single album
+
 
 
 **Syntax**
@@ -404,19 +392,20 @@ $ ma patch album [flags] <album key> [<album key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```dryrun```|```n```||dryrun the patches|
-|```urlname```|||the urlname of the album|
-|```auto```|```A, auto-urlname```||auto-generate the urlname (album name is required)|
-|```keyword```|||a set of keywords describing the album|
-|```name```|||the album name|
-|```description```|||the album description|
+|dryrun|n||dryrun the patches|
+|urlname|||the urlname of the album|
+|auto|A, auto-urlname||auto-generate the urlname (album name is required)|
+|keyword|||a set of keywords describing the album|
+|name|||the album name|
+|description|||the album description|
 
 
-## *patch image*
+### *patch image*
 
 **Description**
 
 patch the metadata of an image (not the image itself though)
+
 
 
 **Syntax**
@@ -430,16 +419,16 @@ $ ma patch image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```dryrun```|```n```||dryrun the patches|
-|```keyword```|||specifies keywords describing the image|
-|```caption```|||the caption of the image|
-|```title```|||the title of the image|
-|```latitude```|||the latitude of the image location|
-|```longitude```|||the longitude of the image location|
-|```altitude```|||the altitude of the image location|
+|dryrun|n||dryrun the patches|
+|keyword|||specifies keywords describing the image|
+|caption|||the caption of the image|
+|title|||the title of the image|
+|latitude|||the latitude of the image location|
+|longitude|||the longitude of the image location|
+|altitude|||the altitude of the image location|
 
 
-## *rm*
+### *rm*
 
 **Description**
 
@@ -448,11 +437,12 @@ Delete an entity
 
 
 
-## *rm image*
+### *rm image*
 
 **Description**
 
 delete an image from an album
+
 
 
 **Syntax**
@@ -466,17 +456,18 @@ $ ma rm image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```album```|||the album from which the image is to be deleted|
-|```dryrun```|```n```||prepare to upload but don't actually do it|
+|album|||the album from which the image is to be deleted|
+|dryrun|n||prepare to upload but don't actually do it|
 
 
-## *similar*
+### *similar*
 
 **Description**
 
 Identify similar images
 
 Uses the excellent similarity engine from https://github.com/vitali-fedulov/images3
+
 
 
 
@@ -491,14 +482,15 @@ $ ma similar [flags] <file-or-directory> [<file-or-directory>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```concurrency```|```c```||the number of concurrent image reads|
+|concurrency|c||the number of concurrent image reads|
 
 
-## *title*
+### *title*
 
 **Description**
 
 Create a title following the specified convention
+
 
 
 **Syntax**
@@ -512,14 +504,15 @@ $ ma title [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```caser```|```c```||The case algorithm to use, one of 'upper', 'lower', or 'title'|
+|caser|c||The case algorithm to use, one of 'upper', 'lower', or 'title'|
 
 
-## *up*
+### *up*
 
 **Description**
 
 Upload image files to the specified album, selectively including specific file extensions
+
 
 
 **Syntax**
@@ -533,11 +526,11 @@ $ ma up [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```album```|```a```||the album to which image files will be uploaded|
-|```ext```|```x```||the set of file extensions suitable for uploading|
-|```dryrun```|```n```||prepare to upload but don't actually do it|
-|```mirror```|||mirror the local filesystem with a SmugMug gallery|
-|```0```|||read null byte terminated strings from stdin|
+|album|a||the album to which image files will be uploaded|
+|ext|x||the set of file extensions suitable for uploading|
+|dryrun|n||prepare to upload but don't actually do it|
+|mirror|||mirror the local filesystem with a SmugMug gallery|
+|0|||read null byte terminated strings from stdin|
 
 **Example**
 
@@ -614,11 +607,12 @@ $ ma up --album 7dXUSm $HOME/Pictures/_Export
 ```
 
 
-## *urlname*
+### *urlname*
 
 **Description**
 
 Create a clean urlname for each argument
+
 
 
 **Syntax**
@@ -632,7 +626,7 @@ $ ma urlname [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|```validate```|```a```||validate the url name|
+|validate|a||validate the url name|
 
 **Example**
 
@@ -645,11 +639,12 @@ $ ma urlname "2021-10-31 Halloween Party"
 ```
 
 
-## *user*
+### *user*
 
 **Description**
 
 Query the authenticated user
+
 
 
 **Syntax**
@@ -660,11 +655,12 @@ $ ma user [flags]
 
 
 
-## *version*
+### *version*
 
 **Description**
 
 Show the version information of the binary
+
 
 
 **Syntax**

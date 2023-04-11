@@ -68,12 +68,22 @@ tasks:
     cmds:
       - goreleaser --debug release --snapshot --rm-dist
 
-  manual:
-    desc: Generate the user manual
-    deps: []
+  docs:generate:
+    desc: Generate the commands manual
     cmds:
-      - mkdir -p docs
-      - go run {{.LDFLAGS}} cmd/{{.APP}}/*.go manual docs/templates > docs/manual.md
+      - go run "{{.CWD}}/cmd/ma" manual {{.CWD}}/docs/commands > {{.CWD}}/docs/commands.md
+
+  docs:build:
+    desc: Statically generate the documentation
+    deps: [dist]
+    cmds:
+      - "{{.CWD}}/env/bin/mkdocs build"
+
+  docs:serve:
+    desc: Serve the documentation
+    deps: [docs:generate]
+    cmds:
+      - "{{.CWD}}/env/bin/mkdocs serve"
 
   install:
     desc: Install binary

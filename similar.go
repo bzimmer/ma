@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
-	"github.com/vitali-fedulov/images3"
+	"github.com/vitali-fedulov/images4"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -21,20 +21,25 @@ type analyzer struct {
 	enc Encoder
 }
 
-func (y *analyzer) icon(path string) (images3.IconT, error) {
+type iconPath struct {
+	icon images4.IconT
+	path string
+}
+
+func (y *analyzer) icon(path string) (iconPath, error) {
 	file, err := y.afs.Open(path)
 	if err != nil {
-		return images3.IconT{}, err
+		return iconPath{}, err
 	}
 	defer file.Close()
 	img, _, err := goimage.Decode(file)
 	if err != nil {
-		return images3.IconT{}, err
+		return iconPath{}, err
 	}
-	return images3.Icon(img, path), nil
+	return iconPath{images4.Icon(img), path}, nil
 }
 
-func (y *analyzer) icons(ctx context.Context, paths <-chan string, icons chan<- images3.IconT) error {
+func (y *analyzer) icons(ctx context.Context, paths <-chan string, icons chan<- iconPath) error {
 	for path := range paths {
 		log.Info().Str("path", path).Msg("reading")
 		icon, err := y.icon(path)
@@ -83,21 +88,21 @@ func (y *analyzer) paths(ctx context.Context, paths chan<- string, root ...strin
 	return nil
 }
 
-func (y *analyzer) analyze(iconss []images3.IconT) error {
+func (y *analyzer) analyze(iconss []iconPath) error {
 	n := len(iconss)
 	for i := 0; i < n; i++ {
 		for j := i + 1; j < n; j++ {
-			b := images3.Similar(iconss[i], iconss[j])
+			b := images4.Similar(iconss[i].icon, iconss[j].icon)
 			if b {
 				log.Info().
-					Str("A", iconss[i].Path).
-					Str("B", iconss[j].Path).
+					Str("A", iconss[i].path).
+					Str("B", iconss[j].path).
 					Bool("similar", b).
 					Msg("similar")
 			}
 			if err := y.enc.Encode(map[string]any{
-				"A":       iconss[i].Path,
-				"B":       iconss[j].Path,
+				"A":       iconss[i].path,
+				"B":       iconss[j].path,
 				"Similar": b}); err != nil {
 				return err
 			}
@@ -115,7 +120,7 @@ func similar(c *cli.Context) error {
 	}
 
 	pathsc := make(chan string)
-	iconsc := make(chan images3.IconT)
+	iconsc := make(chan iconPath)
 	igrp, ictx := errgroup.WithContext(c.Context)
 	for i := 0; i < c.Int("concurrency"); i++ {
 		igrp.Go(func() error {
@@ -141,10 +146,10 @@ func similar(c *cli.Context) error {
 		return y.paths(ctx, pathsc, c.Args().Slice()...)
 	})
 
-	icons := make([]images3.IconT, 0)
+	icons := make([]iconPath, 0)
 	grp.Go(func() error {
 		for icon := range iconsc {
-			log.Debug().Str("path", icon.Path).Msg("gathering")
+			log.Debug().Str("path", icon.path).Msg("gathering")
 			icons = append(icons, icon)
 		}
 		log.Info().Int("num", len(icons)).Msg("images")
@@ -162,10 +167,6 @@ func CommandSimilar() *cli.Command {
 		HelpName:  "similar",
 		Usage:     "Identify similar images",
 		ArgsUsage: "<file-or-directory> [<file-or-directory>, ...]",
-		Description: `Identify similar images
-
-Uses the excellent similarity engine from https://github.com/vitali-fedulov/images3
-`,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "concurrency",

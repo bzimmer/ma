@@ -1,0 +1,13 @@
+# https://github.com/crate-ci/typos
+
+[files]
+extend-exclude = [
+  "tables.go",
+  "data/*.txt",
+  "testdata/*",
+]
+
+[default.extend-words]
+loca="loca"
+fo="fo"
+Nd="Nd"

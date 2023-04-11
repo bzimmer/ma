@@ -466,9 +466,6 @@ $ ma rm image [flags] <image key> [<image key>, ...]
 
 Identify similar images
 
-Uses the excellent similarity engine from https://github.com/vitali-fedulov/images3
-
-
 
 
 **Syntax**
@@ -483,6 +480,11 @@ $ ma similar [flags] <file-or-directory> [<file-or-directory>, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |concurrency|c||the number of concurrent image reads|
+
+**Example**
+
+Uses the excellent image similarity
+[engine](https://github.com/vitali-fedulov/images4) to determine similar images
 
 
 ### *title*

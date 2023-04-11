@@ -1,0 +1,12 @@
+name: typos
+on: [push]
+jobs:
+  run:
+    name: Spell Check with Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Run typos
+        uses: crate-ci/typos@master

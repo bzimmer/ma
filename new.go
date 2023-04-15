@@ -28,7 +28,8 @@ func knew(c *cli.Context) error {
 		Privacy: c.String("privacy"),
 	}
 
-	node, err := runtime(c).Client.Node.Create(c.Context, c.String("parent"), nodelet)
+	client := runtime(c).Smugmug.Client()
+	node, err := client.Node.Create(c.Context, c.String("parent"), nodelet)
 	if err != nil {
 		return err
 	}
@@ -40,7 +41,7 @@ func knew(c *cli.Context) error {
 		Str("urlName", node.URLName).
 		Str("webURI", node.WebURI)
 	if nodelet.Type == smugmug.TypeAlbum {
-		node, err = runtime(c).Client.Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
+		node, err = client.Node.Node(c.Context, node.NodeID, smugmug.WithExpansions("Album"))
 		if err != nil {
 			return err
 		}

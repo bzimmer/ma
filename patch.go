@@ -51,9 +51,10 @@ func (p *patcher) patch(k patchKey, key string) error {
 	if p.err != nil {
 		return p.err
 	}
+	client := runtime(p.c).Smugmug.Client()
 	switch k {
 	case patchKeyAlbum:
-		album, err := runtime(p.c).Client.Album.Patch(p.c.Context, key, p.patches)
+		album, err := client.Album.Patch(p.c.Context, key, p.patches)
 		if err != nil {
 			return err
 		}
@@ -61,7 +62,7 @@ func (p *patcher) patch(k patchKey, key string) error {
 		_, err = f(album)
 		return err
 	case patchKeyImage:
-		image, err := runtime(p.c).Client.Image.Patch(p.c.Context, key, p.patches)
+		image, err := client.Image.Patch(p.c.Context, key, p.patches)
 		if err != nil {
 			return err
 		}

@@ -17,12 +17,13 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
+
+	"github.com/bzimmer/smugmug"
 
 	"github.com/bzimmer/ma"
 )
@@ -32,6 +33,22 @@ const RuntimeKey = "github.com/bzimmer/ma#testRuntimeKey"
 type Runtime struct {
 	*ma.Runtime
 	URL string
+}
+
+type mg struct {
+	url string
+}
+
+func (c *mg) Client() *smugmug.Client {
+	tracing := false // zerolog.GlobalLevel() == zerolog.DebugLevel
+	client, err := smugmug.NewClient(
+		smugmug.WithBaseURL(c.url),
+		smugmug.WithUploadURL(c.url),
+		smugmug.WithHTTPTracing(tracing))
+	if err != nil {
+		panic(err)
+	}
+	return client
 }
 
 func TestMain(m *testing.M) {
@@ -80,22 +97,13 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				t.Error(err)
 			}
 
-			tracing := false // zerolog.GlobalLevel() == zerolog.DebugLevel
-			client, err := smugmug.NewClient(
-				smugmug.WithBaseURL(url),
-				smugmug.WithUploadURL(url),
-				smugmug.WithHTTPTracing(tracing))
-			if err != nil {
-				t.Error(err)
-			}
-
 			writer := io.Discard
 			if c.Bool("json") {
 				writer = c.App.Writer
 			}
 
 			rt := &ma.Runtime{
-				Client:   client,
+				Smugmug:  &mg{url},
 				Metrics:  metric,
 				Sink:     sink,
 				Encoder:  json.NewEncoder(writer),

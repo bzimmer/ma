@@ -7,7 +7,7 @@ import (
 )
 
 func user(c *cli.Context) error {
-	user, err := runtime(c).Client.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
+	user, err := runtime(c).Smugmug.Client().User.AuthUser(c.Context, smugmug.WithExpansions("Node"))
 	if err != nil {
 		return err
 	}

@@ -132,7 +132,7 @@ func (x *upload) upload(c *cli.Context) error {
 	}
 	u.Pre(visit(c), extensions(c))
 	u.Use(open(c), skip(c, images), replace(c, images), attempt(c))
-	uc, ec := runtime(c).Client.Upload.Uploads(
+	uc, ec := runtime(c).Smugmug.Client().Upload.Uploads(
 		c.Context, filesystem.NewFsUploadables(runtime(c).Fs, in, u))
 	return x.up(c, uc, ec)
 }
@@ -210,7 +210,7 @@ func (x *mirror) mirror(c *cli.Context) error {
 }
 
 func (x *mirror) delete(c *cli.Context, album *smugmug.Album, images map[string]*smugmug.Image) error {
-	mg := runtime(c).Client
+	mg := runtime(c).Smugmug.Client()
 	enc := runtime(c).Encoder
 	met := runtime(c).Metrics
 	dryrun := c.Bool("dryrun")

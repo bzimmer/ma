@@ -3,9 +3,10 @@ package ma_test
 import (
 	"testing"
 
-	"github.com/bzimmer/ma"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli/v2"
+
+	"github.com/bzimmer/ma"
 )
 
 func TestMetrics(t *testing.T) {

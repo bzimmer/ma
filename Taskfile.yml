@@ -5,18 +5,8 @@ version: '3'
 dotenv: [".clean.env"]
 
 vars:
-  CWD:
-    sh: git rev-parse --show-toplevel
-  APP:
-    sh: basename $PWD
-  PKG:
-    github.com/bzimmer/{{.APP}}
   DIST:
-    "{{.CWD}}/dist"
-  COMMIT:
-    sh: git rev-parse --short HEAD
-  LDFLAGS:
-    -ldflags "-X {{.PKG}}.buildCommit={{.COMMIT}} -X {{.PKG}}.buildTime="{{now | date "2006-01-02T15:04:05Z07:00"}}""
+    "{{.ROOT_DIR}}/dist"
 
 tasks:
   default:
@@ -32,13 +22,13 @@ tasks:
     desc: Run tests
     deps: [dist]
     cmds:
-      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
+      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt ./...
 
   test-integration:
     desc: Run integration tests
     deps: [build]
     cmds:
-      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
+      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic ./...
 
   cover:
     desc: Visualize test coverage
@@ -54,8 +44,15 @@ tasks:
   build:
     desc: Build all cmds
     deps: [dist]
+    vars:
+      binaries:
+        sh: fd -t d --max-depth 1 . {{.ROOT_DIR}}/cmd -x echo {/}
     cmds:
-      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
+      - |
+
+        {{ range ( .binaries | trim | splitLines ) -}}
+        go build -o {{$.DIST}}/{{.}} cmd/{{.}}/*.go
+        {{ end -}}
 
   lint:
     desc: Runs golint
@@ -67,35 +64,24 @@ tasks:
     desc: Build a snapshot
     deps: [test, lint]
     cmds:
-      - goreleaser --debug release --snapshot --rm-dist
-
-  docs:generate:
-    desc: Generate the commands manual
-    cmds:
-      - go run "{{.CWD}}/cmd/ma" manual {{.CWD}}/docs/commands > {{.CWD}}/docs/commands.md
+      - goreleaser --debug release --snapshot --clean
 
   docs:build:
     desc: Statically generate the documentation
     deps: [dist]
     cmds:
-      - "{{.CWD}}/env/bin/mkdocs build"
+      - "{{.ROOT_DIR}}/env/bin/mkdocs build"
 
   docs:serve:
     desc: Serve the documentation
     deps: [docs:generate]
     cmds:
-      - "{{.CWD}}/env/bin/mkdocs serve"
-
-  install:
-    desc: Install binary
-    deps: [snapshot]
-    cmds:
-      - cp {{.DIST}}/{{.APP}}_{{OS}}_{{ARCH}}/{{.APP}} $GOPATH/bin
+      - "{{.ROOT_DIR}}/env/bin/mkdocs serve"
 
   goimports:
     desc: Run goimports
     vars:
-      Module:
+      ModulePath:
         sh: go mod edit -json | jq -r .Module.Path
     cmds:
-      - goimports -w -local "{{.Module}}" .
+      - goimports -w -local "{{.ModulePath}}" .

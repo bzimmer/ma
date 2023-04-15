@@ -22,7 +22,7 @@ type Runtime struct {
 	// Encoder encodes a struct
 	Encoder Encoder
 	// Client for SmugMug
-	Client *smugmug.Client
+	Smugmug Smugmug
 	// Sink for metrics
 	Sink *metrics.InmemSink
 	// Metrics for capturing metrics
@@ -37,6 +37,12 @@ type Runtime struct {
 	Language language.Tag
 	// Start time of the execution
 	Start time.Time
+}
+
+// Smugmug is a factory for smugmug clients
+type Smugmug interface {
+	// Client returns a smugmug client
+	Client() *smugmug.Client
 }
 
 // Encoder encodes a struct to a specific format

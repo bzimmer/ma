@@ -151,10 +151,6 @@ func main() {
 				writer = c.App.Writer
 			}
 
-			// if c.Bool("trace") {
-			// 	c.Context = httptrace.WithClientTrace(c.Context, ClientTrace())
-			// }
-
 			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: &ma.Runtime{
 					Smugmug:  &mg{c},

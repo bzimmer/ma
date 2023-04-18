@@ -1,101 +1,21 @@
-# https://taskfile.dev
-
 version: '3'
 
-dotenv: [".clean.env"]
+includes:
+  build: ./Taskfile-build.yml
 
-vars:
-  CWD:
-    sh: git rev-parse --show-toplevel
-  APP:
-    sh: basename $PWD
-  PKG:
-    github.com/bzimmer/{{.APP}}
-  DIST:
-    "{{.CWD}}/dist"
-  COMMIT:
-    sh: git rev-parse --short HEAD
-  LDFLAGS:
-    -ldflags "-X {{.PKG}}.buildCommit={{.COMMIT}} -X {{.PKG}}.buildTime="{{now | date "2006-01-02T15:04:05Z07:00"}}""
+dotenv: [".clean.env"]
 
 tasks:
   default:
     cmds:
-      - task: build
-
-  dist:
-    desc: Create dist directory
+      - task -l
+  
+  build:
+    desc: Build all binaries
     cmds:
-      - mkdir -p {{.DIST}}
+      - task: build:build
 
   test:
-    desc: Run tests
-    deps: [dist]
+    desc: Run all tests
     cmds:
-      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt {{.PKG}}
-
-  test-integration:
-    desc: Run integration tests
-    deps: [build]
-    cmds:
-      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic {{.PKG}}
-
-  cover:
-    desc: Visualize test coverage
-    deps: [test]
-    cmds:
-      - go tool cover -html={{.DIST}}/coverage.txt
-
-  clean:
-    desc: Remove build artifacts
-    cmds:
-      - rm -rf {{.DIST}}
-
-  build:
-    desc: Build all cmds
-    deps: [dist]
-    cmds:
-      - go build {{.LDFLAGS}} -o {{.DIST}}/{{.APP}} cmd/{{.APP}}/*.go
-
-  lint:
-    desc: Runs golint
-    cmds:
-      - golangci-lint -v run
-      - typos
-
-  snapshot:
-    desc: Build a snapshot
-    deps: [test, lint]
-    cmds:
-      - goreleaser --debug release --snapshot --rm-dist
-
-  docs:generate:
-    desc: Generate the commands manual
-    cmds:
-      - go run "{{.CWD}}/cmd/ma" manual {{.CWD}}/docs/commands > {{.CWD}}/docs/commands.md
-
-  docs:build:
-    desc: Statically generate the documentation
-    deps: [dist]
-    cmds:
-      - "{{.CWD}}/env/bin/mkdocs build"
-
-  docs:serve:
-    desc: Serve the documentation
-    deps: [docs:generate]
-    cmds:
-      - "{{.CWD}}/env/bin/mkdocs serve"
-
-  install:
-    desc: Install binary
-    deps: [snapshot]
-    cmds:
-      - cp {{.DIST}}/{{.APP}}_{{OS}}_{{ARCH}}/{{.APP}} $GOPATH/bin
-
-  goimports:
-    desc: Run goimports
-    vars:
-      Module:
-        sh: go mod edit -json | jq -r .Module.Path
-    cmds:
-      - goimports -w -local "{{.Module}}" .
+      - task: build:test

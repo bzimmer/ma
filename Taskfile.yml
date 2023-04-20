@@ -9,7 +9,7 @@ tasks:
   default:
     cmds:
       - task -l
-  
+
   build:
     desc: Build all binaries
     cmds:

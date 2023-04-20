@@ -14,7 +14,6 @@ import (
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
@@ -87,7 +86,6 @@ func initLogging(c *cli.Context) error {
 	zerolog.SetGlobalLevel(level)
 	zerolog.DurationFieldUnit = time.Millisecond
 	zerolog.DurationFieldInteger = false
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	log.Logger = log.Output(
 		zerolog.ConsoleWriter{
 			Out:        c.App.ErrWriter,

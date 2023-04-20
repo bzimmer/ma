@@ -1,13 +1,11 @@
 version: '3'
 
 vars:
+
   DIST:
     "{{.ROOT_DIR}}/dist"
 
 tasks:
-  default:
-    cmds:
-      - task: build
 
   dist:
     desc: Create dist directory
@@ -58,17 +56,21 @@ tasks:
     desc: Build all binaries
     deps: [dist]
     vars:
+      cmds:
+        "{{ .ROOT_DIR }}/cmd"
       binaries:
-        sh: fd -t d --max-depth 1 . {{.ROOT_DIR}}/cmd -x echo {/}
+        sh: if [[ -d {{ .cmds }} ]]; then fd -t d --max-depth 1 . {{ .cmds }} -x echo {/}; fi
     cmds:
       - |
 
-        {{ range ( .binaries | trim | splitLines ) -}}
-        go build -o {{$.DIST}}/{{.}} cmd/{{.}}/*.go
-        {{ end -}}
+        {{- if .binaries -}}
+          {{ range ( .binaries | trim | splitLines ) }}
+        go build -o {{ $.DIST }}/{{ . }} {{ $.cmds }}/{{ . }}/*.go
+          {{- end -}}
+        {{- end -}}
 
   generate:
-    desc: Generate and build all commands
+    desc: Run go generate
     cmds:
       - go generate ./...
 
@@ -92,10 +94,10 @@ tasks:
   goimports:
     desc: Run goimports
     vars:
-      Module:
+      module:
         sh: go mod edit -json | jq -r .Module.Path
     cmds:
-      - goimports -w -local "{{.Module}}" .
+      - goimports -w -local "{{.module}}" .
 
   docs:build:
     desc: Statically generate the documentation

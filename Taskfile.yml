@@ -1,88 +1,21 @@
-# https://taskfile.dev
-
 version: '3'
 
-dotenv: [".clean.env"]
+includes:
+  build: ./Taskfile-build.yml
 
-vars:
-  DIST:
-    "{{.ROOT_DIR}}/dist"
+dotenv: [".clean.env"]
 
 tasks:
   default:
     cmds:
-      - task: build
-
-  dist:
-    desc: Create dist directory
-    internal: true
-    cmds:
-      - mkdir -p {{.DIST}}
-
-  test:
-    desc: Run tests
-    deps: [dist]
-    cmds:
-      - go test {{.CLI_ARGS}} -race -count=1 -covermode atomic -coverprofile {{.DIST}}/coverage.txt ./...
-
-  test-integration:
-    desc: Run integration tests
-    deps: [build]
-    cmds:
-      - go test {{.CLI_ARGS}} --tags=integration -race -count=1 -covermode atomic ./...
-
-  cover:
-    desc: Visualize test coverage
-    deps: [test]
-    cmds:
-      - go tool cover -html={{.DIST}}/coverage.txt
-
-  clean:
-    desc: Remove build artifacts
-    cmds:
-      - rm -rf {{.DIST}}
+      - task -l
 
   build:
-    desc: Build all cmds
-    deps: [dist]
-    vars:
-      binaries:
-        sh: fd -t d --max-depth 1 . {{.ROOT_DIR}}/cmd -x echo {/}
+    desc: Build all binaries
     cmds:
-      - |
+      - task: build:build
 
-        {{ range ( .binaries | trim | splitLines ) -}}
-        go build -o {{$.DIST}}/{{.}} cmd/{{.}}/*.go
-        {{ end -}}
-
-  lint:
-    desc: Runs golint
+  test:
+    desc: Run all tests
     cmds:
-      - golangci-lint -v run
-      - typos
-
-  snapshot:
-    desc: Build a snapshot
-    deps: [test, lint]
-    cmds:
-      - goreleaser --debug release --snapshot --clean
-
-  docs:build:
-    desc: Statically generate the documentation
-    deps: [dist]
-    cmds:
-      - "{{.ROOT_DIR}}/env/bin/mkdocs build"
-
-  docs:serve:
-    desc: Serve the documentation
-    deps: [docs:generate]
-    cmds:
-      - "{{.ROOT_DIR}}/env/bin/mkdocs serve"
-
-  goimports:
-    desc: Run goimports
-    vars:
-      ModulePath:
-        sh: go mod edit -json | jq -r .Module.Path
-    cmds:
-      - goimports -w -local "{{.ModulePath}}" .
+      - task: build:test

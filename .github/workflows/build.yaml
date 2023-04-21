@@ -13,6 +13,7 @@ jobs:
     with:
       skipBuild: false
       skipCoverage: false
+    secrets: inherit
 
   vuln:
     uses: bzimmer/actions/.github/workflows/vuln.yaml@main

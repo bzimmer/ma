@@ -14,14 +14,13 @@ import (
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/httpwares"
+	"github.com/bzimmer/manual"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
-
-	"github.com/bzimmer/manual"
 
 	"github.com/bzimmer/ma"
 )

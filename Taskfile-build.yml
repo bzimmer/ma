@@ -97,7 +97,7 @@ tasks:
       module:
         sh: go mod edit -json | jq -r .Module.Path
     cmds:
-      - goimports -w -local "{{.module}}" .
+      - goimports -w -local "{{.module}}/" .
 
   docs:build:
     desc: Statically generate the documentation

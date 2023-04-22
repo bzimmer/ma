@@ -51,7 +51,7 @@ func (p *patcher) patch(k patchKey, key string) error {
 	if p.err != nil {
 		return p.err
 	}
-	client := runtime(p.c).Smugmug.Client()
+	client := runtime(p.c).Smugmug()
 	switch k {
 	case patchKeyAlbum:
 		album, err := client.Album.Patch(p.c.Context, key, p.patches)

@@ -87,28 +87,26 @@ func initLogging(c *cli.Context) error {
 	return nil
 }
 
-type mg struct {
-	ctx *cli.Context
-}
-
-func (c *mg) Client() *smugmug.Client {
-	httpclient, err := smugmug.NewHTTPClient(
-		c.ctx.String("smugmug-client-key"),
-		c.ctx.String("smugmug-client-secret"),
-		c.ctx.String("smugmug-access-token"),
-		c.ctx.String("smugmug-token-secret"))
-	if err != nil {
-		panic(err)
+func mg(c *cli.Context) func() *smugmug.Client {
+	return func() *smugmug.Client {
+		httpclient, err := smugmug.NewHTTPClient(
+			c.String("smugmug-client-key"),
+			c.String("smugmug-client-secret"),
+			c.String("smugmug-access-token"),
+			c.String("smugmug-token-secret"))
+		if err != nil {
+			panic(err)
+		}
+		client, err := smugmug.NewClient(
+			smugmug.WithConcurrency(c.Int("concurrency")),
+			smugmug.WithHTTPClient(httpclient),
+			smugmug.WithPretty(c.Bool("debug")),
+			smugmug.WithHTTPTracing(c.Bool("debug")))
+		if err != nil {
+			panic(err)
+		}
+		return client
 	}
-	client, err := smugmug.NewClient(
-		smugmug.WithConcurrency(c.ctx.Int("concurrency")),
-		smugmug.WithHTTPClient(httpclient),
-		smugmug.WithPretty(c.ctx.Bool("debug")),
-		smugmug.WithHTTPTracing(c.ctx.Bool("debug")))
-	if err != nil {
-		panic(err)
-	}
-	return client
 }
 
 func main() {
@@ -150,7 +148,7 @@ func main() {
 
 			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: &ma.Runtime{
-					Smugmug:  &mg{c},
+					Smugmug:  mg(c),
 					Sink:     sink,
 					Grab:     grab,
 					Metrics:  metric,

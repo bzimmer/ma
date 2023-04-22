@@ -9,7 +9,7 @@ import (
 )
 
 func find(c *cli.Context) error {
-	mg := runtime(c).Smugmug.Client()
+	mg := runtime(c).Smugmug()
 	scope := c.String("scope")
 	if scope == "" {
 		user, err := mg.User.AuthUser(c.Context)

@@ -28,7 +28,7 @@ func knew(c *cli.Context) error {
 		Privacy: c.String("privacy"),
 	}
 
-	client := runtime(c).Smugmug.Client()
+	client := runtime(c).Smugmug()
 	node, err := client.Node.Create(c.Context, c.String("parent"), nodelet)
 	if err != nil {
 		return err

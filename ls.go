@@ -8,7 +8,7 @@ import (
 )
 
 func image(c *cli.Context) error {
-	mg := runtime(c).Smugmug.Client()
+	mg := runtime(c).Smugmug()
 	for i := 0; i < c.NArg(); i++ {
 		id := c.Args().Get(i)
 		if !imageRE.MatchString(id) {
@@ -27,7 +27,7 @@ func image(c *cli.Context) error {
 }
 
 func album(c *cli.Context) error {
-	mg := runtime(c).Smugmug.Client()
+	mg := runtime(c).Smugmug()
 	f := albumIterFunc(c, "ls")
 	for _, id := range c.Args().Slice() {
 		album, err := mg.Album.Album(c.Context, id)
@@ -42,7 +42,7 @@ func album(c *cli.Context) error {
 }
 
 func node(c *cli.Context) error {
-	mg := runtime(c).Smugmug.Client()
+	mg := runtime(c).Smugmug()
 	nodeIDs := c.Args().Slice()
 	if len(nodeIDs) == 0 {
 		user, err := mg.User.AuthUser(c.Context, smugmug.WithExpansions("Node"))

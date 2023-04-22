@@ -35,20 +35,18 @@ type Runtime struct {
 	URL string
 }
 
-type mg struct {
-	url string
-}
-
-func (c *mg) Client() *smugmug.Client {
-	tracing := false // zerolog.GlobalLevel() == zerolog.DebugLevel
-	client, err := smugmug.NewClient(
-		smugmug.WithBaseURL(c.url),
-		smugmug.WithUploadURL(c.url),
-		smugmug.WithHTTPTracing(tracing))
-	if err != nil {
-		panic(err)
+func mg(url string) func() *smugmug.Client {
+	return func() *smugmug.Client {
+		tracing := false // zerolog.GlobalLevel() == zerolog.DebugLevel
+		client, err := smugmug.NewClient(
+			smugmug.WithBaseURL(url),
+			smugmug.WithUploadURL(url),
+			smugmug.WithHTTPTracing(tracing))
+		if err != nil {
+			panic(err)
+		}
+		return client
 	}
-	return client
 }
 
 func TestMain(m *testing.M) {
@@ -103,7 +101,7 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 			}
 
 			rt := &ma.Runtime{
-				Smugmug:  &mg{url},
+				Smugmug:  mg(url),
 				Metrics:  metric,
 				Sink:     sink,
 				Encoder:  json.NewEncoder(writer),

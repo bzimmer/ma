@@ -237,7 +237,7 @@ func export(c *cli.Context) error {
 		return fmt.Errorf("expected two arguments, not {%d}", c.NArg())
 	}
 	x := &exporter{
-		mg:          runtime(c).Smugmug.Client(),
+		mg:          runtime(c).Smugmug(),
 		fs:          runtime(c).Fs,
 		grab:        runtime(c).Grab,
 		force:       c.Bool("force"),

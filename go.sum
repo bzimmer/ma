@@ -47,13 +47,19 @@ github.com/armon/go-metrics v0.4.1 h1:hR91U9KYmb6bLBYLQjyM+3j+rcd/UhE+G78SFnF8gJ
 github.com/armon/go-metrics v0.4.1/go.mod h1:E6amYzXo6aW1tqzoZGT755KkbgrJsSdpwZ+3JqfkOG4=
 github.com/barasher/go-exiftool v1.8.0 h1:u8bEi1mhLtpVC5aG/ZJlRS/r+SkK+rcgbZQwcKUb424=
 github.com/barasher/go-exiftool v1.8.0/go.mod h1:F9s/a3uHSM8YniVfwF+sbQUtP8Gmh9nyzigNF+8vsWo=
+github.com/barasher/go-exiftool v1.9.0 h1:xd6ZBBPjXpt0ZaG5zOCQerKrlVnNQ69KOBJcKndam2Y=
+github.com/barasher/go-exiftool v1.9.0/go.mod h1:F9s/a3uHSM8YniVfwF+sbQUtP8Gmh9nyzigNF+8vsWo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/bzimmer/httpwares v0.1.0 h1:ZaMJ51JXKNqJRsx1vtgQGVa7Qz3yZJOzvyhGrQYEPTk=
 github.com/bzimmer/httpwares v0.1.0/go.mod h1:d7haVrcuMW9I+4Ha/V54JtyqGbu0raahd0NqqQSr2p0=
+github.com/bzimmer/httpwares v0.1.1 h1:ReAf/WjBnc1z/I6kwk7YnimYAXYb4nXesM8LPP1shYs=
+github.com/bzimmer/httpwares v0.1.1/go.mod h1:8pi184rxXR7Pbn7cNL8uMPeqYA8+DbQSl4oOQE5q4Vk=
 github.com/bzimmer/manual v0.1.3 h1:yG0XIA/L6m5ULoNa4ltg16fiqJQclqYs/ey/VSg9jYQ=
 github.com/bzimmer/manual v0.1.3/go.mod h1:S693opFjbl5zIQwWXw+X+XNwBlZxBPwdj97sj/oylDw=
+github.com/bzimmer/manual v0.1.5 h1:K/MQTTCO6r2HUhwReCAQOUAgbudl6ku6id1ZJpN0O9Y=
+github.com/bzimmer/manual v0.1.5/go.mod h1:OSIzkDN37qwrQ5M2h9MNsC08uOG1BaHmp9tHeNTdt0Q=
 github.com/bzimmer/smugmug v0.7.1 h1:lh9et9U74vTfqWfHYSqDNzzBypzF3PwDd9szhAagOIo=
 github.com/bzimmer/smugmug v0.7.1/go.mod h1:lEtdp42SE+qNZ2m52alMZUZrIyQu/Md4g2E3o0T9Ttg=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -545,6 +551,7 @@ google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlba
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 h1:YR8cESwS4TdDjEe65xsg0ogRM/Nc3DYOhEAlW+xobZo=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=

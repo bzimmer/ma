@@ -12,3 +12,4 @@ jobs:
 
   release:
     uses: bzimmer/actions/.github/workflows/release.yaml@main
+    secrets: inherit

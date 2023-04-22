@@ -1,16 +1,20 @@
 package main
 
+//go:generate go run main.go manual -o ../../docs/commands.md ../../docs/commands
+
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
-	"net/http/httptrace"
 	"os"
 	"time"
 
 	"github.com/armon/go-metrics"
 	"github.com/bzimmer/httpwares"
+	"github.com/bzimmer/manual"
 	"github.com/bzimmer/smugmug"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,36 +22,30 @@ import (
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
 
-	"github.com/bzimmer/manual"
-
 	"github.com/bzimmer/ma"
 )
 
 func flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:     "smugmug-client-key",
-			Required: true,
-			Usage:    "smugmug client key",
-			EnvVars:  []string{"SMUGMUG_CLIENT_KEY"},
+			Name:    "smugmug-client-key",
+			Usage:   "smugmug client key",
+			EnvVars: []string{"SMUGMUG_CLIENT_KEY"},
 		},
 		&cli.StringFlag{
-			Name:     "smugmug-client-secret",
-			Required: true,
-			Usage:    "smugmug client secret",
-			EnvVars:  []string{"SMUGMUG_CLIENT_SECRET"},
+			Name:    "smugmug-client-secret",
+			Usage:   "smugmug client secret",
+			EnvVars: []string{"SMUGMUG_CLIENT_SECRET"},
 		},
 		&cli.StringFlag{
-			Name:     "smugmug-access-token",
-			Required: true,
-			Usage:    "smugmug access token",
-			EnvVars:  []string{"SMUGMUG_ACCESS_TOKEN"},
+			Name:    "smugmug-access-token",
+			Usage:   "smugmug access token",
+			EnvVars: []string{"SMUGMUG_ACCESS_TOKEN"},
 		},
 		&cli.StringFlag{
-			Name:     "smugmug-token-secret",
-			Required: true,
-			Usage:    "smugmug token secret",
-			EnvVars:  []string{"SMUGMUG_TOKEN_SECRET"},
+			Name:    "smugmug-token-secret",
+			Usage:   "smugmug token secret",
+			EnvVars: []string{"SMUGMUG_TOKEN_SECRET"},
 		},
 		&cli.BoolFlag{
 			Name:     "json",
@@ -68,13 +66,6 @@ func flags() []cli.Flag {
 			Usage:    "enable debugging of http requests",
 			Value:    false,
 		},
-		&cli.BoolFlag{
-			Name:     "trace",
-			Required: false,
-			Usage:    "enable http client tracing",
-			Value:    false,
-			Hidden:   true,
-		},
 	}
 }
 
@@ -94,6 +85,28 @@ func initLogging(c *cli.Context) error {
 		},
 	)
 	return nil
+}
+
+func mg(c *cli.Context) func() *smugmug.Client {
+	return func() *smugmug.Client {
+		httpclient, err := smugmug.NewHTTPClient(
+			c.String("smugmug-client-key"),
+			c.String("smugmug-client-secret"),
+			c.String("smugmug-access-token"),
+			c.String("smugmug-token-secret"))
+		if err != nil {
+			panic(err)
+		}
+		client, err := smugmug.NewClient(
+			smugmug.WithConcurrency(c.Int("concurrency")),
+			smugmug.WithHTTPClient(httpclient),
+			smugmug.WithPretty(c.Bool("debug")),
+			smugmug.WithHTTPTracing(c.Bool("debug")))
+		if err != nil {
+			panic(err)
+		}
+		return client
+	}
 }
 
 func main() {
@@ -128,24 +141,6 @@ func main() {
 				grab.Transport = &httpwares.VerboseTransport{}
 			}
 
-			httpclient, err := smugmug.NewHTTPClient(
-				c.String("smugmug-client-key"),
-				c.String("smugmug-client-secret"),
-				c.String("smugmug-access-token"),
-				c.String("smugmug-token-secret"))
-			if err != nil {
-				return err
-			}
-
-			client, err := smugmug.NewClient(
-				smugmug.WithConcurrency(c.Int("concurrency")),
-				smugmug.WithHTTPClient(httpclient),
-				smugmug.WithPretty(c.Bool("debug")),
-				smugmug.WithHTTPTracing(c.Bool("debug")))
-			if err != nil {
-				return err
-			}
-
 			writer := io.Discard
 			if c.Bool("json") {
 				writer = c.App.Writer
@@ -153,7 +148,7 @@ func main() {
 
 			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: &ma.Runtime{
-					Client:   client,
+					Smugmug:  mg(c),
 					Sink:     sink,
 					Grab:     grab,
 					Metrics:  metric,
@@ -163,10 +158,6 @@ func main() {
 					Language: language.English,
 					Start:    time.Now(),
 				},
-			}
-
-			if c.Bool("trace") {
-				c.Context = httptrace.WithClientTrace(c.Context, ClientTrace())
 			}
 
 			return nil
@@ -191,9 +182,24 @@ func main() {
 			manual.Manual(),
 		},
 	}
-	ctx := context.Background()
-	if err := app.RunContext(ctx, os.Args); err != nil {
-		os.Exit(1)
-	}
-	os.Exit(0)
+	var err error
+	defer func() {
+		if r := recover(); r != nil {
+			switch v := r.(type) {
+			case error:
+				log.Error().Err(v).Msg(app.Name)
+			case string:
+				log.Error().Err(errors.New(v)).Msg(app.Name)
+			default:
+				log.Error().Err(fmt.Errorf("%v", v)).Msg(app.Name)
+			}
+			os.Exit(1)
+		}
+		if err != nil {
+			log.Error().Err(err).Msg(app.Name)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}()
+	err = app.RunContext(context.Background(), os.Args)
 }

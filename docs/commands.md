@@ -12,7 +12,6 @@ All your media archiving needs!
 |json|j||emit all results as JSON and print to stdout|
 |monochrome|||disable colored output|
 |debug|||enable debugging of http requests|
-|trace|||enable http client tracing|
 |help|h||show help|
 
 ## Commands

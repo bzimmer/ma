@@ -34,7 +34,7 @@ func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.Imag
 }
 
 func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
-	mg := runtime(c).Client
+	mg := runtime(c).Smugmug()
 	enc := runtime(c).Encoder
 	imageq := c.Bool("image")
 	return func(album *smugmug.Album) (bool, error) {
@@ -95,10 +95,11 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 			return false, err
 		}
 
+		client := runtime(c).Smugmug()
 		if imageq && node.Album != nil {
 			albumKey := node.Album.AlbumKey
 			f := imageIterFunc(c, node.Album, op)
-			if err := runtime(c).Client.Image.ImagesIter(c.Context, albumKey, f); err != nil {
+			if err := client.Image.ImagesIter(c.Context, albumKey, f); err != nil {
 				return false, err
 			}
 		}
@@ -108,7 +109,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 }
 
 func existing[T comparable](c *cli.Context, f func(*smugmug.Image) T) (*smugmug.Album, map[T]*smugmug.Image, error) {
-	mg := runtime(c).Client
+	mg := runtime(c).Smugmug()
 	albumKey := c.String("album")
 	albumc := make(chan *smugmug.Album, 1)
 	imagesc := make(chan map[T]*smugmug.Image, 1)

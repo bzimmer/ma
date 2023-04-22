@@ -21,8 +21,8 @@ const RuntimeKey = "github.com/bzimmer/ma#RuntimeKey"
 type Runtime struct {
 	// Encoder encodes a struct
 	Encoder Encoder
-	// Client for SmugMug
-	Client *smugmug.Client
+	// Smugmug returns a smugmug client
+	Smugmug SmugmugFunc
 	// Sink for metrics
 	Sink *metrics.InmemSink
 	// Metrics for capturing metrics
@@ -38,6 +38,10 @@ type Runtime struct {
 	// Start time of the execution
 	Start time.Time
 }
+
+// SmugmugFunc returns a smugmug client
+// panics if credentials are not provided
+type SmugmugFunc func() *smugmug.Client
 
 // Encoder encodes a struct to a specific format
 type Encoder interface {

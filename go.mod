@@ -4,11 +4,11 @@ go 1.20
 
 require (
 	github.com/armon/go-metrics v0.4.1
-	github.com/barasher/go-exiftool v1.8.0
-	github.com/bzimmer/httpwares v0.1.0
-	github.com/bzimmer/manual v0.1.2
+	github.com/barasher/go-exiftool v1.9.0
+	github.com/bzimmer/httpwares v0.1.1
+	github.com/bzimmer/manual v0.1.5
 	github.com/bzimmer/smugmug v0.7.1
-	github.com/rs/zerolog v1.29.0
+	github.com/rs/zerolog v1.29.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/spf13/afero v1.9.5
 	github.com/stretchr/testify v1.8.2

@@ -110,3 +110,15 @@ tasks:
     deps: [docs:generate]
     cmds:
       - "{{.ROOT_DIR}}/env/bin/mkdocs serve"
+
+  gitleaks:
+    desc: Run gitleaks
+    deps: [dist]
+    cmds:
+      - gitleaks detect --no-banner --baseline-path {{.ROOT_DIR}}/.gitleaks-baseline.json --report-path {{.DIST}}/gitleaks-report.json
+
+  gitleaks:baseline:
+    desc: Run gitleaks
+    deps: [dist]
+    cmds:
+      - gitleaks detect --no-banner --report-path {{.ROOT_DIR}}/.gitleaks-baseline.json

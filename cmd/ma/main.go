@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -116,12 +115,6 @@ func main() {
 		Usage:       "CLI for managing local and Smugmug-hosted photos",
 		Description: "CLI for managing local and Smugmug-hosted photos",
 		Flags:       flags(),
-		ExitErrHandler: func(c *cli.Context, err error) {
-			if err == nil {
-				return
-			}
-			log.Error().Stack().Err(err).Msg(c.App.Name)
-		},
 		Before: func(c *cli.Context) error {
 			if err := initLogging(c); err != nil {
 				return err
@@ -187,13 +180,10 @@ func main() {
 		if r := recover(); r != nil {
 			switch v := r.(type) {
 			case error:
-				log.Error().Err(v).Msg(app.Name)
-			case string:
-				log.Error().Err(errors.New(v)).Msg(app.Name)
+				err = v
 			default:
-				log.Error().Err(fmt.Errorf("%v", v)).Msg(app.Name)
+				err = fmt.Errorf("%v", v)
 			}
-			os.Exit(1)
 		}
 		if err != nil {
 			log.Error().Err(err).Msg(app.Name)

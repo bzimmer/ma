@@ -28,11 +28,9 @@ func TestUpload(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		http.ServeFile(w, r, "testdata/album_qety_404.json")
 	})
 	mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		http.ServeFile(w, r, "testdata/album_qety_404.json")
 	})
 	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/album_TDZWbg_images.json")
@@ -49,7 +47,7 @@ func TestUpload(t *testing.T) {
 		{
 			name: "upload with no arguments",
 			args: []string{"upload"},
-			err:  "Required flag \"a\" not set",
+			err:  `Required flag "album" not set`,
 		},
 		{
 			name: "upload invalid album",

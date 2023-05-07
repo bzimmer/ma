@@ -23,7 +23,6 @@ func TestList(t *testing.T) {
 	})
 	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		http.ServeFile(w, r, "testdata/album_qety_404.json")
 	})
 	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/node_VsQ7zr.json")

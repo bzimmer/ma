@@ -1,6 +1,6 @@
 module github.com/bzimmer/ma
 
-go 1.20
+go 1.22
 
 require (
 	github.com/barasher/go-exiftool v1.10.0

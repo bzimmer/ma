@@ -26,10 +26,10 @@ func TestUpload(t *testing.T) {
 	a := assert.New(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
-	mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/album/qety!images", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 	mux.HandleFunc("/album/TDZWbg!images", func(w http.ResponseWriter, r *http.Request) {

@@ -37,7 +37,7 @@ func input(c *cli.Context) ([]string, error) {
 }
 
 func visit(c *cli.Context) filesystem.PreFunc {
-	return func(fs afero.Fs, filename string) (bool, error) {
+	return func(_ afero.Fs, _ string) (bool, error) {
 		runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "visit"}, 1)
 		return true, nil
 	}
@@ -59,7 +59,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 }
 
 func open(c *cli.Context) filesystem.UseFunc {
-	return func(up *smugmug.Uploadable) error {
+	return func(_ *smugmug.Uploadable) error {
 		runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "open"}, 1)
 		return nil
 	}
@@ -185,7 +185,7 @@ func (x *mirror) mirror(c *cli.Context) error {
 		return err
 	}
 	u.Pre(filesystem.Extensions(c.StringSlice("ext")...))
-	u.Pre(func(fs afero.Fs, filename string) (bool, error) {
+	u.Pre(func(_ afero.Fs, filename string) (bool, error) {
 		m.Lock()
 		delete(images, filepath.Base(filename))
 		m.Unlock()

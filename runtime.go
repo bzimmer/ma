@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/armon/go-metrics"
 	"github.com/bzimmer/smugmug"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"

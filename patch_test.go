@@ -20,7 +20,7 @@ func decode(a *assert.Assertions, r io.Reader) map[string]any {
 
 func newPatchTestMux(a *assert.Assertions) http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/image/GH8UQ9-0", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/image/GH8UQ9-0", func(_ http.ResponseWriter, _ *http.Request) {
 		a.Fail("should not be called")
 	})
 	mux.HandleFunc("/image/B2fHSt7-0", func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 		a.Contains(data, "Latitude")
 		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
-	mux.HandleFunc("/image/B2fHSt7-2", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/image/B2fHSt7-2", func(_ http.ResponseWriter, _ *http.Request) {
 		a.Fail("should not be called")
 	})
 	mux.HandleFunc("/image/B2fHSt7-3", func(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,7 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 		a.Empty(data["KeywordArray"])
 		http.ServeFile(w, r, "testdata/image_B2fHSt7-0.json")
 	})
-	mux.HandleFunc("/image/B2fHSt7-4", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/image/B2fHSt7-4", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(map[string]any{
@@ -55,7 +55,7 @@ func newPatchTestMux(a *assert.Assertions) http.Handler {
 			"Message": "Not Found",
 		}))
 	})
-	mux.HandleFunc("/album/RM4BL3", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/album/RM4BL3", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(map[string]any{

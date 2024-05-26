@@ -33,7 +33,7 @@ func TestUser(t *testing.T) {
 func TestUserError(t *testing.T) {
 	a := assert.New(t)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/!authuser", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		enc := json.NewEncoder(w)
 		a.NoError(enc.Encode(map[string]any{

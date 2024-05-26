@@ -21,7 +21,7 @@ func TestList(t *testing.T) {
 	mux.HandleFunc("/album/RM4BL2", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/album_RM4BL2.json")
 	})
-	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {

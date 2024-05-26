@@ -32,7 +32,7 @@ func TestMetrics(t *testing.T) {
 			run(t, &tt, nil, func() *cli.Command {
 				return &cli.Command{
 					Name: "metrix",
-					Action: func(c *cli.Context) error {
+					Action: func(_ *cli.Context) error {
 						return nil
 					},
 				}

@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/armon/go-metrics"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"

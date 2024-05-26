@@ -11,10 +11,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/armon/go-metrics"
 	"github.com/bzimmer/httpwares"
 	"github.com/bzimmer/manual"
 	"github.com/bzimmer/smugmug"
+	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"

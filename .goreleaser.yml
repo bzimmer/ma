@@ -33,7 +33,7 @@ brews:
     commit_author:
       name: bzimmer
       email: bzimmer@ziclix.com
-    tap:
+    repository:
       owner: bzimmer
       name: homebrew-tap
     skip_upload: auto

@@ -99,6 +99,20 @@ tasks:
     cmds:
       - goimports -w -local "{{.module}}/" .
 
+  docs:generate:
+    desc: Statically generate the commands documentation
+    deps: [build]
+    vars:
+      cmd:
+        sh: go mod edit -json | jq -r '.Module.Path | split("/") | last'
+    cmds:
+      - |
+
+        if [[ -d {{.ROOT_DIR}}/docs/commands ]];
+          then
+            {{.ROOT_DIR}}/dist/{{.cmd}} manual {{.ROOT_DIR}}/docs/commands > {{.ROOT_DIR}}/docs/commands.md
+        fi
+
   docs:build:
     desc: Statically generate the documentation
     deps: [dist]

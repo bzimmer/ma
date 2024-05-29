@@ -56,11 +56,17 @@ func flags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:     "monochrome",
 			Required: false,
-			Usage:    "disable colored output",
+			Usage:    "disable colored loggingoutput",
 			Value:    false,
 		},
 		&cli.BoolFlag{
 			Name:     "debug",
+			Required: false,
+			Usage:    "enable verbose debugging",
+			Value:    false,
+		},
+		&cli.BoolFlag{
+			Name:     "trace",
 			Required: false,
 			Usage:    "enable debugging of http requests",
 			Value:    false,
@@ -99,8 +105,8 @@ func mg(c *cli.Context) func() *smugmug.Client {
 		client, err := smugmug.NewClient(
 			smugmug.WithConcurrency(c.Int("concurrency")),
 			smugmug.WithHTTPClient(httpclient),
-			smugmug.WithPretty(c.Bool("debug")),
-			smugmug.WithHTTPTracing(c.Bool("debug")))
+			smugmug.WithPretty(c.Bool("trace")),
+			smugmug.WithHTTPTracing(c.Bool("trace")))
 		if err != nil {
 			panic(err)
 		}
@@ -130,7 +136,7 @@ func main() {
 			}
 
 			grab := &http.Client{}
-			if c.Bool("debug") {
+			if c.Bool("trace") {
 				grab.Transport = &httpwares.VerboseTransport{}
 			}
 
@@ -147,7 +153,6 @@ func main() {
 					Metrics:  metric,
 					Encoder:  json.NewEncoder(writer),
 					Fs:       afero.NewOsFs(),
-					Exif:     ma.NewGoExif(),
 					Language: language.English,
 					Start:    time.Now(),
 				},
@@ -157,8 +162,6 @@ func main() {
 		},
 		After: ma.Metrics,
 		Commands: []*cli.Command{
-			ma.CommandCopy(),
-			ma.CommandExif(),
 			ma.CommandExport(),
 			ma.CommandFind(),
 			ma.CommandList(),

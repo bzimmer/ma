@@ -18,7 +18,7 @@ func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.Imag
 		if album != nil && image.Album == nil {
 			image.Album = album
 		}
-		log.Info().
+		log.Debug().
 			Str("type", "Image").
 			Str("albumKey", albumKey).
 			Str("imageKey", image.ImageKey).
@@ -39,7 +39,7 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 	imageq := c.Bool("image")
 	return func(album *smugmug.Album) (bool, error) {
 		runtime(c).Metrics.IncrCounter([]string{op, "album"}, 1)
-		log.Info().
+		log.Debug().
 			Str("type", smugmug.TypeAlbum).
 			Str("name", album.Name).
 			Str("nodeID", album.NodeID).
@@ -67,7 +67,7 @@ func nodeIterFunc(c *cli.Context, recurse bool, op string) smugmug.NodeIterFunc 
 	imageq := c.Bool("image")
 	return func(node *smugmug.Node) (bool, error) {
 		runtime(c).Metrics.IncrCounter([]string{op, "node"}, 1)
-		msg := log.Info()
+		msg := log.Debug()
 		msg = msg.Str("type", node.Type)
 		msg = msg.Str("name", node.Name)
 		msg = msg.Str("nodeID", node.NodeID)

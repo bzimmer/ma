@@ -107,7 +107,6 @@ func NewTestApp(t *testing.T, tt *harness, cmd *cli.Command, url string) *cli.Ap
 				Encoder:  json.NewEncoder(writer),
 				Grab:     new(http.Client),
 				Fs:       afero.NewMemMapFs(),
-				Exif:     ma.NewGoExif(),
 				Language: language.English,
 				Start:    time.Now(),
 			}

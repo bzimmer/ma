@@ -31,8 +31,6 @@ type Runtime struct {
 	Fs afero.Fs
 	// Grab for bulk querying images
 	Grab Grab
-	// Exif for accessing EXIF metadata
-	Exif Exif
 	// Language for title case
 	Language language.Tag
 	// Start time of the execution

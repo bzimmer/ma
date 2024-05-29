@@ -10,12 +10,12 @@ All your media archiving needs!
 |smugmug-access-token||SMUGMUG_ACCESS_TOKEN|smugmug access token|
 |smugmug-token-secret||SMUGMUG_TOKEN_SECRET|smugmug token secret|
 |json|j||emit all results as JSON and print to stdout|
-|monochrome|||disable colored output|
-|debug|||enable debugging of http requests|
+|monochrome|||disable colored loggingoutput|
+|debug|||enable verbose debugging|
+|trace|||enable debugging of http requests|
 |help|h||show help|
 
 ## Commands
-* [cp](#cp)
 * [envvars](#envvars)
 * [export](#export)
 * [find](#find)
@@ -38,30 +38,6 @@ All your media archiving needs!
 * [urlname](#urlname)
 * [user](#user)
 * [version](#version)
-
-### *cp*
-
-**Description**
-
-Copy files from a source(s) to a destination using the image date to layout the directory structure
-
-
-
-**Syntax**
-
-```sh
-$ ma cp [flags] <file-or-directory> [<file-or-directory>, ...] <file-or-directory>
-```
-
-
-**Flags**
-
-|Name|Aliases|EnvVars|Description|
-|-|-|-|-|
-|dryrun|n||prepare to copy but don't actually do it|
-|format|||the date format used for the destination directory|
-|concurrency|c||the number of concurrent copy operations|
-
 
 ### *envvars*
 

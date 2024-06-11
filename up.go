@@ -52,7 +52,7 @@ func extensions(c *cli.Context) filesystem.PreFunc {
 		}
 		if !ok {
 			runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "unsupported"}, 1)
-			log.Info().Str("reason", "unsupported").Str("path", filename).Msg("skipping")
+			log.Debug().Str("reason", "unsupported").Str("path", filename).Msg("skipping")
 		}
 		return ok, err
 	}

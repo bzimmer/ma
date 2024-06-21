@@ -275,8 +275,8 @@ func CommandUpload() *cli.Command {
 			},
 			&cli.StringSliceFlag{
 				Name:     "ext",
-				Usage:    "the set of file extensions suitable for uploading",
-				Aliases:  []string{"x"},
+				Usage:    "the set of supported file extensions",
+				Aliases:  []string{"e"},
 				Required: false,
 				Value:    cli.NewStringSlice(".jpg", ".jpeg"),
 			},

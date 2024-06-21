@@ -504,7 +504,7 @@ $ ma up [flags]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |album|a||the album to which image files will be uploaded|
-|ext|x||the set of file extensions suitable for uploading|
+|ext|e||the set of supported file extensions|
 |dryrun|n||prepare to upload but don't actually do it|
 |mirror|||mirror the local filesystem with a SmugMug gallery|
 |0|||read null byte terminated strings from stdin|

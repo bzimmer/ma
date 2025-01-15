@@ -48,7 +48,12 @@ type Encoder interface {
 }
 
 func runtime(c *cli.Context) *Runtime {
-	return c.App.Metadata[RuntimeKey].(*Runtime)
+	switch t := c.App.Metadata[RuntimeKey].(type) {
+	case *Runtime:
+		return t
+	default:
+		panic("incorrect context")
+	}
 }
 
 func albumOrNode(c *cli.Context) error {

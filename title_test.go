@@ -22,7 +22,7 @@ func TestTitle(t *testing.T) {
 	}
 	after := func(u string) cli.AfterFunc {
 		return func(c *cli.Context) error {
-			data := decode(a, c.App.Writer.(io.Reader))
+			data := decode(a, c.App.Writer.(io.Reader)) //nolint:errcheck // cannot happen
 			a.Equal(u, data["Title"])
 			return nil
 		}

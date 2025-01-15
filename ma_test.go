@@ -59,7 +59,7 @@ func TestMain(m *testing.M) {
 }
 
 func runtime(c *cli.Context) *Runtime {
-	return c.App.Metadata[RuntimeKey].(*Runtime)
+	return c.App.Metadata[RuntimeKey].(*Runtime) //nolint:errcheck // cannot happen
 }
 
 func copyFile(w io.Writer, filename string) error {

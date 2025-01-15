@@ -22,7 +22,7 @@ func TestURLName(t *testing.T) {
 	}
 	after := func(u string, valid bool) cli.AfterFunc {
 		return func(c *cli.Context) error {
-			data := decode(a, c.App.Writer.(io.Reader))
+			data := decode(a, c.App.Writer.(io.Reader)) //nolint:errcheck // cannot happen
 			a.Equal(u, data["UrlName"])
 			a.Equal(valid, data["Valid"])
 			return nil

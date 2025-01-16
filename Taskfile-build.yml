@@ -117,13 +117,13 @@ tasks:
     desc: Statically generate the documentation
     deps: [dist]
     cmds:
-      - "{{.ROOT_DIR}}/env/bin/mkdocs build"
+      - uv run mkdocs build
 
   docs:serve:
     desc: Serve the documentation
     deps: [docs:generate]
     cmds:
-      - "{{.ROOT_DIR}}/env/bin/mkdocs serve"
+      - uv run mkdocs serve
 
   gitleaks:
     desc: Run gitleaks

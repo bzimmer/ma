@@ -16,7 +16,7 @@ func rm(c *cli.Context) error {
 		err    error
 		images map[string]*smugmug.Image
 	)
-	for i := 0; i < c.NArg(); i++ {
+	for i := range c.NArg() {
 		id := c.Args().Get(i)
 		if !imageRE.MatchString(id) {
 			if images == nil {

@@ -37,10 +37,14 @@ func CommandTitle() *cli.Command {
 			default:
 				return fmt.Errorf("unknown caser: %s", c.String("caser"))
 			}
-			for i := 0; i < c.NArg(); i++ {
+			for i := range c.NArg() {
 				title := c.Args().Get(i)
 				runtime(c).Metrics.IncrCounter([]string{c.Command.Name, c.String("caser")}, 1)
-				log.Info().Str("title", title).Str("caser", c.String("caser")).Str("lang", tag.String()).Msg(c.Command.Name)
+				log.Info().
+					Str("title", title).
+					Str("caser", c.String("caser")).
+					Str("lang", tag.String()).
+					Msg(c.Command.Name)
 				if err := enc.Encode(map[string]string{"Title": caser.String(title)}); err != nil {
 					return err
 				}

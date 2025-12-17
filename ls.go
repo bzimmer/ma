@@ -9,12 +9,12 @@ import (
 
 func image(c *cli.Context) error {
 	mg := runtime(c).Smugmug()
-	for i := 0; i < c.NArg(); i++ {
+	for i := range c.NArg() {
 		id := c.Args().Get(i)
 		if !imageRE.MatchString(id) {
 			id = fmt.Sprintf("%s-0", id)
 		}
-		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum"))
+		image, err := mg.Image.Image(c.Context, id, smugmug.WithExpansions("ImageAlbum", "ImageMetadata"))
 		if err != nil {
 			return err
 		}
@@ -28,7 +28,7 @@ func image(c *cli.Context) error {
 
 func album(c *cli.Context) error {
 	mg := runtime(c).Smugmug()
-	f := albumIterFunc(c, "ls")
+	f := albumIterFunc(c, "ls", smugmug.WithExpansions("ImageAlbum", "ImageMetadata"))
 	for _, id := range c.Args().Slice() {
 		album, err := mg.Album.Album(c.Context, id)
 		if err != nil {

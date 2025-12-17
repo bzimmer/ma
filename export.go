@@ -55,13 +55,13 @@ func (x *exporter) parents(ctx context.Context, nodeID string) ([]string, error)
 		return nil, err
 	}
 	last := len(nodeIDs) - 1
-	for i := 0; i < len(nodeIDs)/2; i++ {
+	for i := range len(nodeIDs) / 2 {
 		nodeIDs[i], nodeIDs[last-i] = nodeIDs[last-i], nodeIDs[i]
 	}
 	return nodeIDs, nil
 }
 
-func (x *exporter) request(image *smugmug.Image, destination string) (*request, error) {
+func (x *exporter) request(ctx context.Context, image *smugmug.Image, destination string) (*request, error) {
 	original := image.ImageSizeDetails.ImageSizeOriginal
 	if !x.force {
 		stat, err := x.fs.Stat(destination)
@@ -74,7 +74,7 @@ func (x *exporter) request(image *smugmug.Image, destination string) (*request, 
 			return nil, ErrFileExists
 		}
 	}
-	req, err := http.NewRequest(http.MethodGet, original.URL, http.NoBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, original.URL, http.NoBody)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (x *exporter) download(ctx context.Context, reqs []*request) error {
 	grp, ctx := errgroup.WithContext(ctx)
 	grp.Go(func() error {
 		defer close(requestsc)
-		for i := 0; i < len(reqs); i++ {
+		for i := range reqs {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -160,7 +160,7 @@ func (x *exporter) download(ctx context.Context, reqs []*request) error {
 		}
 		return nil
 	})
-	for i := 0; i < x.concurrency; i++ {
+	for range x.concurrency {
 		grp.Go(func() error {
 			for req := range requestsc {
 				res, err := x.do(ctx, req)
@@ -195,7 +195,7 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 		err = x.mg.Image.ImagesIter(ctx, album.AlbumKey, func(image *smugmug.Image) (bool, error) {
 			var req *request
 			dest := filepath.Join(out, image.FileName)
-			req, err = x.request(image, dest)
+			req, err = x.request(ctx, image, dest)
 			if err != nil {
 				if errors.Is(err, ErrFileExists) {
 					x.metrics.IncrCounter([]string{"export", "download", "skipping", "exists"}, 1)

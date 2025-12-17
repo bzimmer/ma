@@ -32,6 +32,7 @@ const RuntimeKey = "github.com/bzimmer/ma#testRuntimeKey"
 
 type Runtime struct {
 	*ma.Runtime
+
 	URL string
 }
 
@@ -59,7 +60,7 @@ func TestMain(m *testing.M) {
 }
 
 func runtime(c *cli.Context) *Runtime {
-	return c.App.Metadata[RuntimeKey].(*Runtime) //nolint:errcheck // cannot happen
+	return c.App.Metadata[RuntimeKey].(*Runtime)
 }
 
 func copyFile(w io.Writer, filename string) error {
@@ -178,7 +179,7 @@ type harness struct {
 	context   func(context.Context) context.Context
 }
 
-func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Command) {
+func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Command) { //nolint:gocognit // test harness
 	a := assert.New(t)
 
 	svr := httptest.NewServer(handler)
@@ -230,6 +231,7 @@ func run(t *testing.T, tt *harness, handler http.Handler, cmd func() *cli.Comman
 
 type ErrFs struct {
 	afero.Fs
+
 	name string
 	err  error
 }

@@ -22,7 +22,7 @@ func TestTitle(t *testing.T) {
 	}
 	after := func(u string) cli.AfterFunc {
 		return func(c *cli.Context) error {
-			data := decode(a, c.App.Writer.(io.Reader)) //nolint:errcheck // cannot happen
+			data := decode(a, c.App.Writer.(io.Reader))
 			a.Equal(u, data["Title"])
 			return nil
 		}
@@ -59,7 +59,6 @@ func TestTitle(t *testing.T) {
 			err:    "unknown caser: orange",
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, nil, ma.CommandTitle)
 		})

@@ -81,7 +81,6 @@ func TestNew(t *testing.T) {
 			args: []string{"new", "--parent", "QWERTY0", "album", "2021-03-17 A Big Day"},
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, mux, ma.CommandNew)
 		})

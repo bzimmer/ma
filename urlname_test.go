@@ -22,7 +22,7 @@ func TestURLName(t *testing.T) {
 	}
 	after := func(u string, valid bool) cli.AfterFunc {
 		return func(c *cli.Context) error {
-			data := decode(a, c.App.Writer.(io.Reader)) //nolint:errcheck // cannot happen
+			data := decode(a, c.App.Writer.(io.Reader))
 			a.Equal(u, data["UrlName"])
 			a.Equal(valid, data["Valid"])
 			return nil
@@ -48,7 +48,6 @@ func TestURLName(t *testing.T) {
 			after:  after("", false),
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, nil, ma.CommandURLName)
 		})

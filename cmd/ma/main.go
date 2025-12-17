@@ -80,9 +80,9 @@ func initLogging(c *cli.Context) error {
 		level = zerolog.DebugLevel
 	}
 	zerolog.SetGlobalLevel(level)
-	zerolog.DurationFieldUnit = time.Millisecond
-	zerolog.DurationFieldInteger = false
-	log.Logger = log.Output(
+	zerolog.DurationFieldUnit = time.Millisecond //nolint:reassign // configuration
+	zerolog.DurationFieldInteger = false         //nolint:reassign // configuration
+	log.Logger = log.Output(                     //nolint:reassign // configuration
 		zerolog.ConsoleWriter{
 			Out:        c.App.ErrWriter,
 			NoColor:    c.Bool("monochrome"),

@@ -40,7 +40,7 @@ func CommandTitle() *cli.Command {
 			for i := range c.NArg() {
 				title := c.Args().Get(i)
 				runtime(c).Metrics.IncrCounter([]string{c.Command.Name, c.String("caser")}, 1)
-				log.Info().
+				log.Debug().
 					Str("title", title).
 					Str("caser", c.String("caser")).
 					Str("lang", tag.String()).

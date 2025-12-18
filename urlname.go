@@ -34,7 +34,7 @@ func CommandURLName() *cli.Command {
 			&cli.BoolFlag{
 				Name:    "validate",
 				Aliases: []string{"a"},
-				Usage:   "validate the url name",
+				Usage:   "Validate the url name",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -50,7 +50,7 @@ func CommandURLName() *cli.Command {
 					url = smugmug.URLName(arg, runtime(c).Language)
 				}
 				runtime(c).Metrics.IncrCounter([]string{"urlname", c.Command.Name}, 1)
-				log.Info().Str("name", arg).Str("url", url).Bool("valid", valid).Msg(c.Command.Name)
+				log.Debug().Str("name", arg).Str("url", url).Bool("valid", valid).Msg(c.Command.Name)
 				if err := enc.Encode(map[string]any{
 					"Name": arg, "UrlName": url, "Valid": valid,
 				}); err != nil {

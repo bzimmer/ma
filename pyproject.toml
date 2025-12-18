@@ -5,12 +5,12 @@ name = "ma"
 version = "0.1.0"
 description = "Simple tools for managing media files"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = []
 
 [dependency-groups]
 dev = [
     "mkdocs>=1.6.1",
     "mkdocs-git-revision-date-localized-plugin>=1.5.0",
-    "mkdocs-material>=9.7.0",
+    "mkdocs-material>=9.7.1",
 ]

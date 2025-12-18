@@ -117,7 +117,7 @@ func existing[T comparable](c *cli.Context, f func(*smugmug.Image) T) (*smugmug.
 	grp.Go(func() error {
 		defer close(imagesc)
 		images := make(map[T]*smugmug.Image)
-		log.Info().Str("albumKey", albumKey).Msg("querying existing gallery images")
+		log.Debug().Str("albumKey", albumKey).Msg("querying existing gallery images")
 		if err := mg.Image.ImagesIter(ctx, albumKey, func(img *smugmug.Image) (bool, error) {
 			images[f(img)] = img
 			return true, nil
@@ -141,7 +141,7 @@ func existing[T comparable](c *cli.Context, f func(*smugmug.Image) T) (*smugmug.
 		return nil, nil, err
 	}
 	album, images := <-albumc, <-imagesc
-	log.Info().
+	log.Debug().
 		Int("count", len(images)).
 		Str("name", album.Name).
 		Str("albumKey", album.AlbumKey).

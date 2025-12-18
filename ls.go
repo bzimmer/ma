@@ -72,14 +72,14 @@ func CommandList() *cli.Command {
 			{
 				Name:        "album",
 				HelpName:    "album",
-				Usage:       "list albums",
-				Description: "list the contents of an album(s)",
+				Usage:       "List albums",
+				Description: "List the contents of an album(s)",
 				ArgsUsage:   "<album key> [<album key>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i", "R"},
-						Usage:   "include images in the query",
+						Usage:   "Include images in the query",
 					},
 				},
 				Action: album,
@@ -87,34 +87,34 @@ func CommandList() *cli.Command {
 			{
 				Name:        "node",
 				HelpName:    "node",
-				Usage:       "list nodes",
-				Description: "list the contents of a node(s)",
+				Usage:       "List nodes",
+				Description: "List the contents of a node(s)",
 				ArgsUsage:   "<node id> [<node id>, ...]",
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
 						Name:    "album",
 						Aliases: []string{"a"},
-						Usage:   "include albums in the query",
+						Usage:   "Include albums in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "node",
 						Aliases: []string{"n", "f"},
-						Usage:   "include nodes in the query",
+						Usage:   "Include nodes in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "image",
 						Aliases: []string{"i"},
-						Usage:   "include images in the query",
+						Usage:   "Include images in the query",
 					},
 					&cli.BoolFlag{
 						Name:    "recurse",
 						Aliases: []string{"R"},
-						Usage:   "walk the node tree",
+						Usage:   "Walk the node tree",
 					},
 					&cli.IntFlag{
 						Name:  "depth",
 						Value: -1,
-						Usage: "walk the node tree to the specified depth",
+						Usage: "Walk the node tree to the specified depth",
 					},
 				},
 				Before: albumOrNode,
@@ -123,8 +123,8 @@ func CommandList() *cli.Command {
 			{
 				Name:        "image",
 				HelpName:    "image",
-				Usage:       "list images",
-				Description: "list the details of an image(s)",
+				Usage:       "List images",
+				Description: "List the details of an image(s)",
 				ArgsUsage:   "<image key> [<image key>, ...]",
 				Action:      image,
 			},

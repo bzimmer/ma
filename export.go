@@ -110,7 +110,7 @@ func (x *exporter) write(res *response) error {
 	switch code {
 	case http.StatusOK:
 		x.metrics.IncrCounter([]string{"export", "download", text}, 1)
-		log.Info().Str("uri", res.Request.URI).Str("filename", res.Request.Filename).Msg("downloaded")
+		log.Debug().Str("uri", res.Request.URI).Str("filename", res.Request.Filename).Msg("downloaded")
 	case http.StatusNotFound:
 		x.metrics.IncrCounter([]string{"export", "download", "failed", text}, 1)
 		log.Warn().
@@ -184,7 +184,7 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			return false, err
 		}
 		out := filepath.Join(destination, filepath.Join(ps...))
-		log.Info().
+		log.Debug().
 			Str("albumName", album.Name).
 			Str("albumKey", album.AlbumKey).
 			Str("nodeID", album.NodeID).
@@ -199,13 +199,13 @@ func (x *exporter) export(ctx context.Context, destination string) smugmug.Album
 			if err != nil {
 				if errors.Is(err, ErrFileExists) {
 					x.metrics.IncrCounter([]string{"export", "download", "skipping", "exists"}, 1)
-					log.Info().Str("imageKey", image.ImageKey).Str("filename", dest).Msg("skipping")
+					log.Debug().Str("imageKey", image.ImageKey).Str("filename", dest).Msg("skipping")
 					return true, nil
 				}
 				return false, err
 			}
 			x.metrics.IncrCounter([]string{"export", "download", "enqueued"}, 1)
-			log.Info().
+			log.Debug().
 				Str("imageKey", image.ImageKey).
 				Str("uri", req.URI).
 				Str("url", req.URL).
@@ -263,12 +263,12 @@ func CommandExport() *cli.Command {
 			&cli.IntFlag{
 				Name:    "concurrency",
 				Aliases: []string{"c"},
-				Usage:   "the number of concurrent downloads",
+				Usage:   "The number of concurrent downloads",
 				Value:   3,
 			},
 			&cli.BoolFlag{
 				Name:  "force",
-				Usage: "overwrite existing files",
+				Usage: "Overwrite existing files",
 				Value: false,
 			},
 		},

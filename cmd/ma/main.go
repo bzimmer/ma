@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"time"
@@ -29,47 +28,47 @@ func flags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
 			Name:    "smugmug-client-key",
-			Usage:   "smugmug client key",
+			Usage:   "Smugmug client key",
 			EnvVars: []string{"SMUGMUG_CLIENT_KEY"},
 		},
 		&cli.StringFlag{
 			Name:    "smugmug-client-secret",
-			Usage:   "smugmug client secret",
+			Usage:   "Smugmug client secret",
 			EnvVars: []string{"SMUGMUG_CLIENT_SECRET"},
 		},
 		&cli.StringFlag{
 			Name:    "smugmug-access-token",
-			Usage:   "smugmug access token",
+			Usage:   "Smugmug access token",
 			EnvVars: []string{"SMUGMUG_ACCESS_TOKEN"},
 		},
 		&cli.StringFlag{
 			Name:    "smugmug-token-secret",
-			Usage:   "smugmug token secret",
+			Usage:   "Smugmug token secret",
 			EnvVars: []string{"SMUGMUG_TOKEN_SECRET"},
 		},
 		&cli.BoolFlag{
 			Name:     "json",
 			Aliases:  []string{"j"},
-			Usage:    "emit all results as JSON and print to stdout",
+			Usage:    "Emit all results as JSON and print to stdout",
 			Value:    false,
 			Required: false,
 		},
 		&cli.BoolFlag{
 			Name:     "monochrome",
 			Required: false,
-			Usage:    "disable colored loggingoutput",
+			Usage:    "Disable colored loggingoutput",
 			Value:    false,
 		},
 		&cli.BoolFlag{
 			Name:     "debug",
 			Required: false,
-			Usage:    "enable verbose debugging",
+			Usage:    "Enable verbose debugging",
 			Value:    false,
 		},
 		&cli.BoolFlag{
 			Name:     "trace",
 			Required: false,
-			Usage:    "enable debugging of http requests",
+			Usage:    "Enable debugging of http requests",
 			Value:    false,
 		},
 	}
@@ -141,18 +140,13 @@ func app() *cli.App {
 				grab.Transport = &httpwares.VerboseTransport{}
 			}
 
-			writer := io.Discard
-			if c.Bool("json") {
-				writer = c.App.Writer
-			}
-
 			c.App.Metadata = map[string]any{
 				ma.RuntimeKey: &ma.Runtime{
 					Smugmug:  mg(c),
 					Sink:     sink,
 					Grab:     grab,
 					Metrics:  metric,
-					Encoder:  json.NewEncoder(writer),
+					Encoder:  json.NewEncoder(c.App.Writer),
 					Fs:       afero.NewOsFs(),
 					Language: language.English,
 					Start:    time.Now(),

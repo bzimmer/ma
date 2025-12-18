@@ -80,14 +80,14 @@ func Metrics(c *cli.Context) error {
 	data := runtime(c).Sink.Data()
 	for i := range data {
 		for key, val := range data[i].Counters {
-			log.Info().
+			log.Debug().
 				Int("count", val.Count).
 				Str("metric", key).
 				Msg("counters")
 		}
 		for key, val := range data[i].Samples {
 			as := val.AggregateSample
-			log.Info().
+			log.Debug().
 				Int("count", val.Count).
 				Str("metric", key).
 				Float64("min", as.Min).

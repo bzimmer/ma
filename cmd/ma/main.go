@@ -19,9 +19,10 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/bzimmer/httpwares"
-	"github.com/bzimmer/ma"
 	"github.com/bzimmer/manual"
 	"github.com/bzimmer/smugmug"
+
+	"github.com/bzimmer/ma"
 )
 
 func flags() []cli.Flag {

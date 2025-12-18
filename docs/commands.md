@@ -5,14 +5,14 @@ All your media archiving needs!
 ## Global Flags
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|smugmug-client-key||SMUGMUG_CLIENT_KEY|smugmug client key|
-|smugmug-client-secret||SMUGMUG_CLIENT_SECRET|smugmug client secret|
-|smugmug-access-token||SMUGMUG_ACCESS_TOKEN|smugmug access token|
-|smugmug-token-secret||SMUGMUG_TOKEN_SECRET|smugmug token secret|
-|json|j||emit all results as JSON and print to stdout|
-|monochrome|||disable colored loggingoutput|
-|debug|||enable verbose debugging|
-|trace|||enable debugging of http requests|
+|smugmug-client-key||SMUGMUG_CLIENT_KEY|Smugmug client key|
+|smugmug-client-secret||SMUGMUG_CLIENT_SECRET|Smugmug client secret|
+|smugmug-access-token||SMUGMUG_ACCESS_TOKEN|Smugmug access token|
+|smugmug-token-secret||SMUGMUG_TOKEN_SECRET|Smugmug token secret|
+|json|j||Emit all results as JSON and print to stdout|
+|monochrome|||Disable colored loggingoutput|
+|debug|||Enable verbose debugging|
+|trace|||Enable debugging of http requests|
 |help|h||show help|
 
 ## Commands
@@ -74,8 +74,8 @@ $ ma export [flags] <node id> <directory>
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|concurrency|c||the number of concurrent downloads|
-|force|||overwrite existing files|
+|concurrency|c||The number of concurrent downloads|
+|force|||Overwrite existing files|
 
 
 ### *find*
@@ -100,9 +100,9 @@ $ ma find [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|scope|||root the search at the scope, if not specified the authenticated user's scope will be used|
-|album|a||search for albums|
-|node|n, f||search for nodes|
+|scope|||Root the search at the scope, if not specified the authenticated user's scope will be used|
+|album|a||Search for albums|
+|node|n, f||Search for nodes|
 
 **Example**
 
@@ -231,7 +231,7 @@ $ ma ls node -R -i q2qP7F
 
 **Description**
 
-list the contents of an album(s)
+List the contents of an album(s)
 
 
 
@@ -253,7 +253,7 @@ $ ma ls album [flags] <album key> [<album key>, ...]
 
 **Description**
 
-list the details of an image(s)
+List the details of an image(s)
 
 
 
@@ -269,7 +269,7 @@ $ ma ls image [flags] <image key> [<image key>, ...]
 
 **Description**
 
-list the contents of a node(s)
+List the contents of a node(s)
 
 
 
@@ -284,11 +284,11 @@ $ ma ls node [flags] <node id> [<node id>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|album|a||include albums in the query|
-|node|n, f||include nodes in the query|
-|image|i||include images in the query|
-|recurse|R||walk the node tree|
-|depth|||walk the node tree to the specified depth|
+|album|a||Include albums in the query|
+|node|n, f||Include nodes in the query|
+|image|i||Include images in the query|
+|recurse|R||Walk the node tree|
+|depth|||Walk the node tree to the specified depth|
 
 
 ### *new*
@@ -303,15 +303,15 @@ Create a new album or folder
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|parent|||the parent node at which the new node will be rooted|
-|privacy|||the privacy settings for the new album|
+|parent|||The parent node at which the new node will be rooted|
+|privacy|||The privacy settings for the new album|
 
 
 ### *new album*
 
 **Description**
 
-create a new album for images
+Create a new album for images
 
 
 
@@ -327,7 +327,7 @@ $ ma new album [flags]
 
 **Description**
 
-create a new folder for albums
+Create a new folder for albums
 
 
 
@@ -343,7 +343,7 @@ $ ma new folder [flags]
 
 **Description**
 
-patch enables updating the metadata of both albums and images
+Patch enables updating the metadata of both albums and images
 
 
 
@@ -368,18 +368,18 @@ $ ma patch album [flags] <album key> [<album key>, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |dryrun|n||dryrun the patches|
-|urlname|||the urlname of the album|
-|auto|A, auto-urlname||auto-generate the urlname (album name is required)|
-|keyword|||a set of keywords describing the album|
-|name|||the album name|
-|description|||the album description|
+|urlname|||The urlname of the album|
+|auto|A, auto-urlname||Auto-generate the urlname (album name is required)|
+|keyword|||A set of keywords describing the album|
+|name|||The album name|
+|description|||The album description|
 
 
 ### *patch image*
 
 **Description**
 
-patch the metadata of an image (not the image itself though)
+Patch the metadata of an image (not the image itself though)
 
 
 
@@ -395,12 +395,12 @@ $ ma patch image [flags] <image key> [<image key>, ...]
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
 |dryrun|n||dryrun the patches|
-|keyword|||specifies keywords describing the image|
-|caption|||the caption of the image|
-|title|||the title of the image|
-|latitude|||the latitude of the image location|
-|longitude|||the longitude of the image location|
-|altitude|||the altitude of the image location|
+|keyword|||Specifies keywords describing the image|
+|caption|||The caption of the image|
+|title|||The title of the image|
+|latitude|||The latitude of the image location|
+|longitude|||The longitude of the image location|
+|altitude|||The altitude of the image location|
 
 
 ### *rm*
@@ -416,7 +416,7 @@ Delete an entity
 
 **Description**
 
-delete an image from an album
+Delete an image from an album
 
 
 
@@ -431,8 +431,8 @@ $ ma rm image [flags] <image key> [<image key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|album|||the album from which the image is to be deleted|
-|dryrun|n||prepare to upload but don't actually do it|
+|album|||The album from which the image is to be deleted|
+|dryrun|n||Prepare to upload but don't actually do it|
 
 
 ### *similar*
@@ -454,7 +454,7 @@ $ ma similar [flags] <file-or-directory> [<file-or-directory>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|concurrency|c||the number of concurrent image reads|
+|concurrency|c||The number of concurrent image reads|
 
 **Example**
 
@@ -503,11 +503,11 @@ $ ma up [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|album|a||the album to which image files will be uploaded|
-|ext|e||the set of supported file extensions|
-|dryrun|n||prepare to upload but don't actually do it|
-|mirror|||mirror the local filesystem with a SmugMug gallery|
-|0|||read null byte terminated strings from stdin|
+|album|a||The album to which image files will be uploaded|
+|ext|e||The set of supported file extensions|
+|dryrun|n||Prepare to upload but don't actually do it|
+|mirror|||Mirror the local filesystem with a SmugMug gallery|
+|0|||Read null byte terminated strings from stdin|
 
 **Example**
 
@@ -603,7 +603,7 @@ $ ma urlname [flags]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|validate|a||validate the url name|
+|validate|a||Validate the url name|
 
 **Example**
 

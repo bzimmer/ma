@@ -19,7 +19,7 @@ func input(c *cli.Context) ([]string, error) {
 	if !c.Bool("0") {
 		return c.Args().Slice(), nil
 	}
-	log.Info().Msg("reading paths from stdin")
+	log.Debug().Msg("reading paths from stdin")
 	data, err := io.ReadAll(c.App.Reader)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func skip(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFunc {
 		if err := f(up); err != nil {
 			if errors.Is(err, filesystem.ErrSkip) {
 				runtime(c).Metrics.IncrCounter([]string{"uploadable.fs", "skip", "md5"}, 1)
-				log.Info().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
+				log.Debug().Str("reason", "md5").Str("path", up.Name).Msg("skipping")
 				return filesystem.ErrSkip
 			}
 			return err
@@ -98,7 +98,7 @@ func replace(c *cli.Context, images map[string]*smugmug.Image) filesystem.UseFun
 
 func attempt(c *cli.Context) filesystem.UseFunc {
 	return func(up *smugmug.Uploadable) error {
-		info := log.Info().
+		info := log.Debug().
 			Str("name", up.Name).
 			Str("album", up.AlbumKey).
 			Str("replaces", up.Replaces)
@@ -152,7 +152,7 @@ func (x *upload) up(c *cli.Context, uploadc <-chan *smugmug.Upload, errc <-chan 
 			}
 			runtime(c).Metrics.IncrCounter([]string{"upload", "success"}, 1)
 			runtime(c).Metrics.AddSample([]string{"upload", "upload"}, float32(up.Elapsed.Seconds()))
-			log.Info().
+			log.Debug().
 				Str("name", up.Uploadable.Name).
 				Str("album", up.Uploadable.AlbumKey).
 				Dur("elapsed", up.Elapsed).
@@ -214,10 +214,10 @@ func (x *mirror) delete(c *cli.Context, album *smugmug.Album, images map[string]
 	enc := runtime(c).Encoder
 	met := runtime(c).Metrics
 	dryrun := c.Bool("dryrun")
-	log.Info().Int("count", len(images)).Msg("existing images to remove")
+	log.Debug().Int("count", len(images)).Msg("existing images to remove")
 	for filename, image := range images {
 		id := fmt.Sprintf("%s-%d", image.ImageKey, image.Serial)
-		log.Info().
+		log.Debug().
 			Bool("dryrun", dryrun).
 			Str("filename", filename).
 			Str("albumKey", album.AlbumKey).
@@ -269,33 +269,33 @@ func CommandUpload() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "album",
-				Usage:    "the album to which image files will be uploaded",
+				Usage:    "The album to which image files will be uploaded",
 				Aliases:  []string{"a"},
 				Required: true,
 			},
 			&cli.StringSliceFlag{
 				Name:     "ext",
-				Usage:    "the set of supported file extensions",
+				Usage:    "The set of supported file extensions",
 				Aliases:  []string{"e"},
 				Required: false,
 				Value:    cli.NewStringSlice(".jpg", ".jpeg"),
 			},
 			&cli.BoolFlag{
 				Name:     "dryrun",
-				Usage:    "prepare to upload but don't actually do it",
+				Usage:    "Prepare to upload but don't actually do it",
 				Aliases:  []string{"n"},
 				Value:    false,
 				Required: false,
 			},
 			&cli.BoolFlag{
 				Name:     "mirror",
-				Usage:    "mirror the local filesystem with a SmugMug gallery",
+				Usage:    "Mirror the local filesystem with a SmugMug gallery",
 				Value:    false,
 				Required: false,
 			},
 			&cli.BoolFlag{
 				Name:     "0",
-				Usage:    "read null byte terminated strings from stdin",
+				Usage:    "Read null byte terminated strings from stdin",
 				Value:    false,
 				Required: false,
 			},

@@ -49,16 +49,16 @@ func CommandFind() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "scope",
-				Usage: "root the search at the scope, if not specified the authenticated user's scope will be used",
+				Usage: "Root the search at the scope, if not specified the authenticated user's scope will be used",
 			},
 			&cli.BoolFlag{
 				Name:    "album",
-				Usage:   "search for albums",
+				Usage:   "Search for albums",
 				Aliases: []string{"a"},
 			},
 			&cli.BoolFlag{
 				Name:    "node",
-				Usage:   "search for nodes",
+				Usage:   "Search for nodes",
 				Aliases: []string{"n", "f"},
 			},
 		},

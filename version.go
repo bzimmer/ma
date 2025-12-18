@@ -17,7 +17,7 @@ var (
 )
 
 func version(c *cli.Context) error {
-	log.Info().
+	log.Debug().
 		Str("version", buildVersion).
 		Str("datetime", buildTime).
 		Str("builder", buildBuilder).

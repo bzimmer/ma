@@ -52,7 +52,7 @@ func rm(c *cli.Context) error {
 		}); err != nil {
 			return err
 		}
-		log.Info().Str("albumKey", albumKey).Str("imageKey", id).Msg("delete")
+		log.Debug().Str("albumKey", albumKey).Str("imageKey", id).Msg("delete")
 	}
 	return nil
 }
@@ -67,18 +67,18 @@ func CommandRemove() *cli.Command {
 			{
 				Name:        "image",
 				HelpName:    "image",
-				Usage:       "delete an image from an album",
-				Description: "delete an image from an album",
+				Usage:       "Delete an image from an album",
+				Description: "Delete an image from an album",
 				ArgsUsage:   "<image key> [<image key>, ...]",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:     "album",
 						Required: true,
-						Usage:    "the album from which the image is to be deleted",
+						Usage:    "The album from which the image is to be deleted",
 					},
 					&cli.BoolFlag{
 						Name:     "dryrun",
-						Usage:    "prepare to upload but don't actually do it",
+						Usage:    "Prepare to upload but don't actually do it",
 						Aliases:  []string{"n"},
 						Value:    false,
 						Required: false,

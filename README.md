@@ -26,7 +26,7 @@ COMMANDS:
    find, search  Search for albums or folders by name
    ls, list      List nodes, albums, and/or images
    new, create   Create a new node
-   patch         patch the metadata of albums and images
+   patch         Patch the metadata of albums and images
    rm            Delete an entity
    similar       Identify similar images
    title         Create a title following the specified convention

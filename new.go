@@ -34,7 +34,7 @@ func knew(c *cli.Context) error {
 		return err
 	}
 	runtime(c).Metrics.IncrCounter([]string{"album", c.Command.Name}, 1)
-	msg := log.Info().
+	msg := log.Debug().
 		Str("name", node.Name).
 		Str("nodeID", node.NodeID).
 		Str("nodeURI", node.URI).
@@ -76,28 +76,28 @@ func CommandNew() *cli.Command {
 			&cli.StringFlag{
 				Name:     "parent",
 				Required: true,
-				Usage:    "the parent node at which the new node will be rooted",
+				Usage:    "The parent node at which the new node will be rooted",
 			},
 			&cli.StringFlag{
 				Name:  "privacy",
 				Value: "",
-				Usage: "the privacy settings for the new album",
+				Usage: "The privacy settings for the new album",
 			},
 		},
 		Subcommands: []*cli.Command{
 			{
 				Name:        "album",
 				HelpName:    "album",
-				Usage:       "create a new album",
-				Description: "create a new album for images",
+				Usage:       "Create a new album",
+				Description: "Create a new album for images",
 				Before:      before,
 				Action:      knew,
 			},
 			{
 				Name:        "folder",
 				HelpName:    "folder",
-				Usage:       "create a new folder",
-				Description: "create a new folder for albums",
+				Usage:       "Create a new folder",
+				Description: "Create a new folder for albums",
 				Before:      before,
 				Action:      knew,
 			},

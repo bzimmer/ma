@@ -12,7 +12,7 @@ func user(c *cli.Context) error {
 		return err
 	}
 	runtime(c).Metrics.IncrCounter([]string{"user", "user"}, 1)
-	log.Info().Str("nickname", user.NickName).Str("uri", user.URI).Str("nodeID", user.Node.NodeID).Msg("user")
+	log.Debug().Str("nickname", user.NickName).Str("uri", user.URI).Str("nodeID", user.Node.NodeID).Msg("user")
 	return runtime(c).Encoder.Encode(user)
 }
 

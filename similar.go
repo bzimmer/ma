@@ -41,7 +41,7 @@ func (y *analyzer) icon(path string) (iconPath, error) {
 
 func (y *analyzer) icons(ctx context.Context, paths <-chan string, icons chan<- iconPath) error {
 	for path := range paths {
-		log.Info().Str("path", path).Msg("reading")
+		log.Debug().Str("path", path).Msg("reading")
 		icon, err := y.icon(path)
 		if err != nil {
 			if !errors.Is(err, goimage.ErrFormat) {
@@ -94,7 +94,7 @@ func (y *analyzer) analyze(iconss []iconPath) error {
 		for j := i + 1; j < n; j++ {
 			b := images4.Similar(iconss[i].icon, iconss[j].icon)
 			if b {
-				log.Info().
+				log.Debug().
 					Str("A", iconss[i].path).
 					Str("B", iconss[j].path).
 					Bool("similar", b).
@@ -152,7 +152,7 @@ func similar(c *cli.Context) error {
 			log.Debug().Str("path", icon.path).Msg("gathering")
 			icons = append(icons, icon)
 		}
-		log.Info().Int("num", len(icons)).Msg("images")
+		log.Debug().Int("num", len(icons)).Msg("images")
 		return nil
 	})
 	if err := grp.Wait(); err != nil {
@@ -163,15 +163,16 @@ func similar(c *cli.Context) error {
 
 func CommandSimilar() *cli.Command {
 	return &cli.Command{
-		Name:      "similar",
-		HelpName:  "similar",
-		Usage:     "Identify similar images",
-		ArgsUsage: "<file-or-directory> [<file-or-directory>, ...]",
+		Name:        "similar",
+		HelpName:    "similar",
+		Usage:       "Identify similar images",
+		Description: "Identify similar images",
+		ArgsUsage:   "<file-or-directory> [<file-or-directory>, ...]",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    "concurrency",
 				Aliases: []string{"c"},
-				Usage:   "the number of concurrent image reads",
+				Usage:   "The number of concurrent image reads",
 				Value:   4,
 			},
 		},

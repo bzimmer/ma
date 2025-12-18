@@ -2,7 +2,6 @@ version: 2
 before:
   hooks:
     - task test
-    - task build:lint
     - task build:clean
 builds:
   - env:

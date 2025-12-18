@@ -1,6 +1,9 @@
+version: 2
 before:
   hooks:
     - task test
+    - task build:lint
+    - task build:clean
 builds:
   - env:
       - CGO_ENABLED=0
@@ -14,7 +17,7 @@ builds:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
@@ -25,7 +28,7 @@ changelog:
 announce:
   skip: "true"
 
-brews:
+homebrew_casks:
   - name: ma
     homepage: https://github.com/bzimmer/ma
     description: Simple tools for managing media files with SmugMug
@@ -37,4 +40,9 @@ brews:
       owner: bzimmer
       name: homebrew-tap
     skip_upload: auto
-    install: bin.install "ma"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ma"]
+          end

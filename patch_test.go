@@ -168,7 +168,6 @@ func TestPatch(t *testing.T) {
 			err:  http.StatusText(http.StatusNotFound),
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			a := assert.New(t)
 			mux := newPatchTestMux(a)

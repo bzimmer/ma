@@ -33,7 +33,7 @@ func imageIterFunc(c *cli.Context, album *smugmug.Album, op string) smugmug.Imag
 	}
 }
 
-func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
+func albumIterFunc(c *cli.Context, op string, options ...smugmug.APIOption) smugmug.AlbumIterFunc {
 	mg := runtime(c).Smugmug()
 	enc := runtime(c).Encoder
 	imageq := c.Bool("image")
@@ -52,7 +52,7 @@ func albumIterFunc(c *cli.Context, op string) smugmug.AlbumIterFunc {
 		}
 		if imageq {
 			f := imageIterFunc(c, album, op)
-			if err = mg.Image.ImagesIter(c.Context, album.AlbumKey, f); err != nil {
+			if err = mg.Image.ImagesIter(c.Context, album.AlbumKey, f, options...); err != nil {
 				return false, err
 			}
 		}

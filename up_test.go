@@ -198,7 +198,6 @@ func TestUpload(t *testing.T) {
 			},
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, mux, ma.CommandUpload)
 		})
@@ -273,7 +272,6 @@ func TestMirror(t *testing.T) {
 			},
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, mux, ma.CommandUpload)
 		})

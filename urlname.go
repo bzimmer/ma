@@ -40,7 +40,7 @@ func CommandURLName() *cli.Command {
 		Action: func(c *cli.Context) error {
 			val := c.Bool("validate")
 			enc := runtime(c).Encoder
-			for i := 0; i < c.NArg(); i++ {
+			for i := range c.NArg() {
 				arg, url, valid := c.Args().Get(i), "", true
 				if val {
 					if err := validate(arg); err != nil {

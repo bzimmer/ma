@@ -59,7 +59,7 @@ func runtime(c *cli.Context) *Runtime {
 func albumOrNode(c *cli.Context) error {
 	node := c.Bool("node")
 	album := c.Bool("album")
-	if !(album || node) {
+	if !(album || node) { //nolint:staticcheck // prefer explicit
 		if err := c.Set("node", "true"); err != nil {
 			return err
 		}

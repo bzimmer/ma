@@ -146,7 +146,7 @@ func patch(key patchKey) cli.ActionFunc {
 			return nil
 		}
 		enc := runtime(c).Encoder
-		for i := 0; i < c.NArg(); i++ {
+		for i := range c.NArg() {
 			id := c.Args().Get(i)
 			msg := log.Info().Str(key.String(), id).Interface("patches", p.patches)
 			if err := enc.Encode(map[string]any{

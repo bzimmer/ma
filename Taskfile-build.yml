@@ -82,9 +82,8 @@ tasks:
 
   snapshot:
     desc: Build a snapshot
-    deps: [test, lint]
     cmds:
-      - goreleaser --debug release --snapshot --clean
+      - goreleaser release --snapshot --clean
 
   scc:
     desc: Run scc (https://github.com/boyter/scc)
@@ -136,3 +135,30 @@ tasks:
     deps: [dist]
     cmds:
       - gitleaks detect --no-banner --report-path {{.ROOT_DIR}}/.gitleaks-baseline.json
+
+  py:upgrade:install:
+    silent: true
+    internal: true
+    vars:
+      PACKAGES:
+        sh: |
+          toml2json pyproject.toml |\
+          jq '.{{.expr}} // [] | map(capture("(?<package>[-a-zA-Z0-9\\[\\]]+)")) | map(.package) | .[]' |\
+          xargs
+    cmds:
+      - |
+        if [ ! -z "{{.PACKAGES}}" ]; then
+          uv remove {{if .group}}--{{.group}}{{end}} --no-sync --quiet {{.PACKAGES}}
+          uv add {{if .group}}--{{.group}}{{end}} --no-sync --quiet {{.PACKAGES}}
+        fi
+
+  py:upgrade:
+    desc: Upgrade python dependencies
+    silent: true
+    cmds:
+      - task: py:upgrade:install
+        vars: {"expr": "project.dependencies"}
+      - task: py:upgrade:install
+        vars: {"expr": '"dependency-groups".dev', "group": "dev"}
+      - uv sync
+

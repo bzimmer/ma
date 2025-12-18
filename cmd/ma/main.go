@@ -11,15 +11,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/bzimmer/httpwares"
-	"github.com/bzimmer/manual"
-	"github.com/bzimmer/smugmug"
 	"github.com/hashicorp/go-metrics"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/text/language"
+
+	"github.com/bzimmer/httpwares"
+	"github.com/bzimmer/manual"
+	"github.com/bzimmer/smugmug"
 
 	"github.com/bzimmer/ma"
 )
@@ -80,9 +81,9 @@ func initLogging(c *cli.Context) error {
 		level = zerolog.DebugLevel
 	}
 	zerolog.SetGlobalLevel(level)
-	zerolog.DurationFieldUnit = time.Millisecond
-	zerolog.DurationFieldInteger = false
-	log.Logger = log.Output(
+	zerolog.DurationFieldUnit = time.Millisecond //nolint:reassign // configuration
+	zerolog.DurationFieldInteger = false         //nolint:reassign // configuration
+	log.Logger = log.Output(                     //nolint:reassign // configuration
 		zerolog.ConsoleWriter{
 			Out:        c.App.ErrWriter,
 			NoColor:    c.Bool("monochrome"),
@@ -114,8 +115,8 @@ func mg(c *cli.Context) func() *smugmug.Client {
 	}
 }
 
-func main() {
-	app := &cli.App{
+func app() *cli.App {
+	return &cli.App{
 		Name:        "ma",
 		HelpName:    "ma",
 		Usage:       "CLI for managing local and Smugmug-hosted photos",
@@ -178,6 +179,10 @@ func main() {
 			manual.Manual(),
 		},
 	}
+}
+
+func main() {
+	app := app()
 	var err error
 	defer func() {
 		if r := recover(); r != nil {

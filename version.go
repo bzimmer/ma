@@ -7,13 +7,13 @@ import (
 
 var (
 	// buildVersion of the package
-	buildVersion = "development"
+	buildVersion = "development" //nolint:gochecknoglobals // set at build time
 	// buildTime of the package
-	buildTime = "now"
+	buildTime = "now" //nolint:gochecknoglobals // set at build time
 	// buildCommit of the package
-	buildCommit = "snapshot"
+	buildCommit = "snapshot" //nolint:gochecknoglobals // set at build time
 	// buildBuilder of the package
-	buildBuilder = "local"
+	buildBuilder = "local" //nolint:gochecknoglobals // set at build time
 )
 
 func version(c *cli.Context) error {

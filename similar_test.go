@@ -11,7 +11,7 @@ import (
 	"github.com/bzimmer/ma"
 )
 
-func TestSimilar(t *testing.T) {
+func TestSimilar(t *testing.T) { //nolint:gocognit // test harness
 	a := assert.New(t)
 	tests := []harness{
 		{
@@ -80,7 +80,7 @@ func TestSimilar(t *testing.T) {
 			before: func(c *cli.Context) error {
 				afs := runtime(c).Fs
 				a.NoError(runtime(c).Fs.MkdirAll("/foo/bar", 0755))
-				for i := 0; i < 10; i++ {
+				for i := range 10 {
 					fp, err := afs.Create(fmt.Sprintf("/foo/bar/user_foo_%02d.json", i))
 					if err != nil {
 						a.NoError(err)
@@ -95,7 +95,6 @@ func TestSimilar(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, nil, ma.CommandSimilar)
 		})

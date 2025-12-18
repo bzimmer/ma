@@ -80,7 +80,7 @@ func (y *analyzer) paths(ctx context.Context, paths chan<- string, root ...strin
 		}
 		return nil
 	}
-	for i := 0; i < len(root); i++ {
+	for i := range root {
 		if err := afero.Walk(y.afs, root[i], f); err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func (y *analyzer) paths(ctx context.Context, paths chan<- string, root ...strin
 
 func (y *analyzer) analyze(iconss []iconPath) error {
 	n := len(iconss)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		for j := i + 1; j < n; j++ {
 			b := images4.Similar(iconss[i].icon, iconss[j].icon)
 			if b {
@@ -122,7 +122,7 @@ func similar(c *cli.Context) error {
 	pathsc := make(chan string)
 	iconsc := make(chan iconPath)
 	igrp, ictx := errgroup.WithContext(c.Context)
-	for i := 0; i < c.Int("concurrency"); i++ {
+	for range c.Int("concurrency") {
 		igrp.Go(func() error {
 			defer func() {
 				log.Debug().Msg("done creating icons")

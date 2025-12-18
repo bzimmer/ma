@@ -82,7 +82,6 @@ func TestRemove(t *testing.T) {
 			},
 		},
 	} {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			run(t, &tt, mux, ma.CommandRemove)
 		})

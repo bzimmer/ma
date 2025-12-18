@@ -246,7 +246,7 @@ $ ma ls album [flags] <album key> [<album key>, ...]
 
 |Name|Aliases|EnvVars|Description|
 |-|-|-|-|
-|image|i, R||include images in the query|
+|image|i, R||Include images in the query|
 
 
 ### *ls image*

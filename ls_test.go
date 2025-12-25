@@ -24,6 +24,15 @@ func TestList(t *testing.T) {
 	mux.HandleFunc("/album/qety", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
+	mux.HandleFunc("/album/internalerror", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	mux.HandleFunc("/image/internalerror-0", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
+	mux.HandleFunc("/node/internalerror", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	})
 	mux.HandleFunc("/node/VsQ7zr", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "testdata/node_VsQ7zr.json")
 	})
@@ -59,6 +68,21 @@ func TestList(t *testing.T) {
 			name: "invalid album",
 			args: []string{"ls", "album", "qety"},
 			err:  "Not Found",
+		},
+		{
+			name: "album internal error",
+			args: []string{"ls", "album", "internalerror"},
+			err:  "Internal Server Error",
+		},
+		{
+			name: "image internal error",
+			args: []string{"ls", "image", "internalerror"},
+			err:  "Internal Server Error",
+		},
+		{
+			name: "node internal error",
+			args: []string{"ls", "node", "internalerror"},
+			err:  "Internal Server Error",
 		},
 		{
 			name: "node type album with no album flag",

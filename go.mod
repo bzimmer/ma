@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/bzimmer/httpwares v0.1.3
 	github.com/bzimmer/manual v0.1.5
-	github.com/bzimmer/smugmug v0.8.2
+	github.com/bzimmer/smugmug v0.8.3
 	github.com/hashicorp/go-metrics v0.5.4
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/afero v1.15.0

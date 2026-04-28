@@ -47,6 +47,9 @@ func TestRemove(t *testing.T) {
 			}))
 		}
 	})
+	mux.HandleFunc("/album/QWERTY0/image/743XwH7-4", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
 
 	for _, tt := range []harness{
 		{

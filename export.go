@@ -19,7 +19,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrFileExists = errors.New("foo")
+var ErrFileExists = errors.New("file exists")
 
 type Grab interface {
 	Do(req *http.Request) (*http.Response, error)

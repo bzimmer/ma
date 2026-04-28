@@ -43,7 +43,7 @@ GLOBAL OPTIONS:
    --smugmug-access-token value   smugmug access token [$SMUGMUG_ACCESS_TOKEN]
    --smugmug-token-secret value   smugmug token secret [$SMUGMUG_TOKEN_SECRET]
    --json, -j                     emit all results as JSON and print to stdout (default: false)
-   --monochrome                   disable colored loggingoutput (default: false)
+   --monochrome                   disable colored logging output (default: false)
    --debug                        enable verbose debugging (default: false)
    --trace                        enable debugging of http requests (default: false)
    --help, -h                     show help

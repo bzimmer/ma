@@ -30,7 +30,7 @@ func find(c *cli.Context) error {
 	}
 	if c.Bool("album") {
 		grp.Go(func() error {
-			return mg.Album.SearchIter(c.Context, albumIterFunc(c, "find"), options...)
+			return mg.Album.SearchIter(ctx, albumIterFunc(c, "find"), options...)
 		})
 	}
 	return grp.Wait()

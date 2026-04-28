@@ -56,7 +56,7 @@ func flags() []cli.Flag {
 		&cli.BoolFlag{
 			Name:     "monochrome",
 			Required: false,
-			Usage:    "Disable colored loggingoutput",
+			Usage:    "Disable colored logging output",
 			Value:    false,
 		},
 		&cli.BoolFlag{

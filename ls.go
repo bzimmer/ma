@@ -61,7 +61,13 @@ func node(c *cli.Context) error {
 	f := nodeIterFunc(c, c.Bool("recurse"), "ls")
 	for i := range nodeIDs {
 		log.Debug().Str("nodeID", nodeIDs[i]).Msg("walking node")
-		if err := mg.Node.WalkN(c.Context, nodeIDs[i], f, depth, smugmug.WithExpansions("Album", "ParentNode")); err != nil {
+		if err := mg.Node.WalkN(
+			c.Context,
+			nodeIDs[i],
+			f,
+			depth,
+			smugmug.WithExpansions("Album", "ParentNode"),
+		); err != nil {
 			log.Error().Err(err).Str("nodeID", nodeIDs[i]).Msg("error retrieving node")
 			return err
 		}

@@ -12,8 +12,8 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.27.7
 	github.com/vitali-fedulov/images4 v1.3.1
-	golang.org/x/sync v0.19.0
-	golang.org/x/text v0.32.0
+	golang.org/x/sync v0.21.0
+	golang.org/x/text v0.39.0
 )
 
 require (

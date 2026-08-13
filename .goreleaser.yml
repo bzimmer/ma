@@ -27,6 +27,25 @@ changelog:
 announce:
   skip: "true"
 
+dockers_v2:
+  - images:
+      - ghcr.io/bzimmer/ma
+    tags:
+      - "{{ .Version }}"
+      - latest
+    dockerfile: Dockerfile
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      org.opencontainers.image.created: "{{.Date}}"
+      org.opencontainers.image.title: "{{.ProjectName}}"
+      org.opencontainers.image.revision: "{{.FullCommit}}"
+      org.opencontainers.image.version: "{{.Version}}"
+      org.opencontainers.image.source: "{{.GitURL}}"
+      org.opencontainers.image.description: "Simple tools for managing media files with SmugMug"
+      org.opencontainers.image.licenses: "MIT"
+
 homebrew_casks:
   - name: ma
     homepage: https://github.com/bzimmer/ma

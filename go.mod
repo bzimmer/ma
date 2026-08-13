@@ -1,6 +1,6 @@
 module github.com/bzimmer/ma
 
-go 1.25.5
+go 1.25.12
 
 require (
 	github.com/bzimmer/httpwares v0.1.3

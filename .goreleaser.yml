@@ -60,7 +60,9 @@ homebrew_casks:
     skip_upload: auto
     hooks:
       post:
-        install: |
-          if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ma"]
+        # Becomes postflight_steps (postflight is deprecated); staged_path is
+        # Homebrew's token, escaped from GoReleaser's own templating.
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ "{{" }}staged_path{{ "}}" }}/ma"]
           end

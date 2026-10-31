@@ -8,42 +8,56 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// imageID returns id with its serial: as given when it already has one,
+// else looked up among the album's images, read once into images.
+func imageID(c *cli.Context, id string, images *map[string]*smugmug.Image) (string, error) {
+	if imageRE.MatchString(id) {
+		return id, nil
+	}
+	if *images == nil {
+		var err error
+		_, *images, err = existing(c, func(img *smugmug.Image) string {
+			return img.ImageKey
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+	image, ok := (*images)[id]
+	if !ok {
+		return "", &InvalidVersionError{ImageKey: id}
+	}
+	return fmt.Sprintf("%s-%d", id, image.Serial), nil
+}
+
+// remove deletes one image, or with dryrun only counts it.
+func remove(c *cli.Context, albumKey, id string, dryrun bool) (bool, error) {
+	if dryrun {
+		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "dryrun"}, 1)
+		return false, nil
+	}
+	runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "attempt"}, 1)
+	res, err := runtime(c).Smugmug().Image.Delete(c.Context, albumKey, id)
+	if err != nil {
+		runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "failure"}, 1)
+		return false, err
+	}
+	runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
+	return res, nil
+}
+
 func rm(c *cli.Context) error {
 	dryrun := c.Bool("dryrun")
 	albumKey := c.String("album")
-	var (
-		res    bool
-		err    error
-		images map[string]*smugmug.Image
-	)
+	var images map[string]*smugmug.Image
 	for i := range c.NArg() {
-		id := c.Args().Get(i)
-		if !imageRE.MatchString(id) {
-			if images == nil {
-				_, images, err = existing(c, func(img *smugmug.Image) string {
-					return img.ImageKey
-				})
-				if err != nil {
-					return err
-				}
-			}
-			image, ok := images[id]
-			if !ok {
-				return &InvalidVersionError{ImageKey: id}
-			}
-			id = fmt.Sprintf("%s-%d", id, image.Serial)
+		id, err := imageID(c, c.Args().Get(i), &images)
+		if err != nil {
+			return err
 		}
-		if dryrun {
-			res = false
-			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "dryrun"}, 1)
-		} else {
-			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "attempt"}, 1)
-			res, err = runtime(c).Smugmug().Image.Delete(c.Context, albumKey, id)
-			if err != nil {
-				runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "failure"}, 1)
-				return err
-			}
-			runtime(c).Metrics.IncrCounter([]string{"rm", c.Command.Name, "success"}, 1)
+		res, err := remove(c, albumKey, id, dryrun)
+		if err != nil {
+			return err
 		}
 		if err = runtime(c).Encoder.Encode(map[string]any{
 			"AlbumKey": albumKey,
